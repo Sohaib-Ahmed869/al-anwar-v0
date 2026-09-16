@@ -1,0 +1,529 @@
+@import "tailwindcss";
+
+/* ---------------------------------------------------------------------------
+   Design tokens, ported from the prototype's :root block in ../index.html.
+   Everything here becomes a Tailwind utility: --color-green -> bg-green,
+   --spacing-s4 -> p-s4, --font-display -> font-display.
+   This is the only place the design system is defined.
+--------------------------------------------------------------------------- */
+@theme {
+  /* Ink — the dark ground */
+  --color-ink: #151a18;
+  --color-ink-2: #1f2624;
+
+  /* Green — the brand */
+  --color-green: #2f6b5a;
+  --color-green-pale: #e7efeb;
+
+  /* THE MARK'S OWN TEAL, and the one colour on this site taken straight off the
+     artwork rather than chosen for it. The logo PNG in the header and the
+     footer is drawn in #006770, the previous site at alanwaar.group is built on
+     it, and its favicon was it — so anywhere the masjid mark appears on its own
+     it is this, and it agrees with the logo standing next to it instead of
+     being a slightly different green beside it.
+
+     IT IS FOR THE MARK — and, since 16 September 2026 at the client's
+     direction, the home page's appeal banner (HomeAppeals), which is the logo's
+     colour for the same reason Al-Ihsan's banner is theirs. Nothing else. --color-green is the brand green for
+     buttons, links, eyebrows and rules, and it is deliberately quieter than the
+     artwork. Do not reach for text-teal because something needs to be louder;
+     that decision is whether the WHOLE site moves to #006770, and it has not.
+     See the note at the head of Ornament.tsx. Client's call, 16 September 2026. */
+  --color-teal: #006770;
+
+  /* Paper — the light grounds */
+  --color-paper: #ffffff;
+  --color-paper-2: #f5f5f2;
+  --color-sand: #eceae4;
+
+  /* THE GROUND. The one colour a page runs on from the header to the footer.
+     The home page used to alternate paper and sand to say a section had ended;
+     it now runs on this the whole way down and says it with a drawn divider
+     instead (components/Divider.tsx explains why). Everything else follows.
+
+     This is the single line to change if the site's ground should be warmer,
+     cooler, or plain white — set it to var(--color-paper) and the page goes
+     white without a single section file being touched. paper-2 is the default
+     because a page of pure white gives the white cards on it nothing to lift
+     off, and because "monotone" should still read as a colour somebody chose. */
+  --color-ground: #f5f5f2;
+
+  /* Gold — the give action and the focus ring. Nothing else. */
+  --color-gold: #c89b2c;
+  --color-gold-dark: #a87f1d;
+
+  /* Gold as TYPE on the teal appeal banner (HomeAppeals): the script line over
+     each appeal's title. --color-gold is about 2.8:1 on #006770 and fails even
+     for large type; this is about 4.7:1. It sets words, never a button. */
+  --color-gold-pale: #f0cf7e;
+
+  /* Alert — the emergency strip. The pale one is the same hue lifted to read on
+     a dark ground: the crisis link inside a menu panel, which is frosted dark
+     while the panel is hanging in the home hero. Same job as --color-green-pale. */
+  --color-alert: #a63a1c;
+  --color-alert-pale: #eda58f;
+
+  /* Text */
+  --color-text: #191c1b;
+  --color-text-2: #5b6260;
+  --color-text-3: #8a908e;
+  --color-text-on-ink: #f2f2ee;
+  --color-text-on-ink-2: #a9afac;
+
+  /* Rules */
+  --color-line: #ddddd8;
+  --color-line-2: #ebebe7;
+  --color-line-ink: #33393a;
+
+  /* Type
+     ONE LATIN FACE. Inter Tight sets the whole site — the headline, the label,
+     the paragraph, the amount and the button. There used to be a second, a
+     display serif, and it was carrying the page's whole personality: it read
+     as a magazine about a charity rather than as the charity. It is gone.
+
+     The display token is still its own token rather than an alias nobody can
+     find, so if a display face ever comes back it comes back in one line here
+     and every headline on the site picks it up at once. `font-display` marks
+     the slots that would take it. */
+  --font-display: "Inter Tight", "Helvetica Neue", Arial, sans-serif;
+  --font-sans: "Inter Tight", "Helvetica Neue", Arial, sans-serif;
+  --font-arabic: "IBM Plex Sans Arabic", sans-serif;
+
+  /* THE SERIF, back on the site — but on a leash (client's request, 16
+     September 2026, from a sample they sent).
+
+     Fraunces: variable, optical-size aware, SIL Open Font Licence, free
+     commercially. IT IS A CLOSE MATCH RATHER THAN AN IDENTIFICATION — the
+     sample was a few words at small size and the exact face could not be read
+     off it. If the client can name it, this is the one line that changes.
+
+     It is deliberately NOT --font-display. Flipping the display token would put
+     a serif on all 66 headline slots across the site in one go, and nobody has
+     asked for that; the note above is still the reason the serif was dropped in
+     the first place. Right now this face sets exactly two things, both in the
+     /give hero: the headline and the ayah's translation. Roll it out by
+     pointing --font-display here, in one line, if and when that is the call.
+
+     SET IT LIGHT. At 300 with a large optical size it reads as a quiet
+     inscription, which is what a verse wants; at 600 Fraunces is a poster face
+     and would shout over the ayah above it. */
+  --font-serif: "Fraunces", "Iowan Old Style", Georgia, serif;
+
+  /* THE ACCENT, and it is an accent. A brush script, for the one line above a
+     heading that is allowed to sound like a person rather than a label. It is
+     not a third voice on the site: it never sets a heading, never sets a
+     paragraph, never sets an amount — it has no tabular figures, so any money
+     figure in it would wobble — and it never appears twice on a screen.
+
+     Caveat Brush stands in for Guthen Bloots, which is the face the client
+     showed and which is licensed for personal use only; a charity's public site
+     is not personal use. Caveat Brush is SIL Open Font Licence and free to use
+     commercially. If the Guthen licence is bought, this is the one line that
+     changes and every place the accent appears picks it up at once. */
+  --font-script: "Caveat Brush", "Bradley Hand", cursive;
+
+  /* Spacing scale */
+  --spacing-s1: 8px;
+  --spacing-s2: 16px;
+  --spacing-s3: 24px;
+  --spacing-s4: 40px;
+  --spacing-s5: 64px;
+  --spacing-s6: 104px;
+
+  /* Widths */
+
+  /* THE COLUMN, and it breathes. Every band on the site is `mx-auto max-w-page`
+     — 64 of them, the header among them — so this one line is the whole site's
+     spine and moving it moves all of them together. That is the point: widening
+     one section's heading to suit a large monitor would only knock it out of
+     line with the logo sitting above it.
+
+     It was a flat 1240px, which is right on a laptop and looks like a pillar of
+     text down the middle of a 27in screen. 84vw takes over once the window is
+     past about 1476px and runs to 1600 — so nothing whatsoever changes at 1280,
+     1366 or 1440, where most people are, and the big screens stop wasting three
+     hundred pixels of margin a side.
+
+     It stops at 1600 rather than going on: paragraphs are held to
+     --container-measure and are safe at any column width, but the card grids on
+     /about and /appeals are not — past about 1600 a four-up row starts making
+     cards wider than their photographs want to be. If the cap ever moves, look
+     at those grids first. */
+  --container-page: clamp(1240px, 84vw, 1600px);
+  --container-measure: 552px;
+  /* Wider than the reading column, for the one band that is allowed to spread:
+     the footer, which is a directory rather than a page. */
+  --container-wide: 1600px;
+
+  /* The page gutter, so absolutely-positioned things (the mega menu) can line
+     up with the content column. */
+  --gutter: clamp(20px, 4vw, 48px);
+
+  /* Elevation. The nav panel is lifted by three stacked shadows rather than one,
+     so the edge stays crisp while the ambient shade spreads. The gold pair is
+     the Donate button at rest and on hover. */
+  --shadow-nav: 0 1px 2px rgba(20, 26, 24, 0.04), 0 12px 28px -8px rgba(20, 26, 24, 0.1),
+    0 32px 64px -24px rgba(20, 26, 24, 0.16);
+  --shadow-gold: 0 1px 2px rgba(168, 127, 29, 0.2), 0 6px 16px -6px rgba(200, 155, 44, 0.55);
+  --shadow-gold-lg: 0 2px 4px rgba(168, 127, 29, 0.22), 0 12px 24px -8px rgba(200, 155, 44, 0.7);
+  /* A card lifted off a tinted ground — the give card on the sand band. Same
+     idea as the nav: one tight shadow to keep the edge, one wide and very soft
+     one for the shade. It is nearly invisible on paper, which is correct; it is
+     only meant to read where the ground is darker than the card. */
+  --shadow-card: 0 1px 2px rgba(20, 26, 24, 0.05), 0 26px 50px -34px rgba(20, 26, 24, 0.35);
+
+  /* Motion */
+  --ease-brand: cubic-bezier(0.22, 0.61, 0.36, 1);
+  /* For things arriving: fast out of the gate and a long, soft settle. The
+     home page's entrances use it (Reveal's non-default variants, Words, the
+     hero); interface feedback stays on --ease-brand. */
+  --ease-reveal: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@layer base {
+  /* The header's height, so anything that has to sit under it — or be pulled
+     up behind it, like the home hero — can do the arithmetic in CSS. The bar
+     does not change height as you scroll, and must not start: it sits in normal
+     flow, so a bar that shrank would make the document shorter mid-scroll and
+     jolt the page under it. Kept in step with the `h-[var(--header-h)]` on the
+     header's inner wrap. */
+  :root {
+    --header-h: 64px;
+    /* The emergency strip is not sticky and its height changes as it wraps, so
+       Header measures it and writes it here. 0 when there is no crisis live. */
+    --strip-h: 0px;
+  }
+
+  @media (min-width: 1024px) {
+    :root {
+      --header-h: 76px;
+    }
+  }
+
+  body {
+    background-color: var(--color-ground);
+    color: var(--color-text);
+    /* `--ornament-cut` used to live here: the colour the masjid mark's arcade
+       was cut out in, back when the mark was a drawing with three arched
+       openings in it. The mark is traced from the artwork now and the artwork
+       has no openings, so there is nothing to cut and nothing to colour it
+       with. Removed rather than left declared and unread. See Ornament.tsx. */
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    font-optical-sizing: auto;
+  }
+
+  /* With one face doing every job, weight is the only thing left to tell a
+     headline apart from the paragraph under it, so the display slots carry it
+     here rather than in 66 places across the pages. 600 and not 700: at
+     clamp(30px, 3.9vw, 46px) Inter Tight's bold is a shout, and the semibold
+     still reads as display against body copy at 400.
+
+     It sits in `base`, so any weight utility on the element itself — a
+     `font-semibold` on a small label, a `font-bold` somewhere deliberate —
+     still wins. */
+  .font-display {
+    font-weight: 600;
+  }
+
+  /* Gold is the focus ring. See DESIGN-NOTES.md. */
+  :focus-visible {
+    outline: 2px solid var(--color-gold);
+    outline-offset: 2px;
+  }
+
+  /* --- the scrollbar ------------------------------------------------------
+     The document has no scrollbar of its own. A native one takes a lane out of
+     the viewport, and beside a full-bleed hero that lane is a pale strip down
+     the side of the photograph. components/ScrollBar.tsx draws one over the
+     page instead, so the picture reaches both edges of the window.
+
+     Everything else that scrolls keeps a real scrollbar, and these rules make
+     it slim, take its end buttons and its track away, and leave it invisible
+     until the thing is moving: Layout puts `.scrolling` on <html> while any
+     scroller on the page moves, and takes it off a moment after you stop.
+
+     The lane keeps its width at rest, transparent, so nothing reflows when the
+     thumb arrives and leaves. The thumb is drawn inside a transparent border
+     with background-clip, which is what makes a 12px lane carry a 4px rule:
+     slim to look at, still wide enough to catch with a pointer. */
+  html {
+    scrollbar-width: none;
+  }
+
+  html::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+  }
+
+  ::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+  }
+
+  /* The arrows at each end. */
+  ::-webkit-scrollbar-button {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+
+  ::-webkit-scrollbar-track,
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: transparent;
+    background-clip: content-box;
+    border: 4px solid transparent;
+    border-radius: 99px;
+    transition: background-color 300ms var(--ease-brand);
+  }
+
+  html.scrolling::-webkit-scrollbar-thumb,
+  html.scrolling ::-webkit-scrollbar-thumb {
+    background-color: rgba(21, 26, 24, 0.3);
+  }
+
+  /* Reach for it and it stays, whether or not the page is moving. */
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(21, 26, 24, 0.45);
+  }
+
+  /* Firefox has no scrollbar pseudo-elements and its own two properties
+     instead. Chrome ignores ::-webkit-scrollbar the moment scrollbar-width is
+     set, so this has to be fenced off from it. */
+  @supports not selector(::-webkit-scrollbar) {
+    :where(div, section, nav, ul, ol, aside, main) {
+      scrollbar-width: thin;
+      scrollbar-color: transparent transparent;
+      transition: scrollbar-color 300ms var(--ease-brand);
+    }
+
+    html.scrolling :where(div, section, nav, ul, ol, aside, main) {
+      scrollbar-color: rgba(21, 26, 24, 0.3) transparent;
+    }
+  }
+
+  /* Anyone who has asked their system for less motion gets the layout, not the
+     travel. Opacity still resolves, so nothing gets stuck half-visible. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-delay: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer utilities {
+  /* Every amount on the site is set in tabular lining numerals, so columns of
+     money line up. This used to come with a caveat — the display serif had no
+     tabular figures, so a stack of amounts could not be set in it. With one
+     face on the site the caveat is gone: `nums` works anywhere. */
+  .nums {
+    font-variant-numeric: tabular-nums lining-nums;
+  }
+
+  /* The page gutter from the prototype: clamp(20px, 4vw, 48px). */
+  .gutter {
+    padding-inline: var(--gutter);
+  }
+
+}
+
+/* ---------------------------------------------------------------------------
+   Hero motion. Keyframes live at the top level rather than inside a layer, so
+   `prefers-reduced-motion` in @layer base can still flatten them — the rule
+   there sets animation-duration on everything to 0.01ms, which lands each of
+   these on its final frame instead of removing it.
+--------------------------------------------------------------------------- */
+
+/* The slow push into the photograph. It never returns to 1: the image is
+   swapped out under a cross-fade long before this finishes, and a loop that
+   snapped back would show. */
+@keyframes hero-zoom {
+  from {
+    transform: scale(1.001);
+  }
+  to {
+    transform: scale(1.085);
+  }
+}
+
+/* Each line of the quotation arrives from just below, one after the next. The
+   travel is small on purpose — this is a heading settling, not a slide.
+
+   Also the staggered entrance of the contact hero, whose five lines each take
+   this with a longer delay than the one above it. Same gesture, same reason:
+   something has arrived, and it should be seen to arrive. */
+@keyframes hero-rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 14px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* The ground a dialog is laid over. Opacity only: the panel above it rises with
+   hero-rise, and a backdrop that travelled with it would leave a gap down one
+   edge of the window while it moved. */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Home page entrances (16 September 2026, at the user's request).
+--------------------------------------------------------------------------- */
+
+/* PERFORMANCE RULE for everything below (16 September 2026, after the home
+   page stuttered): animate only `opacity`, `transform`, `translate` and
+   `scale`. Those run on the GPU. `filter` (blur, brightness) and `clip-path`
+   repaint the element on every frame, and on a full-screen photograph or a
+   heading with a soft text-shadow that is what dropped the frames.
+
+   The hero's photograph on first load: it comes up out of the dark and settles
+   back from slightly close. `scale`, not `transform`, so it composes with
+   hero-zoom on the image inside it and the scroll parallax on this layer. The
+   dark is an ink veil fading out over it (::after), not a brightness filter. */
+.hero-intro {
+  animation: hero-intro 2200ms var(--ease-reveal) both;
+}
+.hero-intro::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: var(--color-ink);
+  animation: hero-veil 1800ms var(--ease-reveal) both;
+}
+@keyframes hero-intro {
+  from {
+    scale: 1.12;
+  }
+  to {
+    scale: 1;
+  }
+}
+@keyframes hero-veil {
+  from {
+    opacity: 0.72;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* A slide up with no fade, for anything frosted (the home hero's quick give
+   card): fading a backdrop blur redraws the blur on every frame. */
+@keyframes hero-lift {
+  from {
+    transform: translate3d(0, 36px, 0);
+  }
+  to {
+    transform: none;
+  }
+}
+
+/* hero-rise, longer and on --ease-reveal, for the hero's lines. */
+@keyframes hero-soft {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 22px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* One word of a heading, up from behind the line it sits on (Words). */
+@keyframes word-rise {
+  from {
+    transform: translate3d(0, 108%, 0) rotate(4deg);
+  }
+  to {
+    transform: none;
+  }
+}
+
+/* The field-photograph stack, dealt in from below and to the right, the way
+   the cards fan out when they land. */
+@keyframes hero-deal {
+  from {
+    opacity: 0;
+    transform: translate3d(70px, 90px, 0) rotate(12deg) scale(0.88);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* A photograph inside a Reveal: held a little close until its tile arrives,
+   then eased back. Transition, not animation, because Reveal flips a data
+   attribute rather than mounting anything. `scale` keeps its own, shorter
+   transition so the hover zoom on the same image still feels quick. */
+.reveal-zoom {
+  transition:
+    transform 1600ms var(--ease-reveal) var(--reveal-delay, 0ms),
+    scale 900ms var(--ease-brand);
+}
+[data-revealed='false'] .reveal-zoom {
+  transform: scale(1.18);
+}
+
+/* A photograph uncovered by a panel of teal drawing up off it, while the
+   picture settles back from close underneath (put reveal-zoom on the img).
+   Scale, not clip-path, so it stays on the GPU (see the PERFORMANCE RULE). */
+.reveal-curtain {
+  transform-origin: 50% 0%;
+  transition: transform 1100ms var(--ease-reveal) calc(var(--reveal-delay, 0ms) + 120ms);
+}
+[data-revealed='false'] .reveal-curtain {
+  transform: scaleY(1);
+}
+[data-revealed='true'] .reveal-curtain {
+  transform: scaleY(0);
+}
+
+/* The lines of a card's words, one after the next once the photograph is
+   mostly uncovered. Each sets --i, its place in the queue. */
+.reveal-rise {
+  transition:
+    opacity 700ms var(--ease-reveal),
+    transform 900ms var(--ease-reveal);
+  transition-delay: calc(var(--reveal-delay, 0ms) + 380ms + var(--i, 0) * 70ms);
+}
+[data-revealed='false'] .reveal-rise {
+  opacity: 0;
+  transform: translate3d(0, 16px, 0);
+}
+
+/* The chevron at the foot of the contact hero. It rests for most of the cycle
+   and then dips, rather than bobbing continuously — a thing that never stops
+   moving stops reading as an invitation and starts reading as a loading state.
+   The rest is what the long flat tail between 40% and 100% is for. */
+@keyframes hero-bob {
+  0%,
+  40%,
+  100% {
+    transform: translateY(0);
+  }
+  20% {
+    transform: translateY(5px);
+  }
+}

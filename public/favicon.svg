@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Al-Anwaar">
+  <!--
+    The Al-Anwaar mark, on its own, as the favicon.
+
+    THE SHAPE is the dome and minaret lifted straight out of
+    assets/images/Al-Anwaar-Logo-600x136.png — columns 1 to 126 of it, which is
+    the mark with the wordmark left behind. It was traced from the artwork
+    rather than redrawn, so this is the charity's own masjid and not an
+    approximation: the two loops below are the buildings and the sweep beneath
+    them, and the gap between them is the gap in the logo.
+
+    THE COLOUR is #006770 — the logo's own teal, which is also --color-teal in
+    index.css and the colour the previous site's favicon was drawn in. It was a
+    45% tint of --color-green for one round and read as a grey smudge in a tab
+    beside the old one. If this changes, change --color-teal with it.
+
+    NO BACKGROUND, deliberately. This had a #f5f5f2 chip behind it, which on a
+    dark tab bar is a pale sticker with a mark on it rather than a mark. The old
+    favicon is fully transparent and is right to be: a favicon is composited
+    onto whatever the browser's chrome happens to be, and a mark that carries
+    its own ground can only ever match one of them. apple-touch-icon.png is the
+    exception and keeps an opaque ground, because iOS fills a transparent touch
+    icon with black.
+
+    Square to the edges, because the browser rounds the corners itself.
+  -->
+  <path fill="#006770" fill-rule="evenodd" d="M19.63 31.31L19.63 32.05L19.17 32.97L18.89 38.48L20 38.39L20.18 38.58L20.18 39.96L20.64 40.32L20.73 39.4L21.19 38.48L21.19 37.1L21.65 36.18L22.02 33.33L23.12 30.3L24.23 28.73L25.79 27.17L29.84 24.5L33.06 21.65L33.33 21.19L33.43 20.18L33.43 17.51L33.79 17.24L34.16 17.79L34.07 21.28L37.2 24.23L40.78 26.53L42.44 27.91L44.09 29.93L44.74 31.22L46.21 37.29L46.12 38.39L46.67 39.31L46.58 41.15L46.85 41.52L47.68 41.7L47.5 47.41L47.13 47.59L44.28 46.76L39.22 45.93L35.54 45.66L29.1 45.84L25.42 46.3L20.46 47.41L17.33 48.51L14.66 49.89L14.02 49.98L13.93 42.62L13.28 41.61L13.1 40.51L13.37 39.96L13.47 38.58L13.65 38.39L14.75 38.39L14.66 34.71L13.93 31.4L14.2 31.13L15.12 31.03L14.94 30.21L15.03 26.99L15.4 26.62L15.03 26.44L14.94 25.79L16.13 16.87L16.41 14.2L16.41 10.43L16.69 9.05L17.15 10.34L16.96 11.17L17.24 12.09L17.15 13.74L18.71 25.88L18.62 26.34L18.25 26.53L18.53 26.99L18.53 30.39L18.25 31.03L19.63 31.31ZM39.4 49.71L33.24 49.06L29.01 49.06L22.94 49.61L18.89 50.44L14.39 51.91L11.81 53.11L8.96 54.95L9.97 53.57L12.55 51.54L16.13 49.61L18.62 48.6L22.39 47.5L25.61 46.85L32.87 46.21L38.12 46.39L41.43 46.76L46.58 47.87L50.72 49.25L53.48 50.72L54.76 52L55.04 53.57L54.76 54.49L54.4 54.76L53.94 54.76L50.44 52.92L45.75 51.18L39.4 49.71Z"/>
+</svg>
