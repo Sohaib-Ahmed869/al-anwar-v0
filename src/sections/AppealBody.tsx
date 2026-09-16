@@ -148,7 +148,10 @@ export default function AppealBody({
         )}
 
         {/* 6 · zakat, and how it gets there */}
-        <section aria-label="Zakat and delivery" className={`grid gap-s2 lg:grid-cols-2 ${BREAKOUT}`}>
+        <section
+          aria-label="Zakat and delivery"
+          className={`grid gap-s2 lg:grid-cols-2 ${BREAKOUT}`}
+        >
           <Reveal variant="up" className="h-full">
             <div
               className={`flex h-full flex-col rounded-2xl p-s3 sm:p-s4 lg:p-[clamp(32px,3.2vw,52px)] ${
@@ -188,7 +191,11 @@ export default function AppealBody({
               <p className="font-script text-[clamp(24px,2.2vw,32px)] leading-none text-green">
                 How it gets there
               </p>
-              <h2 className={PANEL_HEAD}>Bought locally, handed over in person.</h2>
+              <h2 className={PANEL_HEAD}>
+                {appeal.causes.some((c) => c === 'jariyah' || c === 'education')
+                  ? 'Built by people who live there.'
+                  : 'Bought locally, handed over in person.'}
+              </h2>
               <div className="mt-s2 space-y-s2">
                 {detail.delivery.map((p, i) => (
                   <p key={i} className="max-w-[52ch] text-[16px] leading-[1.6] text-text-2">
@@ -211,7 +218,8 @@ export default function AppealBody({
    takes the whole width, with two they share it. */
 const proofSpan = (i: number, n: number) => {
   if (n === 1) return 'sm:col-span-2 sm:row-span-2 lg:col-span-3 lg:row-span-2'
-  if (n === 2) return i === 0 ? 'sm:row-span-2 lg:col-span-2 lg:row-span-2' : 'sm:row-span-2 lg:row-span-2'
+  if (n === 2)
+    return i === 0 ? 'sm:row-span-2 lg:col-span-2 lg:row-span-2' : 'sm:row-span-2 lg:row-span-2'
   return i === 0 ? 'sm:col-span-2 lg:row-span-2' : ''
 }
 

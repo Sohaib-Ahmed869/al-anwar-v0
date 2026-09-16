@@ -1,17 +1,20 @@
 import { Link } from 'react-router-dom'
 
-import AppealCard from '../components/AppealCard'
+import AppealTile from '../components/AppealTile'
 import Reveal from '../components/Reveal'
+import SectionHead, { BREAKOUT, SECTION_Y } from '../components/SectionHead'
 import { APPEAL_LIST, type Appeal } from '../components/appeals-data'
 import { ArrowRight } from '../components/icons'
 
 /* ---------------------------------------------------------------------------
-   A single appeal, section 8: other appeals.
+   A single appeal, section 7: other appeals.
 
-   Three cards from the /appeals grid: appeals in the same place first, then
-   ones that share this appeal's need, then anything else, so there are always
-   three while there are four appeals on the site. On sand, the asking ground,
-   because every card here carries a Give button.
+   Three appeals as the /appeals photograph tiles (16 September 2026, when the
+   page moved onto the home pattern; they were the old white cards on sand):
+   appeals in the same place first, then ones that share this appeal's need,
+   then anything else. The give bar (AppealGiveBox) steps aside when this comes
+   on screen, because every tile here has its own Donate button; it finds this
+   section by its id, so keep `related`.
 --------------------------------------------------------------------------- */
 
 const score = (a: Appeal, to: Appeal) =>
@@ -25,32 +28,29 @@ export default function AppealRelated({ appeal }: { appeal: Appeal }) {
     .map((x) => x.a)
 
   return (
-    <section
-      aria-labelledby="related-head"
-      className="relative isolate overflow-hidden bg-sand py-s5 lg:py-s6"
-    >
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 -z-10 bg-[radial-gradient(85%_70%_at_10%_0%,rgba(47,107,90,0.1)_0%,transparent_62%)]"
-      />
+    <section id="related" aria-labelledby="related-head" className={`pt-0 ${SECTION_Y}`}>
       <div className="gutter mx-auto max-w-page">
-        <Reveal className="flex flex-wrap items-end justify-between gap-s2">
-          <h2
-            id="related-head"
-            className="font-display text-[clamp(28px,3.4vw,40px)] leading-[1.08] tracking-[-0.02em]"
-          >
-            Other appeals
-          </h2>
-          <Link to="/appeals" className="group inline-flex items-center gap-1.5 text-[14.5px] font-semibold text-green hover:text-ink">
-            All appeals
-            <ArrowRight className="h-3 w-3 transition-transform duration-300 ease-brand group-hover:translate-x-0.5" />
-          </Link>
-        </Reveal>
-        <ul className="mt-s4 grid gap-x-s3 gap-y-s5 sm:grid-cols-2 lg:grid-cols-3">
+        <SectionHead
+          id="related-head"
+          eyebrow="Other appeals"
+          title="Somewhere else to help."
+          action={
+            <Link
+              to="/appeals"
+              className="group flex shrink-0 items-center gap-1.5 text-[14.5px] font-semibold text-green transition-colors duration-200 ease-brand hover:text-ink"
+            >
+              All appeals
+              <ArrowRight className="h-3 w-3 -translate-x-0.5 transition-transform duration-300 ease-brand group-hover:translate-x-0.5" />
+            </Link>
+          }
+        />
+        <ul
+          className={`mt-s4 grid auto-rows-[min(96vw,400px)] gap-s2 sm:auto-rows-[300px] sm:grid-cols-2 lg:mt-s5 lg:auto-rows-[clamp(280px,23vw,360px)] lg:grid-cols-3 ${BREAKOUT}`}
+        >
           {related.map((a, i) => (
-            <li key={a.slug} className={i === 2 ? 'sm:hidden lg:block' : undefined}>
-              <Reveal delay={i * 70} className="h-full">
-                <AppealCard appeal={a} />
+            <li key={a.slug} className={i === 2 ? 'sm:col-span-2 lg:col-span-1' : undefined}>
+              <Reveal variant="up" delay={i * 90} className="h-full">
+                <AppealTile appeal={a} big={false} eager={false} />
               </Reveal>
             </li>
           ))}

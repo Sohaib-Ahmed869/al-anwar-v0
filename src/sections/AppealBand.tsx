@@ -26,13 +26,7 @@ import AppealGiveBox from './AppealGiveBox'
    figures are placeholders and are not shown on this page.
 --------------------------------------------------------------------------- */
 
-export default function AppealBand({
-  appeal,
-  ladder,
-}: {
-  appeal: Appeal
-  ladder: GiveAmount[]
-}) {
+export default function AppealBand({ appeal, ladder }: { appeal: Appeal; ladder: GiveAmount[] }) {
   const depth = useHeroDepth()
   const a = appealView(appeal)
   const live = appeal.slug === CRISIS?.slug

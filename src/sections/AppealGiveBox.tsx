@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { Link } from 'react-router-dom'
 
 import { money, type GiveAmount } from '../components/GiveModule'
@@ -21,8 +22,8 @@ import { ArrowRight, Lock } from '../components/icons'
    the story is read. It drops away again when the card comes back, and when
    the other appeals come on screen, where every tile has its own button.
    Solid, not frosted: a blur over a scrolling page is redrawn on every frame.
-   It is rendered beside the card, never inside an animated parent, because a
-   transform on an ancestor would pin it to that ancestor instead of the screen.
+   It is portalled to <body>: inside the hero it would sit in the hero's own
+   stacking context (`isolate`) and slide under the sections below it.
 --------------------------------------------------------------------------- */
 
 export default function AppealGiveBox({
@@ -40,7 +41,11 @@ export default function AppealGiveBox({
 
   const typedAmount = parseFloat(typed.replace(/[^\d.]/g, ''))
   const tooSmall = typedAmount > 0 && typedAmount < MIN_GIFT
-  const amount = tooSmall ? MIN_GIFT : typedAmount > 0 ? typedAmount : (ladder[chosen]?.value ?? MIN_GIFT)
+  const amount = tooSmall
+    ? MIN_GIFT
+    : typedAmount > 0
+      ? typedAmount
+      : (ladder[chosen]?.value ?? MIN_GIFT)
   const to = `${giveHref(appeal)}&amount=${amount}`
 
   useEffect(() => {
@@ -79,7 +84,11 @@ export default function AppealGiveBox({
         <p id={`${uid}-amt`} className="mt-s3 text-[13px] font-semibold text-paper/80">
           Choose an amount (AUD)
         </p>
-        <div role="radiogroup" aria-labelledby={`${uid}-amt`} className="mt-2 grid grid-cols-3 gap-2">
+        <div
+          role="radiogroup"
+          aria-labelledby={`${uid}-amt`}
+          className="mt-2 grid grid-cols-3 gap-2"
+        >
           {ladder.map((a, i) => {
             const on = chosen === i && !(typedAmount > 0)
             return (
@@ -116,7 +125,9 @@ export default function AppealGiveBox({
         </label>
         <div
           className={`mt-2 flex h-12 items-center gap-1 rounded-[12px] px-3.5 ring-1 transition-[background-color,box-shadow] duration-200 ease-brand focus-within:bg-paper/15 ${
-            tooSmall ? 'bg-paper/10 ring-alert-pale' : 'bg-paper/10 ring-paper/15 focus-within:ring-gold-pale'
+            tooSmall
+              ? 'bg-paper/10 ring-alert-pale'
+              : 'bg-paper/10 ring-paper/15 focus-within:ring-gold-pale'
           }`}
         >
           <span aria-hidden="true" className="text-[16px] text-paper/60">
@@ -155,27 +166,30 @@ export default function AppealGiveBox({
       </div>
 
       {/* --- the bar --- */}
-      <div
-        aria-hidden={!bar}
-        className={`fixed inset-x-0 bottom-0 z-40 px-s2 pb-[max(12px,env(safe-area-inset-bottom))] transition-[transform,opacity] duration-500 ease-brand ${
-          bar ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-[130%] opacity-0'
-        }`}
-      >
-        <div className="mx-auto flex max-w-[560px] items-center gap-s2 rounded-2xl bg-ink p-2 pl-4 text-paper shadow-[0_18px_50px_-12px_rgba(0,0,0,0.55)] ring-1 ring-paper/10">
-          <p className="min-w-0 flex-1">
-            <span className="block text-[12px] text-paper/60">Give to</span>
-            <span className="block truncate text-[15px] font-semibold">{appeal.title}</span>
-          </p>
-          <Link
-            to={to}
-            tabIndex={bar ? undefined : -1}
-            className="group inline-flex min-h-[48px] shrink-0 items-center gap-2 rounded-[12px] bg-gold px-5 text-[15px] font-semibold text-ink transition-colors duration-200 ease-brand hover:bg-gold-dark hover:text-paper"
-          >
-            Give <span className="nums">{money(amount)}</span>
-            <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 ease-brand group-hover:translate-x-0.5" />
-          </Link>
-        </div>
-      </div>
+      {createPortal(
+        <div
+          aria-hidden={!bar}
+          className={`fixed inset-x-0 bottom-0 z-40 px-s2 pb-[max(12px,env(safe-area-inset-bottom))] transition-[transform,opacity] duration-500 ease-brand ${
+            bar ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-[130%] opacity-0'
+          }`}
+        >
+          <div className="mx-auto flex max-w-[560px] items-center gap-s2 rounded-2xl bg-ink p-2 pl-4 text-paper shadow-[0_18px_50px_-12px_rgba(0,0,0,0.55)] ring-1 ring-paper/10">
+            <p className="min-w-0 flex-1">
+              <span className="block text-[12px] text-paper/60">Give to</span>
+              <span className="block truncate text-[15px] font-semibold">{appeal.title}</span>
+            </p>
+            <Link
+              to={to}
+              tabIndex={bar ? undefined : -1}
+              className="group inline-flex min-h-[48px] shrink-0 items-center gap-2 rounded-[12px] bg-gold px-5 text-[15px] font-semibold text-ink transition-colors duration-200 ease-brand hover:bg-gold-dark hover:text-paper"
+            >
+              Give <span className="nums">{money(amount)}</span>
+              <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 ease-brand group-hover:translate-x-0.5" />
+            </Link>
+          </div>
+        </div>,
+        document.body,
+      )}
     </>
   )
 }

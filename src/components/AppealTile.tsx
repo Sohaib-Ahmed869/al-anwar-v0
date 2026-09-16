@@ -13,7 +13,15 @@ import { ArrowRight } from './icons'
    and goes straight to /give with the appeal filled in. A big tile (large,
    wide, full) also shows the blurb; a small one keeps to the title and price.
 --------------------------------------------------------------------------- */
-export default function AppealTile({ appeal, big, eager }: { appeal: Appeal; big: boolean; eager: boolean }) {
+export default function AppealTile({
+  appeal,
+  big,
+  eager,
+}: {
+  appeal: Appeal
+  big: boolean
+  eager: boolean
+}) {
   const a = appealView(appeal)
   const meta = `${a.cause} · ${a.where ? `${a.where}, ` : ''}${PLACES[a.country]}`
   const line = (i: number) => ({ ['--i' as string]: i })

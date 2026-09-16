@@ -16,7 +16,16 @@ import {
   type Donor,
   type DonorErrors,
 } from '../components/GiveModule'
-import { APPEALS, BANK, CAUSES, MIN_GIFT, TRUST, impactOf, rungsFor, takesMonthly } from '../components/give-data'
+import {
+  APPEALS,
+  BANK,
+  CAUSES,
+  MIN_GIFT,
+  TRUST,
+  impactOf,
+  rungsFor,
+  takesMonthly,
+} from '../components/give-data'
 import { PLACES, appealBySlug } from '../components/appeals-data'
 import Reveal, { useInView } from '../components/Reveal'
 import { ArrowRight, Check, HandHeart, Lock } from '../components/icons'
@@ -105,18 +114,25 @@ function useArrival() {
        the hero's ?appeal=meals goes through APPEALS in give-data.ts. */
     const named = appealBySlug(params.get('appeal'))
     const place = named
-      ? { fund: named.fund, label: named.where ? `${named.where}, ${PLACES[named.country]}` : PLACES[named.country] }
+      ? {
+          fund: named.fund,
+          label: named.where ? `${named.where}, ${PLACES[named.country]}` : PLACES[named.country],
+        }
       : (APPEALS[params.get('country') ?? ''] ?? APPEALS[params.get('appeal') ?? ''])
     const fundId =
       params.get('designation') ??
       CAUSES.find((c) => c.slug === params.get('appeal'))?.id ??
       place?.fund
-    const causeIndex = Math.max(0, CAUSES.findIndex((c) => c.id === fundId))
+    const causeIndex = Math.max(
+      0,
+      CAUSES.findIndex((c) => c.id === fundId),
+    )
     const hasFund = CAUSES.some((c) => c.id === fundId)
 
     const raw = parseFloat(params.get('amount') ?? '')
     const amount = Number.isFinite(raw) && raw >= MIN_GIFT ? raw : null
-    const rung = amount === null ? -1 : CAUSES[causeIndex].amounts.findIndex((a) => a.value === amount)
+    const rung =
+      amount === null ? -1 : CAUSES[causeIndex].amounts.findIndex((a) => a.value === amount)
 
     const handed = (location.state as { donor?: Donor } | null)?.donor
     const donor = handed ? { ...EMPTY_DONOR, ...handed } : EMPTY_DONOR
@@ -133,6 +149,9 @@ function useArrival() {
          says nothing, and then the ask starts ticked as it does on the card. */
       coverFee: handed ? params.get('fee') === '1' : true,
       step,
+      /** the link chose something, so the reader lands on the form */
+      prefilled:
+        ['appeal', 'designation', 'amount', 'country'].some((k) => params.has(k)) || !!handed,
     }
   })[0]
 }
@@ -318,12 +337,21 @@ export default function GiveForm() {
   return (
     <section
       id="give-form"
+      /* A link that fills the form in lands here, not on the hero above
+         (16 September 2026, client's request): the Donate buttons on
+         /appeals, a single appeal, the home banner, the zakat calculator and
+         the quick give all carry what they chose, and the reader should see it
+         chosen. A plain /give, from the header's Donate, still opens on the
+         hero. Layout does the scrolling; see data-land there. */
+      data-land={start.prefilled ? '' : undefined}
       aria-labelledby="give-form-head"
       className={`scroll-mt-[var(--header-h)] ${SECTION_Y}`}
     >
       <div className="gutter mx-auto max-w-page">
         <SectionHead id="give-form-head" eyebrow="Give today" title="Where should your gift go?" />
-        <div className={`mt-s4 grid gap-s3 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:items-start lg:gap-s4 ${BREAKOUT}`}>
+        <div
+          className={`mt-s4 grid gap-s3 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:items-start lg:gap-s4 ${BREAKOUT}`}
+        >
           {/* ============ the form, with the phone bar at its foot ============
               Set down as it scrolls in (Reveal `scale`). Reveal's wrapper ends
               on `transform: none`, so the sticky phone bar inside still sticks. */}
@@ -339,7 +367,10 @@ export default function GiveForm() {
                   const now = i === step
                   const open = i <= reached
                   return (
-                    <li key={name} className={`flex items-center ${i ? 'min-w-0 flex-1' : 'shrink-0'}`}>
+                    <li
+                      key={name}
+                      className={`flex items-center ${i ? 'min-w-0 flex-1' : 'shrink-0'}`}
+                    >
                       {i > 0 && (
                         <span
                           aria-hidden="true"
@@ -371,7 +402,9 @@ export default function GiveForm() {
                         </span>
                         <span
                           className={`text-[13.5px] font-semibold whitespace-nowrap transition-colors duration-300 ease-brand ${
-                            now ? 'inline text-ink' : `hidden sm:inline ${done ? 'text-text-2' : 'text-text-3'}`
+                            now
+                              ? 'inline text-ink'
+                              : `hidden sm:inline ${done ? 'text-text-2' : 'text-text-3'}`
                           }`}
                         >
                           <span className="sr-only">Step {i + 1}: </span>
@@ -438,7 +471,11 @@ export default function GiveForm() {
                       {cause.note}
                       {appeal && <span className="text-text-3"> · {appeal}</span>}
                       {cause.arabic && (
-                        <span dir="rtl" lang="ar" className="ml-2 font-arabic text-[14px] text-teal">
+                        <span
+                          dir="rtl"
+                          lang="ar"
+                          className="ml-2 font-arabic text-[14px] text-teal"
+                        >
                           {cause.arabic}
                         </span>
                       )}
@@ -526,7 +563,11 @@ export default function GiveForm() {
                               >
                                 {money(a.value)}
                                 {monthly && (
-                                  <span className={`text-[13px] font-medium tracking-normal ${on ? 'text-paper/70' : 'text-text-3'}`}>/mo</span>
+                                  <span
+                                    className={`text-[13px] font-medium tracking-normal ${on ? 'text-paper/70' : 'text-text-3'}`}
+                                  >
+                                    /mo
+                                  </span>
                                 )}
                               </span>
                               <span
@@ -539,7 +580,11 @@ export default function GiveForm() {
                               </span>
                             </span>
                             {a.label && (
-                              <span className={`mt-auto pt-2 text-[12.5px] leading-[1.3] ${on ? 'text-paper/80' : 'text-text-2'}`}>{a.label}</span>
+                              <span
+                                className={`mt-auto pt-2 text-[12.5px] leading-[1.3] ${on ? 'text-paper/80' : 'text-text-2'}`}
+                              >
+                                {a.label}
+                              </span>
                             )}
                           </button>
                         )
@@ -569,7 +614,11 @@ export default function GiveForm() {
                         aria-invalid={amountError ? 'true' : undefined}
                         aria-describedby={amountError ? `${uid}-own-bad` : undefined}
                         className={`nums peer block w-full border-b bg-transparent py-2 pl-5 font-display text-[21px] tracking-[-0.01em] transition-colors duration-200 placeholder:text-[15px] placeholder:font-normal placeholder:tracking-normal placeholder:text-text-3 focus:outline-none ${
-                          amountError ? 'border-alert' : custom ? 'border-teal text-teal' : 'border-line text-text'
+                          amountError
+                            ? 'border-alert'
+                            : custom
+                              ? 'border-teal text-teal'
+                              : 'border-line text-text'
                         }`}
                       />
                       <Underline bad={!!amountError} />
@@ -587,7 +636,7 @@ export default function GiveForm() {
                   </>
                 )}
 
-  {/* ======================= 2 · DETAILS ======================= */}
+                {/* ======================= 2 · DETAILS ======================= */}
                 {step === 1 && (
                   <>
                     <h3 className="text-[20px] font-semibold tracking-[-0.012em]">Your details</h3>
@@ -630,7 +679,10 @@ export default function GiveForm() {
                         Give on behalf of someone else
                       </Tick>
                       {donor.behalf && (
-                        <div className="mt-3" style={{ animation: 'hero-rise 380ms var(--ease-brand) both' }}>
+                        <div
+                          className="mt-3"
+                          style={{ animation: 'hero-rise 380ms var(--ease-brand) both' }}
+                        >
                           <Field
                             id={`${uid}-behalf`}
                             label="Their name"
@@ -642,7 +694,11 @@ export default function GiveForm() {
                       )}
                     </div>
 
-                    <Tick checked={donor.updates} onChange={(v) => setField('updates', v)} className="mt-s3">
+                    <Tick
+                      checked={donor.updates}
+                      onChange={(v) => setField('updates', v)}
+                      className="mt-s3"
+                    >
                       Send me word of what this fund did. A few times a year.
                     </Tick>
 
@@ -683,11 +739,14 @@ export default function GiveForm() {
                       checked={coverFee}
                       onChange={setCoverFee}
                       className={`mt-s3 rounded-[14px] border p-3.5 transition-colors duration-200 ease-brand ${
-                        coverFee ? 'border-teal/35 bg-teal/[0.05]' : 'border-line-2 bg-paper-2/70 hover:border-line'
+                        coverFee
+                          ? 'border-teal/35 bg-teal/[0.05]'
+                          : 'border-line-2 bg-paper-2/70 hover:border-line'
                       }`}
                     >
                       Add <b className="nums font-semibold text-text">{money2(fee)}</b> so the full{' '}
-                      <b className="nums font-semibold text-text">{money(amount)}</b> reaches {cause.place}
+                      <b className="nums font-semibold text-text">{money(amount)}</b> reaches{' '}
+                      {cause.place}
                       {monthly ? ' every month' : ''}.
                     </Tick>
 
@@ -736,10 +795,14 @@ export default function GiveForm() {
                                 on ? 'border-teal bg-teal' : 'border-line bg-paper'
                               }`}
                             >
-                              <span className={`h-1.5 w-1.5 rounded-full bg-paper ${on ? 'opacity-100' : 'opacity-0'}`} />
+                              <span
+                                className={`h-1.5 w-1.5 rounded-full bg-paper ${on ? 'opacity-100' : 'opacity-0'}`}
+                              />
                             </span>
                             <span>
-                              <span className={`block text-[14.5px] font-semibold ${on ? 'text-teal' : 'text-ink'}`}>
+                              <span
+                                className={`block text-[14.5px] font-semibold ${on ? 'text-teal' : 'text-ink'}`}
+                              >
                                 {p.title}
                               </span>
                               <span className="block text-[12.5px] text-text-2">
@@ -767,7 +830,9 @@ export default function GiveForm() {
                       <p className="nums shrink-0 font-display text-[clamp(26px,2.8vw,34px)] leading-none tracking-[-0.022em]">
                         {money2(total)}
                         {monthly && (
-                          <span className="text-[15px] font-medium tracking-normal text-text-3">/mo</span>
+                          <span className="text-[15px] font-medium tracking-normal text-text-3">
+                            /mo
+                          </span>
                         )}
                       </p>
                     </div>
@@ -804,7 +869,9 @@ export default function GiveForm() {
                           className="mt-s2 rounded-[14px] border border-line bg-paper-2 p-3.5 text-[13.5px] leading-relaxed text-text-2"
                           style={{ animation: 'hero-rise 380ms var(--ease-brand) both' }}
                         >
-                          <p className="font-semibold text-text">Online payment isn&rsquo;t switched on yet.</p>
+                          <p className="font-semibold text-text">
+                            Online payment isn&rsquo;t switched on yet.
+                          </p>
                           <p className="mt-1">
                             Nothing has been charged. You can give today by bank transfer.
                           </p>
@@ -834,14 +901,16 @@ export default function GiveForm() {
                         </div>
                       )}
                       {status.kind === 'failed' && (
-                        <p className="mt-s2 text-[13.5px] text-alert">{status.message} Nothing has been charged.</p>
+                        <p className="mt-s2 text-[13.5px] text-alert">
+                          {status.message} Nothing has been charged.
+                        </p>
                       )}
                     </div>
 
                     <p className="mt-2.5 flex items-start justify-center gap-1.5 text-center text-[12.5px] leading-relaxed text-text-3">
                       <Lock className="mt-[3px] h-3 w-3 shrink-0" />
-                      You finish on {provider === 'paypal' ? 'PayPal' : 'Stripe'}&rsquo;s secure page. We never see
-                      your card.
+                      You finish on {provider === 'paypal' ? 'PayPal' : 'Stripe'}&rsquo;s secure
+                      page. We never see your card.
                     </p>
                   </>
                 )}
@@ -889,7 +958,10 @@ export default function GiveForm() {
               height={800}
               decoding="async"
               className="h-44 w-full object-cover sm:h-56 lg:h-52"
-              style={{ objectPosition: cause.position, animation: 'fade-in 520ms var(--ease-brand) both' }}
+              style={{
+                objectPosition: cause.position,
+                animation: 'fade-in 520ms var(--ease-brand) both',
+              }}
             />
             <div className="p-s3 sm:p-s4">
               <p className="font-script text-[clamp(24px,2.1vw,30px)] leading-none text-gold-pale">

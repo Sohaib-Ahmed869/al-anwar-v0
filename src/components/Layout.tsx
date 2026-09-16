@@ -49,7 +49,13 @@ export default function Layout() {
     if ((state as { keepScroll?: boolean } | null)?.keepScroll) return
 
     if (!hash) {
-      window.scrollTo(0, 0)
+      /* A page can name where a visit should land instead of the top, by
+         putting data-land on a section: /give does when the link has already
+         filled its form in. Done here, not in the page, because this effect
+         runs after the page's own and would scroll straight back up. */
+      const land = document.querySelector('[data-land]')
+      if (land) land.scrollIntoView({ block: 'start' })
+      else window.scrollTo(0, 0)
       return
     }
 
