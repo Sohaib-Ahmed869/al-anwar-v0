@@ -450,6 +450,26 @@
   }
 }
 
+/* The About hero's ribbon: two copies of the list, moved by one copy. */
+@keyframes marquee {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+/* A stroke drawn along its length. Needs pathLength=1 and dasharray 1. */
+@keyframes stroke-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
 /* One word of a heading, up from behind the line it sits on (Words). */
 @keyframes word-rise {
   from {

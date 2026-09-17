@@ -21,6 +21,9 @@ export type NavItem = {
    *  absolute URL as a path and would route to /https://… instead. Added for
    *  the two social accounts in the Get involved panel. */
   external?: boolean
+  /** A short second line under the label, in the desktop panel only. The
+   *  Where it goes panel uses it to say what the work is in each place. */
+  note?: string
 }
 
 export type NavColumn = {
@@ -44,6 +47,9 @@ export type NavSection = {
     alt: string
     caption: string
     cta: NavItem
+    /** The phone drawer has no room for the photograph, so a feature whose
+     *  link is a page in its own right lists that link there instead. */
+    inDrawer?: boolean
   }
 }
 
@@ -52,7 +58,7 @@ export const NAV: NavSection[] = [
     id: 'appeals',
     label: 'Appeals',
     layout: 'mega',
-    match: ['/appeals'],
+    match: ['/appeals', '/ramadan', '/dhul-hijjah'],
     columns: [
       {
         title: 'By need',
@@ -80,9 +86,9 @@ export const NAV: NavSection[] = [
       {
         title: 'Seasonal',
         links: [
-          { label: 'Ramadan', to: '/appeals?season=ramadan' },
-          { label: 'Qurbani', to: '/appeals?season=qurbani' },
-          { label: 'Zakat al-Fitr', to: '/appeals?season=fitr' },
+          { label: 'Ramadan', to: '/ramadan' },
+          { label: 'Dhul Hijjah & Qurbani', to: '/dhul-hijjah' },
+          { label: 'Zakat al-Fitr', to: '/zakat#fitr' },
           { label: 'Lebanon crisis response', to: '/appeals/food-pack-lebanon', tone: 'alert' },
         ],
       },
@@ -113,49 +119,56 @@ export const NAV: NavSection[] = [
   {
     id: 'where',
     label: 'Where it goes',
+    /* 17 Sep 2026: the "Our accountability" column (reports, field partners,
+       ACNC status) was cut at the user's request, and so were those sections
+       of the page. What is left is the places, each with what the work there
+       is (read off PLACES in where-data.ts), and the gallery as a photograph,
+       like the one that closes the Appeals panel. It is the charity's own
+       photograph, so it may carry a place and a date. */
     layout: 'two',
-    match: ['/where-it-goes'],
+    match: ['/where-it-goes', '/gallery'],
     columns: [
       {
-        title: 'Recent distributions',
+        title: 'Where we work',
         links: [
-          { label: 'Gaza', to: '/where-it-goes#gaza' },
-          { label: 'Yemen', to: '/where-it-goes#yemen' },
-          { label: 'Lebanon', to: '/where-it-goes#lebanon' },
-          { label: 'Syria', to: '/where-it-goes#syria' },
-          { label: 'The Gambia', to: '/where-it-goes#gambia' },
-        ],
-      },
-      {
-        title: 'Our accountability',
-        links: [
-          { label: 'Annual reports & financials', to: '/where-it-goes#reports' },
-          { label: 'Our field partners', to: '/where-it-goes#partners' },
-          { label: 'ACNC, ABN & DGR status', to: '/where-it-goes#registration' },
+          { label: 'Gaza', to: '/where-it-goes#gaza', note: 'Emergency relief and hot meals' },
+          { label: 'Yemen', to: '/where-it-goes#yemen', note: 'Food packs and clean water' },
+          { label: 'Lebanon', to: '/where-it-goes#lebanon', note: 'Food packs, water and Eid clothes' },
+          { label: 'Syria', to: '/where-it-goes#syria', note: 'Food packs' },
+          { label: 'The Gambia', to: '/where-it-goes#gambia', note: 'A masjid and a Quran school' },
           { label: 'Where it goes', to: '/where-it-goes', tone: 'index' },
         ],
       },
     ],
+    feature: {
+      src: '/assets/images/PHOTO-2022-07-29-10-21-12.webp',
+      alt: 'A masjid under construction, with Al-Anwaar’s banner hung on the wall',
+      caption: 'A masjid and a Quran school in The Gambia',
+      cta: { label: 'See the photo gallery', to: '/gallery' },
+      inDrawer: true,
+    },
   },
   {
     id: 'involved',
     label: 'Get involved',
     layout: 'two',
-    match: ['/get-involved'],
+    match: ['/get-involved', '/fundraisers', '/events', '/volunteer', '/partners', '/become-a-partner'],
     columns: [
       {
         links: [
-          { label: 'Volunteer with us', to: '/get-involved#volunteer' },
-          { label: 'Start a fundraiser', to: '/get-involved#fundraise' },
-          { label: 'Mosque & school partnerships', to: '/get-involved#partners' },
-          { label: 'Corporate & workplace giving', to: '/get-involved#corporate' },
+          { label: 'Volunteer with us', to: '/volunteer' },
+          { label: 'Start a fundraiser', to: '/fundraisers/start' },
+          { label: 'Community fundraisers', to: '/fundraisers' },
+          { label: 'Our partners', to: '/partners' },
+          { label: 'Become a partner', to: '/become-a-partner' },
+          { label: 'Events', to: '/events' },
           { label: 'Get involved', to: '/get-involved', tone: 'index' },
         ],
       },
       {
         title: 'Follow along',
         links: [
-          { label: 'Latest posts', to: '/get-involved#social' },
+          { label: 'Latest posts', to: '/#social' },
           { label: FACEBOOK.label, to: FACEBOOK.href, external: true },
           { label: INSTAGRAM.label, to: INSTAGRAM.href, external: true },
         ],

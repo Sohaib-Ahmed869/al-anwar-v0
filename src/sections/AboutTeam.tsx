@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
 import Reveal from '../components/Reveal'
+import SectionHead, { BREAKOUT, SECTION_Y } from '../components/SectionHead'
 import { Close } from '../components/icons'
 
 /* ---------------------------------------------------------------------------
@@ -288,50 +289,33 @@ export default function AboutTeam() {
   }, [])
 
   return (
-    /* The same ground as the commitments band on this page: sand, with one
-       green wash off the top-left corner so it is a ground rather than a slab.
-       It is the only sand band left on the page now that AboutLimits is gone,
-       and AboutWork's paper follows it directly, so the boundary is clean.
-
-       The section runs the full width rather than the 4fr/8fr split the rest of
-       the page uses: the heading states the question, and the four faces answer
-       it in one line underneath. Split, the faces were a sidebar to a sentence. */
+    /* On the page's one ground, like every other section since 17 September
+       2026 (it was a sand band), with the shared SectionHead. The faces run
+       out to the same breakout edges as the panels above. */
     <section
       id="team"
+      aria-labelledby="team-head"
       /* The mega menu links straight here, so the heading has to clear the
          sticky bar when it lands. */
-      className="relative isolate scroll-mt-[calc(var(--header-h)+24px)] overflow-hidden bg-sand py-s5"
+      className={`scroll-mt-[calc(var(--header-h)+24px)] ${SECTION_Y}`}
     >
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 -z-10 bg-[radial-gradient(85%_70%_at_10%_0%,rgba(47,107,90,0.1)_0%,transparent_62%)]"
-      />
-
       <div className="gutter mx-auto max-w-page">
-        <Reveal>
-          <p className="flex items-center gap-3 text-[11px] font-semibold tracking-[0.16em] text-green uppercase">
-            <span aria-hidden="true" className="h-px w-6 bg-green/40" />
-            Board &amp; team
-          </p>
-          <h2 className="mt-s1 font-display text-[clamp(26px,3vw,38px)] leading-snug">
-            Who decides
-          </h2>
-          <p className="mt-s2 max-w-measure text-[15.5px] leading-relaxed text-text-2">
-            Three people carry the legal responsibility for this charity and their names are on the
-            public register whether or not they are on this page. The fourth runs the warehouse the
-            packs go out of. Open a seat to read what it is responsible for.
-          </p>
-        </Reveal>
+        <SectionHead
+          id="team-head"
+          eyebrow="Board & team"
+          title="The people accountable for your gift."
+          lede="Three people carry the legal responsibility for this charity, and the fourth runs the warehouse the packs go out of. Open a seat to read what it covers."
+        />
 
         {/* One row on anything above a phone. Two up on a phone, because four
             faces across a 390px screen are four thumbnails. */}
-        <ul className="mt-s4 grid grid-cols-2 gap-x-s3 gap-y-s4 sm:grid-cols-4">
+        <ul className={`mt-s4 grid grid-cols-2 gap-x-s2 gap-y-s4 sm:grid-cols-4 sm:gap-x-s3 lg:mt-s5 ${BREAKOUT}`}>
           {BOARD.map((seat, i) => (
             <li key={seat.role}>
               {/* Each face arrives a beat behind the one to its left. The four
                   enter the viewport together, so this staggers rather than
                   merely delays. */}
-              <Reveal delay={i * 80}>
+              <Reveal variant="clip" delay={i * 80}>
                 {/* The whole tile is the control, not just the plus — a 36px
                     target in a corner is a target you have to aim at, and
                     there is nothing else on the tile to click. */}
@@ -344,25 +328,39 @@ export default function AboutTeam() {
                   aria-haspopup="dialog"
                   className="group block w-full cursor-pointer text-left"
                 >
-                  <div className="relative overflow-hidden rounded-xl shadow-[0_1px_2px_rgba(21,26,24,0.06)] transition-shadow duration-300 ease-brand group-hover:shadow-[0_18px_40px_-24px_rgba(21,26,24,0.5)]">
+                  <div className="relative overflow-hidden rounded-xl shadow-[0_1px_2px_rgba(21,26,24,0.06)] sm:rounded-2xl transition-shadow duration-300 ease-brand group-hover:shadow-[0_18px_40px_-24px_rgba(21,26,24,0.5)]">
                     <Portrait seat={seat} tile />
 
-                    {/* Rotates rather than swapping to a minus: the same
-                        gesture the phone menu's accordions use, and it reads
-                        as "this opens" without a second glyph. */}
+                    {/* The name on the photograph, as the home page's tiles
+                        carry their words: an ink fade and the type over it. */}
                     <span
                       aria-hidden="true"
-                      className="absolute top-2.5 right-2.5 flex h-9 w-9 items-center justify-center rounded-full bg-paper font-sans text-[22px] leading-none text-ink shadow-[0_2px_10px_-2px_rgba(21,26,24,0.35)] transition-[transform,background-color,color] duration-300 ease-brand group-hover:rotate-45 group-hover:bg-ink group-hover:text-paper"
+                      className="absolute inset-0 bg-gradient-to-t from-ink/85 via-ink/10 via-45% to-transparent"
+                    />
+                    <span className="absolute inset-x-0 bottom-0 block p-s2 sm:p-s3">
+                      <span className="block text-[10.5px] font-semibold tracking-[0.16em] text-gold-pale uppercase sm:text-[11px]">
+                        {seat.role}
+                      </span>
+                      <span className="mt-1 block font-display text-[clamp(17px,1.6vw,22px)] leading-[1.1] font-semibold tracking-[-0.015em] text-paper">
+                        {seat.name ?? 'Name to come'}
+                      </span>
+                    </span>
+
+                    {/* Stays a plus under a pointer, filling with the logo teal (user's call, 17 Sep
+                        2026: it used to turn into a dark cross, which read as
+                        "close"). It only grows a little; a click opens the
+                        seat's dialog. */}
+                    <span
+                      aria-hidden="true"
+                      className="absolute top-2.5 right-2.5 flex h-9 w-9 items-center justify-center rounded-full bg-paper font-sans text-[22px] leading-none text-ink shadow-[0_2px_10px_-2px_rgba(21,26,24,0.35)] transition-[transform,background-color,color] duration-300 ease-brand group-hover:scale-110 group-hover:bg-teal group-hover:text-paper"
                     >
                       +
                     </span>
                   </div>
 
-                  <p className="mt-s2 font-display text-[clamp(17px,1.5vw,19px)] leading-snug text-text">
-                    {seat.name ?? 'Name to come'}
-                  </p>
-                  <p className="mt-0.5 text-[12px] font-semibold tracking-[0.12em] text-green uppercase">
-                    {seat.role}
+                  {/* What the seat covers, under the tile. */}
+                  <p className="mt-s2 line-clamp-2 text-[13.5px] leading-snug text-text-2">
+                    {seat.remit}
                   </p>
                 </button>
               </Reveal>

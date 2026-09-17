@@ -119,8 +119,10 @@ export default function MobileDrawer({ open, onClose }: Props) {
             </summary>
 
             <ul className="m-0 list-none p-0 pb-s2">
-              {section.columns.flatMap((col) =>
-                col.links.map((link) => (
+              {[
+                ...section.columns.flatMap((col) => col.links),
+                ...(section.feature?.inDrawer ? [section.feature.cta] : []),
+              ].map((link) => (
                   <li key={`${section.id}-${link.label}`}>
                     {/* Same split as the desktop panel: an absolute URL has to
                         be a plain <a> or react-router treats it as a path. It
@@ -152,8 +154,7 @@ export default function MobileDrawer({ open, onClose }: Props) {
                       </Link>
                     )}
                   </li>
-                )),
-              )}
+                ))}
             </ul>
           </details>
         ),

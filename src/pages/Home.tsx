@@ -2,6 +2,7 @@
 import HomeAppeals from '../sections/HomeAppeals'
 import HomeImpact from '../sections/HomeImpact'
 import HomeZakat from '../sections/HomeZakat'
+import HomeEvents from '../sections/HomeEvents'
 import HomeSocial from '../sections/HomeSocial'
 import Divider from '../components/Divider'
 
@@ -66,6 +67,10 @@ import Divider from '../components/Divider'
    dividers above are part of the argument's punctuation, not decoration
    sprinkled between the parts. A `mark` between every step would say nothing.
 
+   WHAT'S ON (HomeEvents) went back in before the close on 17 September 2026,
+   at the user's request: the next event and up to two after it, from
+   components/event-data.ts, and nothing at all when the diary is empty.
+
    THE NEXT-EVENT BAND HELD THIS SLOT until 16 September 2026, when the events
    diary came off the whole site at the client's request. Step 5's job did not
    change with it: it is still the one band that asks for time and attention
@@ -124,6 +129,7 @@ export default function Home() {
       <Divider variant="mark" small />
       <HomeImpact />
       <HomeZakat />
+      <HomeEvents />
       <HomeSocial />
     </>
   )

@@ -1,79 +1,61 @@
 import { Link } from 'react-router-dom'
 
 import Reveal from '../components/Reveal'
+import { BREAKOUT } from '../components/SectionHead'
+import { MasjidMark } from '../components/Ornament'
 import { ArrowRight, HandHeart } from '../components/icons'
 
 /* ---------------------------------------------------------------------------
-   Where it goes, section 8 of 8: the ask.
+   Where it goes, section 5 of 5: the ask.
 
-   The same sand band the Zakat page closes on, and it earns its place here for
-   a reason the other pages do not have: somebody who has read this far has
-   just been shown the gaps as well as the figures, and the honest next move is
-   to ask anyway rather than let the page trail off into the footer as though
-   the charity were embarrassed.
-
-   So the heading does not claim the page proved anything. It says what the
-   page actually is — a page that shows its working, including where the
-   working runs out — and then asks. The second link goes to a person, because
-   the reader most likely to have got to the bottom of this page is the reader
-   most likely to have a question the page did not answer.
+   Rebuilt 17 September 2026 as the teal close panel the other rebuilt pages
+   end on (masjid watermark), replacing the sand band. Gold on the give button
+   only; the second way out is a question to a person, for the reader who got
+   to the bottom of this page with one.
 --------------------------------------------------------------------------- */
 
 export default function WhereAsk() {
   return (
-    <section
-      aria-labelledby="where-ask-head"
-      className="relative isolate overflow-hidden border-t border-line bg-sand py-s5"
-    >
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 -z-10 bg-[radial-gradient(85%_70%_at_10%_0%,rgba(47,107,90,0.1)_0%,transparent_62%)]"
-      />
-
-      <Reveal className="gutter mx-auto flex max-w-page flex-col gap-s4 lg:flex-row lg:items-end lg:justify-between">
-        <div>
-          <h2
-            id="where-ask-head"
-            className="max-w-[20ch] font-display text-[clamp(28px,3.4vw,40px)] leading-[1.08] tracking-[-0.02em] text-balance"
-          >
-            You have seen the working, gaps and all.
-          </h2>
-          <p className="mt-s2 max-w-measure text-[15.5px] leading-relaxed text-text-2">
-            Nothing on this page asks to be taken on trust. Every figure is either lodged
-            with the regulator or marked as one we have not confirmed yet. If something here does
-            not add up for you,{' '}
-            <Link
-              to="/contact"
-              className="font-semibold text-green underline decoration-green/30 underline-offset-4 transition-colors duration-200 ease-brand hover:text-ink hover:decoration-ink/40"
-            >
-              ask us about it
-            </Link>{' '}
-            before you give.
-          </p>
-        </div>
-
-        <div className="flex flex-wrap gap-3">
-          <Link
-            to="/give"
-            className="group relative inline-flex min-h-[54px] items-center justify-center gap-2.5 overflow-hidden rounded-[12px] bg-gold px-7 text-[16px] font-semibold tracking-[-0.006em] text-ink shadow-gold transition-[transform,box-shadow,background-color,color] duration-200 ease-brand hover:-translate-y-[1.5px] hover:bg-gold-dark hover:text-paper hover:shadow-gold-lg active:translate-y-0"
-          >
-            <span
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-y-0 -left-full w-full bg-[linear-gradient(100deg,transparent_20%,rgba(255,255,255,0.55)_50%,transparent_80%)] transition-transform duration-[750ms] ease-brand group-hover:translate-x-[250%]"
-            />
-            <HandHeart className="relative h-[18px] w-[18px] shrink-0 transition-transform duration-300 ease-brand group-hover:scale-[1.12]" />
-            <span className="relative">Make a gift</span>
-          </Link>
-
-          <Link
-            to="/appeals"
-            className="group inline-flex min-h-[54px] items-center justify-center gap-1.5 rounded-[12px] border border-ink/15 px-6 text-[15.5px] font-semibold text-text transition-[border-color,background-color] duration-200 ease-brand hover:border-ink hover:bg-paper-2"
-          >
-            See the appeals
-            <ArrowRight className="h-3 w-3 -translate-x-0.5 transition-transform duration-300 ease-brand group-hover:translate-x-0.5" />
-          </Link>
-        </div>
-      </Reveal>
+    <section aria-labelledby="where-ask-head" className="pb-[clamp(56px,6.5vw,96px)]">
+      <div className="gutter mx-auto max-w-page">
+        <Reveal variant="clip" className={`block ${BREAKOUT}`}>
+          <div className="relative isolate flex flex-col gap-s4 overflow-hidden rounded-2xl bg-teal p-s3 text-paper sm:p-s4 md:flex-row md:items-center md:justify-between lg:p-[clamp(40px,4vw,64px)]">
+            <MasjidMark className="pointer-events-none absolute -right-[4%] -bottom-[18%] -z-10 size-[clamp(200px,22vw,320px)] text-paper/[0.07]" />
+            <div>
+              <p className="font-script text-[clamp(24px,2.2vw,32px)] leading-none text-gold-pale">Seen enough?</p>
+              <h2
+                id="where-ask-head"
+                className="mt-2 font-display text-[clamp(28px,3.2vw,44px)] leading-[1.08] font-semibold tracking-[-0.025em] text-balance"
+              >
+                Give knowing where it goes.
+              </h2>
+              <p className="mt-s2 max-w-[50ch] text-[15.5px] leading-[1.55] text-paper/85">
+                If anything here does not add up for you,{' '}
+                <Link to="/contact" className="font-semibold text-paper underline decoration-paper/40 underline-offset-4 hover:text-gold-pale">
+                  ask us about it
+                </Link>{' '}
+                before you give.
+              </p>
+            </div>
+            <div className="flex shrink-0 flex-wrap items-center gap-3">
+              <Link
+                to="/give"
+                className="group inline-flex min-h-[52px] items-center gap-2 rounded-[10px] bg-gold px-6 text-[15.5px] font-semibold text-ink transition-colors duration-200 ease-brand hover:bg-gold-dark hover:text-paper"
+              >
+                <HandHeart className="h-[18px] w-[18px]" />
+                Make a gift
+              </Link>
+              <Link
+                to="/appeals"
+                className="group inline-flex min-h-[52px] items-center gap-2 rounded-[10px] bg-paper px-6 text-[15.5px] font-semibold text-ink transition-colors duration-200 ease-brand hover:bg-green-pale"
+              >
+                See the appeals
+                <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 ease-brand group-hover:translate-x-0.5" />
+              </Link>
+            </div>
+          </div>
+        </Reveal>
+      </div>
     </section>
   )
 }

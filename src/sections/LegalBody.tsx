@@ -27,7 +27,13 @@ import { ArrowUp, Check, Copy } from '../components/icons'
    the pages stay readable as documents — a paragraph in Privacy.tsx is a plain
    <p> with no class on it.
 
-   No gold. Green is what reacts here; gold is the give action and the focus
+   17 SEPTEMBER 2026, with the hero moved onto the Contact pattern: every
+   accent here is the logo teal now rather than the brand green, the clause
+   titles are set heavy and tight like the section heads on About and
+   Contact, the prose is a touch larger, and the contents card sits on the
+   page ground with a hairline rather than on paper-2.
+
+   No gold. Teal is what reacts here; gold is the give action and the focus
    ring and nothing else (DESIGN-NOTES.md). There is no scroll progress bar
    either — the header already draws one across the top of every page.
 --------------------------------------------------------------------------- */
@@ -41,17 +47,17 @@ export type LegalSection = {
 
 /** Everything a clause is allowed to contain, set from here. */
 const PROSE = [
-  'mt-s2 text-[15.5px] text-text-2',
+  'mt-s2 text-[16px] text-text-2',
   '[&>p]:mt-s2 [&>p]:leading-[1.78] [&>p:first-child]:mt-0',
   '[&_strong]:font-semibold [&_strong]:text-text',
-  '[&_a]:text-green [&_a]:underline [&_a]:decoration-line [&_a]:underline-offset-4',
-  '[&_a]:transition-colors [&_a]:duration-200 [&_a:hover]:decoration-green',
+  '[&_a]:text-teal [&_a]:underline [&_a]:decoration-teal/30 [&_a]:underline-offset-4',
+  '[&_a]:transition-colors [&_a]:duration-200 [&_a:hover]:decoration-teal',
   '[&>ul]:mt-s2 [&>ul]:space-y-s1',
   '[&>ul>li]:relative [&>ul>li]:pl-s3 [&>ul>li]:leading-[1.72]',
   "[&>ul>li]:before:absolute [&>ul>li]:before:left-0 [&>ul>li]:before:top-[0.66em]",
   "[&>ul>li]:before:h-[6px] [&>ul>li]:before:w-[6px] [&>ul>li]:before:rounded-full",
-  "[&>ul>li]:before:bg-green/45 [&>ul>li]:before:content-['']",
-  '[&>h3]:mt-s3 [&>h3]:text-[15.5px] [&>h3]:font-semibold [&>h3]:text-text',
+  "[&>ul>li]:before:bg-teal/50 [&>ul>li]:before:content-['']",
+  '[&>h3]:mt-s3 [&>h3]:text-[16px] [&>h3]:font-semibold [&>h3]:text-text',
 ].join(' ')
 
 /** A clause has to clear the sticky header when it is jumped to. */
@@ -220,7 +226,7 @@ export default function LegalBody({ sections }: { sections: LegalSection[] }) {
   }, [])
 
   return (
-    <div className="gutter mx-auto max-w-page py-s5">
+    <div className="gutter mx-auto max-w-page py-[clamp(56px,6.5vw,96px)]">
       <div className="grid gap-s4 lg:grid-cols-[minmax(0,3fr)_minmax(0,9fr)] lg:gap-s5">
         {/* ---------- contents ----------
             A card, so the list reads as an instrument beside the document
@@ -233,7 +239,7 @@ export default function LegalBody({ sections }: { sections: LegalSection[] }) {
             background would be sixteen things moving; this is one. */}
         <nav
           aria-label="On this page"
-          className="rounded-2xl border border-line bg-paper-2 p-s2 lg:sticky lg:top-[calc(var(--header-h)+28px)] lg:flex lg:max-h-[calc(100vh-var(--header-h)-56px)] lg:flex-col lg:self-start"
+          className="rounded-2xl border border-line bg-paper p-s2 lg:sticky lg:top-[calc(var(--header-h)+28px)] lg:flex lg:max-h-[calc(100vh-var(--header-h)-56px)] lg:flex-col lg:self-start"
         >
           {/* Title and count on one line. Sixteen rows of 34px stand 544px tall
               before the card is even drawn, so the label is not given a line of
@@ -245,7 +251,7 @@ export default function LegalBody({ sections }: { sections: LegalSection[] }) {
             </h2>
             {/* The list already says this with aria-current. */}
             <p aria-hidden="true" className="nums text-[11px] font-medium tracking-[0.03em]">
-              <span className="text-green">{two(active)}</span>
+              <span className="text-teal">{two(active)}</span>
               <span className="px-[3px] text-text-3/50">/</span>
               <span className="text-text-3">{two(sections.length - 1)}</span>
             </p>
@@ -272,7 +278,7 @@ export default function LegalBody({ sections }: { sections: LegalSection[] }) {
                 height, so a title that wraps to two lines does not grow it. */}
             <span
               aria-hidden="true"
-              className="pointer-events-none absolute top-0 left-0 rounded-[10px] bg-green-pale transition-[transform,width,height,opacity] duration-300 ease-brand"
+              className="pointer-events-none absolute top-0 left-0 rounded-[10px] bg-teal/[0.08] transition-[transform,width,height,opacity] duration-300 ease-brand"
               style={{
                 transform: `translate3d(${marker?.x ?? 0}px, ${marker?.y ?? 0}px, 0)`,
                 width: marker?.w ?? 0,
@@ -280,7 +286,7 @@ export default function LegalBody({ sections }: { sections: LegalSection[] }) {
                 opacity: marker ? 1 : 0,
               }}
             >
-              <span className="absolute top-1/2 left-0 h-[17px] w-[3px] -translate-y-1/2 rounded-r-full bg-green" />
+              <span className="absolute top-1/2 left-0 h-[17px] w-[3px] -translate-y-1/2 rounded-r-full bg-teal" />
             </span>
 
             {/* The padding belongs here and not on the wrapper: see the note on
@@ -308,12 +314,12 @@ export default function LegalBody({ sections }: { sections: LegalSection[] }) {
                       }}
                       aria-current={on ? 'true' : undefined}
                       className={`group grid h-full grid-cols-[20px_minmax(0,1fr)] items-start gap-s1 rounded-[10px] px-s1 py-[7px] text-[13.5px] leading-[20px] transition-colors duration-200 ${
-                        on ? 'font-medium text-green' : 'text-text-2 hover:bg-line-2/70 hover:text-text'
+                        on ? 'font-medium text-teal' : 'text-text-2 hover:bg-line-2/70 hover:text-text'
                       }`}
                     >
                       <span
                         className={`nums text-[11.5px] leading-[20px] font-medium tracking-[0.03em] transition-colors duration-200 ${
-                          on ? 'text-green' : 'text-text-3 group-hover:text-text-2'
+                          on ? 'text-teal' : 'text-text-3 group-hover:text-text-2'
                         }`}
                       >
                         {two(i)}
@@ -334,7 +340,7 @@ export default function LegalBody({ sections }: { sections: LegalSection[] }) {
                 onClick={() =>
                   window.scrollTo({ top: 0, behavior: wantsLessMotion() ? 'auto' : 'smooth' })
                 }
-                className="group flex items-center gap-1.5 rounded-[10px] px-s1 py-1.5 text-[12.5px] text-text-2 transition-colors duration-200 hover:text-green"
+                className="group flex items-center gap-1.5 rounded-[10px] px-s1 py-1.5 text-[12.5px] text-text-2 transition-colors duration-200 hover:text-teal"
               >
                 <ArrowUp className="h-3 w-3 transition-transform duration-300 ease-brand group-hover:-translate-y-0.5" />
                 Back to top
@@ -363,7 +369,7 @@ export default function LegalBody({ sections }: { sections: LegalSection[] }) {
                 <div className="flex items-center gap-s1">
                   <span
                     className={`nums text-[12px] font-bold tracking-[0.14em] transition-colors duration-300 ${
-                      on ? 'text-green' : 'text-text-3'
+                      on ? 'text-teal' : 'text-text-3'
                     }`}
                   >
                     {two(i)}
@@ -371,13 +377,13 @@ export default function LegalBody({ sections }: { sections: LegalSection[] }) {
                   <span
                     aria-hidden="true"
                     className={`h-px transition-all duration-300 ease-brand ${
-                      on ? 'w-10 bg-green' : 'w-5 bg-line'
+                      on ? 'w-10 bg-teal' : 'w-5 bg-line'
                     }`}
                   />
                 </div>
 
                 <div className="mt-s1 flex items-start gap-s2">
-                  <h2 className="flex-1 font-display text-[clamp(22px,2.1vw,27px)] leading-snug">
+                  <h2 className="flex-1 font-display text-[clamp(23px,2.2vw,30px)] leading-[1.15] font-semibold tracking-[-0.025em] text-text">
                     {section.title}
                   </h2>
 
@@ -388,10 +394,10 @@ export default function LegalBody({ sections }: { sections: LegalSection[] }) {
                     type="button"
                     onClick={() => copyLink(section.id)}
                     aria-label={`Copy a link to "${section.title}"`}
-                    className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-line text-text-3 opacity-70 transition duration-200 ease-brand hover:border-green/40 hover:bg-green-pale hover:text-green focus-visible:opacity-100 lg:opacity-0 lg:group-hover:opacity-100"
+                    className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-line text-text-3 opacity-70 transition duration-200 ease-brand hover:border-teal/40 hover:bg-teal/[0.08] hover:text-teal focus-visible:opacity-100 lg:opacity-0 lg:group-hover:opacity-100"
                   >
                     {copied === section.id ? (
-                      <Check className="h-3.5 w-3.5 text-green" />
+                      <Check className="h-3.5 w-3.5 text-teal" />
                     ) : (
                       <Copy className="h-3.5 w-3.5" />
                     )}

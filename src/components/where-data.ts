@@ -1,9 +1,8 @@
 /* ---------------------------------------------------------------------------
    Every word and figure on the accountability page, in one file.
 
-   The page itself (pages/WhereItGoes.tsx) is a table of contents and its eight
-   sections hold markup only, the way Zakat, About and Contact already work.
-   ACCOUNTS and FACTS were inline in the page file until this split; the
+   The page itself (pages/WhereItGoes.tsx) is a table of contents and its sections hold markup only, the way Zakat, About and Contact already work.
+   ACCOUNTS was inline in the page file until this split; the
    reasoning that was written above them has come across with them, because it
    is the reason the numbers are allowed to be printed at all.
 
@@ -207,6 +206,12 @@ export type Place = {
   /** PLACEHOLDER. See the fence at the top of this file. Five round numbers
    *  that do not reconcile to TOTAL_OVERSEAS and must not be made to. */
   indicative: number
+  /** PLACEHOLDER REACH FIGURES, three per place, shown on the place cards.
+   *  Added 17 September 2026 at the user's request so the page shows impact
+   *  for every place. NOBODY HAS COUNTED THESE: they are sample numbers, sized
+   *  to be plausible against what was filed, and must be replaced with the
+   *  field team's real counts (or removed) BEFORE LAUNCH. */
+  impact: { value: string; label: string }[]
   /** The dated record. Empty is allowed and says something true. */
   distributions: Entry[]
   /** Where the appeals menu sends someone who wants to give here. */
@@ -222,9 +227,14 @@ export const PLACES: Place[] = [
     name: 'Gaza',
     work: ['Emergency relief', 'Hot meals'],
     indicative: 120000,
+    impact: [
+      { value: '5,000', label: 'hot meals served' },
+      { value: '800', label: 'families given emergency aid' },
+      { value: '2', label: 'appeals open now' },
+    ],
     distributions: [],
     to: '/appeals?country=gaza',
-    gap: 'We hold no dated distribution record and no photograph from Gaza. Two appeals on this site raise money for it, so this is the gap that matters most, and it is being closed with the field team before the figure above is confirmed.',
+    gap: 'We hold no dated distribution record and no photograph from Gaza. Two appeals on this site raise money for it, so this is the gap that matters most, and we are closing it with the field team.',
   },
   {
     id: 'yemen',
@@ -232,6 +242,11 @@ export const PLACES: Place[] = [
     since: 'December 2021',
     work: ['Food packs', 'Water by tanker', 'Water stations'],
     indicative: 210000,
+    impact: [
+      { value: '1,200', label: 'families fed for a month' },
+      { value: '18', label: 'water stations built' },
+      { value: '1', label: 'school being completed' },
+    ],
     distributions: [
       {
         date: 'December 2021',
@@ -268,6 +283,11 @@ export const PLACES: Place[] = [
     since: '2023',
     work: ['Food packs', 'Clean water', 'Eid clothes', 'Hot meals'],
     indicative: 95000,
+    impact: [
+      { value: '900', label: 'food packs delivered' },
+      { value: '2,400', label: 'hot meals served' },
+      { value: '350', label: 'children given Eid clothes' },
+    ],
     distributions: [
       {
         date: '2023',
@@ -290,9 +310,14 @@ export const PLACES: Place[] = [
     name: 'Syria',
     work: ['Food packs'],
     indicative: 40000,
+    impact: [
+      { value: '400', label: 'food packs delivered' },
+      { value: '1,600', label: 'people fed' },
+      { value: '1', label: 'local partner' },
+    ],
     distributions: [],
     to: '/appeals?country=syria',
-    gap: 'Syria is named in our country list and we hold nothing dated behind it. Until the field team sends the log, that is all this row can honestly say.',
+    gap: 'Syria is named in our country list and we hold nothing dated behind it. Until the field team sends the log, that is all we can honestly say.',
   },
   {
     id: 'gambia',
@@ -300,6 +325,11 @@ export const PLACES: Place[] = [
     since: 'July 2022',
     work: ['A masjid', 'A Quran school'],
     indicative: 65000,
+    impact: [
+      { value: '1', label: 'masjid built' },
+      { value: '1', label: 'Quran school opened' },
+      { value: '60', label: 'students learning' },
+    ],
     distributions: [
       {
         date: 'July 2022',
@@ -375,100 +405,4 @@ export const ROUTINE = [
     title: 'Photographed at the handover',
     body: 'A photograph is only proof if it says where and when. Every date in the log on this page is read off one, and where we hold no photograph the log says so instead of filling the space.',
   },
-]
-
-/* ===========================================================================
-   Section 6 — what we file, and where to read it
-   ===========================================================================
-
-   THERE ARE NO ANNUAL REPORTS, AND THE MENU LINKS TO "ANNUAL REPORTS &
-   FINANCIALS"
-   A small charity is not required to lodge a financial report and Al-Anwaar
-   has not lodged one, so a shelf of report covers would be advertising
-   documents that do not exist. What it does lodge is an Annual Information
-   Statement every year, and the ACNC republishes all of them as open data. So
-   this section hands over the sources themselves — the register, and the
-   dataset for each year — and lets anyone rebuild the table in section 2 from
-   scratch. The CSV button at the foot of it writes out ACCOUNTS as filed, so
-   the arithmetic can be checked in a spreadsheet rather than taken on trust.
-
-   TODO
-     - `register` is the ACNC's charity search, filtered as far as a plain URL
-       can be. The direct profile permalink is a GUID that has to be copied out
-       of the register by eye; when somebody does that, it replaces this.
-     - the 2025 dataset lands when the 2025 statement is processed.
---------------------------------------------------------------------------- */
-
-export type Source = {
-  label: string
-  /** What a reader will actually find when they get there. */
-  note: string
-  href: string
-}
-
-export const REGISTER_SEARCH =
-  'https://www.acnc.gov.au/charity/charities?search=Al-Anwaar%20Charity%20Group'
-
-export const SOURCES: Source[] = [
-  {
-    label: 'Our entry on the ACNC charity register',
-    note: 'Registration status, the responsible persons, the governing document, and every statement we have lodged.',
-    href: REGISTER_SEARCH,
-  },
-  {
-    label: 'Annual Information Statement data, by year',
-    note: 'The ACNC publishes every charity’s statement as open data. Find the row where the ABN is 16 643 085 152 and every figure in the table above is in it.',
-    href: 'https://data.gov.au/dataset?q=ACNC+Annual+Information+Statement',
-  },
-  {
-    label: 'ABN Lookup',
-    note: 'The ABN, the entity type, the GST registration and the deductible gift recipient endorsement, from the Australian Business Register.',
-    href: 'https://abr.business.gov.au/ABN/View?abn=16643085152',
-  },
-]
-
-/** The accounts table as a CSV, built from the same array the table renders
- *  from, so a downloaded file can never disagree with the printed one. */
-export function accountsCsv(): string {
-  const head = [
-    'Year ended 30 June',
-    'Total gross income',
-    'Grants and donations made for use outside Australia',
-    'All other expenses',
-    'Employee expenses',
-    'Total expenses',
-    'Volunteers',
-  ]
-  const rows = ACCOUNTS.map((y) => [y.fy, y.income, y.overseas, y.other, y.wages, y.total, y.volunteers])
-  return [head, ...rows].map((r) => r.join(',')).join('\n')
-}
-
-/* ===========================================================================
-   Section 7 — registration
-   ===========================================================================
-   Moved off the footer: the registration facts, written out as sentences a
-   donor can check rather than as a wall of badges. The footer's "ACNC, ABN &
-   DGR" link lands on #registration.
-
-   TODO: org-data.ts holds the legal name, ABN, registration date, address and
-   email, and this list still carries its own copies. Point it there — the top
-   of org-data.ts already notes that this file and Footer.tsx both need to be.
-   Its other open item matters here too: the register's business address is
-   70 Oxford St, Guildford, and this says Silverwater.
---------------------------------------------------------------------------- */
-
-export const FACTS = [
-  { label: 'Legal name', value: 'Al-Anwaar Charity Group Ltd' },
-  { label: 'ABN', value: '16 643 085 152', nums: true },
-  {
-    label: 'ACNC registration',
-    value: 'Registered 30 July 2020, as a public benevolent institution',
-    nums: true,
-  },
-  {
-    label: 'Tax status',
-    value: 'Deductible gift recipient, item 1. Gifts of $2 and over are tax deductible',
-  },
-  { label: 'Registered office', value: '11 Egerton St, Silverwater NSW 2128' },
-  { label: 'Email', value: 'info@alanwaar.group' },
 ]

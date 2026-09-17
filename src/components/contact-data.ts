@@ -1,4 +1,3 @@
-import { PHONE } from './nav-data'
 import { ORG } from './org-data'
 
 /* ---------------------------------------------------------------------------
@@ -66,13 +65,17 @@ export const MESSAGE_MIN = 10
 
 export const CONTACT = {
   hero: {
-    eyebrow: 'Contact',
-    title: 'Talk to a person.',
+    /* Chosen by the user, 17 Sep 2026, over a salaam greeting and a plain
+       "Contact Us": a handwritten label, a heavy two-line title with the
+       second line in pale gold, a two-line intro, and both ways in. */
+    eyebrow: 'Contact us',
+    titleLead: 'Talk to',
+    titleMark: 'our team.',
     intro:
-      'Everything sent from this page is read by somebody who works here. Tell us what it is about, and we will put it in front of whoever can actually answer it.',
-    primary: 'Send a message',
-    secondary: `Call ${PHONE.label}`,
-    scrollHint: 'Scroll to the form',
+      'Questions about a gift, zakat or volunteering? Write to us and someone from our Silverwater office replies within one working day.',
+    /* Bottom right: scrolls to the form. */
+    more: 'Write to us',
+    call: 'or call',
   },
 
   reach: {

@@ -24,7 +24,7 @@ type Span = { x: number; w: number }
 
 /** The routes that open on a full-bleed photograph, over which the bar is
  *  transparent until it has something to cover. */
-const OVERLAY_ROUTES = ['/', '/privacy', '/terms', '/contact', '/about', '/zakat', '/give', '/appeals', '/where-it-goes', '/get-involved']
+const OVERLAY_ROUTES = ['/', '/privacy', '/terms', '/contact', '/zakat', '/give', '/appeals', '/where-it-goes', '/get-involved', '/ramadan', '/dhul-hijjah', '/fundraisers', '/events', '/gallery', '/volunteer', '/partners', '/become-a-partner']
 
 /* The live crisis, from the one place it is written down. See appeals-data.ts. */
 const crisis = appealBySlug(CRISIS?.slug)
@@ -44,7 +44,11 @@ export default function Header() {
 
      Anything added here must pull itself up behind the bar the way HomeHero and
      LegalHero do, or the header will float over nothing. */
-  const overlay = OVERLAY_ROUTES.includes(location.pathname) || location.pathname.startsWith('/appeals/')
+  const overlay =
+    OVERLAY_ROUTES.includes(location.pathname) ||
+    location.pathname.startsWith('/appeals/') ||
+    /* a single fundraiser has a photo hero; the start form does not */
+    (location.pathname.startsWith('/fundraisers/') && location.pathname !== '/fundraisers/start')
 
   const [openId, setOpenId] = useState<string | null>(null)
   const [hoverId, setHoverId] = useState<string | null>(null)
@@ -729,7 +733,11 @@ function NavItem({
           mega
             ? 'right-[var(--gutter)] left-[var(--gutter)] grid grid-cols-[1fr_1fr_1fr_1.35fr] gap-[34px] px-[34px] py-[30px]'
             : `px-[30px] py-[26px] ${alignRight ? 'right-0' : 'left-0'} ${
-                section.layout === 'two' ? 'grid min-w-[520px] grid-cols-2 gap-10' : 'min-w-[290px]'
+                section.layout !== 'two'
+                  ? 'min-w-[290px]'
+                  : section.feature
+                    ? 'grid min-w-[600px] grid-cols-[minmax(0,1fr)_250px] gap-8'
+                    : 'grid min-w-[520px] grid-cols-2 gap-10'
               }`
         }`}
       >
@@ -786,7 +794,18 @@ function NavItem({
                         link.tone
                       , onDark)}`}
                     >
-                      <span>{link.label}</span>
+                      <span>
+                        {link.label}
+                        {link.note && (
+                          <span
+                            className={`mt-0.5 block text-[13px] leading-snug ${
+                              onDark ? 'text-paper/50' : 'text-text-3'
+                            }`}
+                          >
+                            {link.note}
+                          </span>
+                        )}
+                      </span>
                       <ArrowRight className="h-3 w-3 shrink-0 -translate-x-1 opacity-0 transition-[transform,opacity] duration-200 ease-brand group-hover/link:translate-x-0 group-hover/link:opacity-100" />
                     </Link>
                   )}

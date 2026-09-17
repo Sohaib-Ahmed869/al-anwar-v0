@@ -3,20 +3,22 @@ import AboutMission from '../sections/AboutMission'
 import AboutStory from '../sections/AboutStory'
 import AboutTeam from '../sections/AboutTeam'
 import AboutWork from '../sections/AboutWork'
+import Divider from '../components/Divider'
 
 /* ---------------------------------------------------------------------------
    About, in five parts. Like Home and Contact, this file is a table of contents
    and nothing else — every section of it is one file in src/sections/.
 
-   1. Who you are giving to ..... AboutHero     the band, the registration, and
-                                                 the one hero on the site that
-                                                 is our own photograph
-   2. What we are for ........... AboutMission  the mission carried across word
-                                                 for word from the old site, the
-                                                 vision it is working towards,
-                                                 the three values written out as
-                                                 commitments, and the hadith the
-                                                 old homepage closed on
+   1. Who you are giving to ..... AboutHero     light, no photograph, no shape
+                                                 behind it (17 Sep 2026): a very
+                                                 large title and a turning
+                                                 place (the ribbon is gone)
+   2. What we stand for ......... AboutMission  the mission carried across word
+                                                 for word from the old site in
+                                                 a teal panel, the vision, and
+                                                 the three values as ruled cards,
+                                                 and the hadith the old homepage
+                                                 closed on
    3. How it started ............ AboutStory    six years as a dated ledger,
                                                  with a rule down the side that
                                                  fills as you read it
@@ -26,6 +28,11 @@ import AboutWork from '../sections/AboutWork'
    5. Volunteer with us ......... AboutWork     an afternoon, a skill or a
                                                  room, and the no-vacancies
                                                  line demoted under them
+
+   ONE GROUND (17 September 2026): every section now sits on the page's single
+   ground with the shared SectionHead and SECTION_Y spacing, as Home and
+   Appeals do. No section sets a background of its own; the sand bands and the
+   ink hadith strip are gone.
 
    The order is an argument, the same way the home page is: who we are, what we
    promised, what we have actually done, who is accountable for it, and how to
@@ -55,6 +62,9 @@ export default function About() {
     <>
       <AboutHero />
       <AboutMission />
+      {/* One seam, as on the home page: the turn from what we promise to what
+          we have done. Small, with no padding of its own. */}
+      <Divider variant="mark" small />
       <AboutStory />
       <AboutTeam />
       <AboutWork />

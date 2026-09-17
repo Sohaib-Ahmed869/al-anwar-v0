@@ -93,7 +93,7 @@ const POSTS: Post[] = [
 
 export default function HomeSocial() {
   return (
-    <section aria-labelledby="home-social-head" className={SECTION_Y}>
+    <section id="social" aria-labelledby="home-social-head" className={`scroll-mt-[var(--header-h)] ${SECTION_Y}`}>
       <div className="gutter mx-auto max-w-page">
         <div className={`flex flex-wrap items-end justify-between gap-x-s4 gap-y-s3 ${BREAKOUT}`}>
           <div>

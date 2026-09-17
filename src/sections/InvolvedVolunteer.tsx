@@ -1,112 +1,134 @@
 import { Link } from 'react-router-dom'
 
-import Reveal from '../components/Reveal'
-import { ArrowRight } from '../components/icons'
+import Reveal, { useInView } from '../components/Reveal'
+import SectionHead, { BREAKOUT, SECTION_Y } from '../components/SectionHead'
+import { ArrowRight, Box, Van } from '../components/icons'
 import { VOLUNTEER, VOLUNTEER_COUNT } from '../components/involved-data'
 
 /* ---------------------------------------------------------------------------
-   Get involved, section 2 of 7: volunteer with us.
+   Get involved, section 2 of 5: volunteer with us.
 
-   THE HEADLINE IS THE SMALL NUMBER, AND IT IS A FILED ONE
-   Five people volunteered in the most recent year we lodged a statement for.
-   It is read live out of where-data.ts rather than typed here, so it cannot
-   disagree with the table on the accountability page and it updates itself the
-   year a new statement lands. Every other charity page of this kind opens by
-   implying a movement. Opening on a number this small is the stronger move and
-   the honest one: somebody who turns up is not a rounding error in an
-   operation, they are a sixth of it, and the sentence under the heading says
-   so without asking for pity about it.
+   Rebuilt 17 September 2026 on the home pattern. The user chose a warm
+   headline over "Last year there were five of us", so the filed count now sits
+   in the teal panel as a fact rather than as the hook. It is still read live
+   from where-data.ts and still links to where it was filed.
 
-   TWO ROLES, NOT EIGHT — see involved-data.ts. The warehouse needs packers and
-   it needs drivers, and a list of eight roles it cannot fill would read as a
-   wishlist. They are set as two wide rows rather than a grid of cards, because
-   two cards side by side look like the first two of four that did not load.
-
-   WHAT A DAY IS, as a numbered list. The third step is the one these pages
-   almost always leave out — being told where the run went — and it is the
-   reason somebody comes back a second time, so it is not buried.
+   Beside the panel, the two roles as ruled cards with an icon. Under them,
+   how a day goes: three steps with large outlined numerals, the same as
+   About's values, that fill teal once the row scrolls in.
 --------------------------------------------------------------------------- */
 
+const ICONS = { box: Box, van: Van } as const
+
 export default function InvolvedVolunteer() {
+  const [dayRef, dayShown] = useInView<HTMLOListElement>()
+
   return (
     <section
       id="volunteer"
       aria-labelledby="volunteer-head"
-      className="scroll-mt-[calc(var(--header-h)+24px)] bg-paper py-s5 lg:py-s6"
+      className={`scroll-mt-[calc(var(--header-h)+24px)] ${SECTION_Y}`}
     >
       <div className="gutter mx-auto max-w-page">
-        <div className="grid gap-s4 lg:grid-cols-[minmax(0,4fr)_minmax(0,8fr)] lg:gap-s5">
-          <div className="lg:sticky lg:top-[calc(var(--header-h)+40px)] lg:self-start">
-            <p className="flex items-center gap-3 text-[11px] font-semibold tracking-[0.16em] text-green uppercase">
-              <span aria-hidden="true" className="h-px w-6 bg-green/40" />
-              {VOLUNTEER.eyebrow}
-            </p>
-            <h2
-              id="volunteer-head"
-              className="mt-s1 max-w-[15ch] font-display text-[clamp(28px,3.4vw,42px)] leading-[1.08] tracking-[-0.02em] text-balance"
-            >
-              Last year there were{' '}
-              <span className="nums">{VOLUNTEER_COUNT}</span> of us
-            </h2>
-            <p className="mt-s2 max-w-measure text-[15.5px] leading-relaxed text-text-2">
-              {VOLUNTEER.body}
-            </p>
+        <SectionHead
+          id="volunteer-head"
+          eyebrow={VOLUNTEER.eyebrow}
+          title={VOLUNTEER.title}
+          lede={VOLUNTEER.lede}
+          action={
             <Link
-              to="/where-it-goes#accounts"
-              className="group mt-s2 inline-flex items-center gap-2 text-[14px] font-semibold text-green transition-colors duration-200 ease-brand hover:text-ink"
+              to="/volunteer"
+              className="group inline-flex min-h-[50px] items-center gap-2 rounded-[10px] bg-teal px-6 text-[15.5px] font-semibold text-paper transition duration-200 ease-brand hover:-translate-y-px hover:bg-ink"
             >
-              That number, and every other one we file
-              <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 ease-brand group-hover:translate-x-1" />
+              {VOLUNTEER.cta}
+              <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 ease-brand group-hover:translate-x-0.5" />
             </Link>
-          </div>
+          }
+        />
 
-          <div>
-            {VOLUNTEER.roles.map((role, i) => (
-              <Reveal key={role.kind} delay={i * 70}>
-                <article className="border-t border-line py-s3">
-                  <p className="text-[11px] font-semibold tracking-[0.13em] text-text-3 uppercase">
-                    {role.kind}
-                  </p>
-                  <h3 className="mt-1.5 font-display text-[clamp(20px,1.9vw,25px)] leading-tight tracking-[-0.018em]">
-                    {role.title}
-                  </h3>
-                  <p className="mt-s1 max-w-measure text-[15px] leading-relaxed text-text-2">
-                    {role.body}
-                  </p>
-                </article>
-              </Reveal>
-            ))}
-
-            {/* What actually happens, so nobody arrives not knowing. */}
-            <Reveal delay={140}>
-              <div className="mt-s3 rounded-2xl border border-line bg-paper-2 p-s3 sm:p-s4">
-                <h3 className="text-[11px] font-semibold tracking-[0.13em] text-text-3 uppercase">
-                  How it goes
-                </h3>
-                <ol className="mt-s2 grid gap-s2">
-                  {VOLUNTEER.day.map((step, i) => (
-                    <li key={step} className="flex gap-s2">
-                      <span
-                        aria-hidden="true"
-                        className="nums mt-[3px] flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-green/10 text-[12px] font-semibold text-green"
-                      >
-                        {i + 1}
-                      </span>
-                      <p className="max-w-measure text-[15px] leading-relaxed text-text-2">{step}</p>
-                    </li>
-                  ))}
-                </ol>
-
+        <div
+          className={`mt-s4 grid gap-s2 lg:mt-s5 lg:grid-cols-[minmax(0,4fr)_minmax(0,8fr)] ${BREAKOUT}`}
+        >
+          {/* The filed count, as a fact in the logo teal. */}
+          <Reveal variant="clip" className="h-full">
+            <div className="flex h-full flex-col justify-between gap-s4 rounded-2xl bg-teal p-s3 text-paper sm:p-s4 lg:p-[clamp(32px,3.2vw,48px)]">
+              <p className="font-script text-[clamp(24px,2.2vw,32px)] leading-none text-gold-pale">
+                Small, and real
+              </p>
+              <div>
+                <p className="nums font-display text-[clamp(72px,8vw,120px)] leading-[0.85] font-bold tracking-[-0.05em]">
+                  {VOLUNTEER_COUNT}
+                </p>
+                <p className="mt-s2 max-w-[28ch] text-[15.5px] leading-[1.5] text-paper/85">
+                  {VOLUNTEER.countLabel}
+                </p>
                 <Link
-                  to="/contact?topic=Volunteering"
-                  className="group mt-s3 inline-flex min-h-[48px] items-center justify-center gap-1.5 rounded-[12px] border border-ink/15 bg-paper px-6 text-[15px] font-semibold text-text transition-[border-color,background-color] duration-200 ease-brand hover:border-ink hover:bg-paper"
+                  to="/where-it-goes#accounts"
+                  className="group mt-s2 inline-flex items-center gap-1.5 text-[14px] font-semibold text-gold-pale underline decoration-gold-pale/35 underline-offset-4 transition-colors duration-200 hover:decoration-gold-pale"
                 >
-                  {VOLUNTEER.cta}
+                  Where that number is filed
                   <ArrowRight className="h-3 w-3 transition-transform duration-300 ease-brand group-hover:translate-x-0.5" />
                 </Link>
               </div>
-            </Reveal>
+            </div>
+          </Reveal>
+
+          <div className="grid gap-s2 md:grid-cols-2">
+            {VOLUNTEER.roles.map((role, i) => {
+              const Icon = ICONS[role.icon as keyof typeof ICONS]
+              return (
+                <Reveal key={role.kind} variant="clip" delay={90 + i * 90} className="h-full">
+                  <article className="flex h-full flex-col rounded-2xl border border-line p-s3 sm:p-s4">
+                    <span
+                      aria-hidden="true"
+                      className="flex size-14 items-center justify-center rounded-full bg-teal/[0.08] text-teal"
+                    >
+                      <Icon className="size-7" />
+                    </span>
+                    <p className="mt-s4 font-script text-[clamp(24px,2vw,30px)] leading-none text-green">
+                      {role.kind}
+                    </p>
+                    <h3 className="mt-2 font-display text-[clamp(22px,2vw,28px)] leading-[1.15] font-semibold tracking-[-0.02em] text-balance">
+                      {role.title}
+                    </h3>
+                    <p className="mt-s2 text-[15px] leading-relaxed text-text-2">{role.body}</p>
+                  </article>
+                </Reveal>
+              )
+            })}
           </div>
+        </div>
+
+        {/* How a day goes. */}
+        <div className={`mt-s5 lg:mt-s6 ${BREAKOUT}`}>
+          <Reveal variant="soft">
+            <h3 className="font-display text-[clamp(22px,2vw,28px)] leading-tight font-semibold tracking-[-0.02em]">
+              {VOLUNTEER.dayTitle}
+            </h3>
+          </Reveal>
+          <ol ref={dayRef} className="mt-s3 grid gap-s3 md:grid-cols-3 md:gap-s2">
+            {VOLUNTEER.day.map((step, i) => (
+              <li key={step.title} className="border-t border-line pt-s3">
+                <Reveal delay={i * 120}>
+                  <span
+                    aria-hidden="true"
+                    className={`nums block font-display text-[clamp(52px,4.6vw,72px)] leading-[0.8] font-semibold tracking-[-0.05em] transition-colors duration-700 ease-brand [-webkit-text-stroke:1.5px_var(--color-teal)] ${
+                      dayShown ? 'text-teal' : 'text-transparent'
+                    }`}
+                    style={{ transitionDelay: `${400 + i * 350}ms` }}
+                  >
+                    0{i + 1}
+                  </span>
+                  <p className="mt-s3 font-display text-[19px] leading-snug font-semibold tracking-[-0.014em]">
+                    {step.title}
+                  </p>
+                  <p className="mt-1.5 max-w-[34ch] text-[15px] leading-relaxed text-text-2">
+                    {step.body}
+                  </p>
+                </Reveal>
+              </li>
+            ))}
+          </ol>
         </div>
       </div>
     </section>

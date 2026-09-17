@@ -27,6 +27,7 @@ import {
   takesMonthly,
 } from '../components/give-data'
 import { PLACES, appealBySlug } from '../components/appeals-data'
+import { fundraiserBySlug } from '../services/fundraisers'
 import Reveal, { useInView } from '../components/Reveal'
 import { ArrowRight, Check, HandHeart, Lock } from '../components/icons'
 import { ORG } from '../components/org-data'
@@ -112,11 +113,18 @@ function useArrival() {
   return useState(() => {
     /* An appeal from /appeals names its own fund and place; a bare place or
        the hero's ?appeal=meals goes through APPEALS in give-data.ts. */
-    const named = appealBySlug(params.get('appeal'))
+    /* A community fundraiser (/fundraisers/<slug>) gives to its appeal's fund,
+       and the fundraiser's own title is what the form says it is for. */
+    const fundraiser = fundraiserBySlug(params.get('fundraiser'))
+    const named = appealBySlug(fundraiser?.appeal ?? params.get('appeal'))
     const place = named
       ? {
           fund: named.fund,
-          label: named.where ? `${named.where}, ${PLACES[named.country]}` : PLACES[named.country],
+          label: fundraiser
+            ? fundraiser.title
+            : named.where
+              ? `${named.where}, ${PLACES[named.country]}`
+              : PLACES[named.country],
         }
       : (APPEALS[params.get('country') ?? ''] ?? APPEALS[params.get('appeal') ?? ''])
     const fundId =
@@ -151,7 +159,7 @@ function useArrival() {
       step,
       /** the link chose something, so the reader lands on the form */
       prefilled:
-        ['appeal', 'designation', 'amount', 'country'].some((k) => params.has(k)) || !!handed,
+        ['appeal', 'designation', 'amount', 'country', 'fundraiser'].some((k) => params.has(k)) || !!handed,
     }
   })[0]
 }

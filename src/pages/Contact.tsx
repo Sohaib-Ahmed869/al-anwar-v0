@@ -1,9 +1,17 @@
 import ContactHero from '../sections/ContactHero'
 import ContactForm from '../sections/ContactForm'
 import ContactSocial from '../sections/ContactSocial'
+import Divider from '../components/Divider'
 
 /* ---------------------------------------------------------------------------
    Contact, in three parts.
+
+   17 SEPTEMBER 2026: moved onto the About page's pattern at the user's
+   request. A light, type-led hero with a turning subject and a ribbon (no
+   photograph, not an overlay route); the form and the social band on the
+   shared SectionHead, SECTION_Y and one ground, with one small mark between
+   them; the details panel in the logo teal. Older notes below describe the
+   photo hero, the ink panel and the sand band.
 
    1. Talk to a person ......... ContactHero    the band, and the two ways in.
                                                 Nothing along its foot but the
@@ -64,6 +72,7 @@ export default function Contact() {
     <>
       <ContactHero />
       <ContactForm />
+      <Divider variant="mark" small />
       <ContactSocial />
     </>
   )

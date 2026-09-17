@@ -361,9 +361,20 @@ are finished.
   log, partner names for four of the five places, one Gaza photograph, and the register's
   operating-countries list.
 
-- **`pages/GetInvolved.tsx`, in seven sections.** The four ways in that the header menu
-  lists — volunteering, running a fundraiser, mosque and school partnerships, workplace
-  giving — plus the diary and a close. All of its words are in
+- **`pages/GetInvolved.tsx`, in five sections** (rebuilt 17 September 2026): a teal photo
+  hero, then the three ways in that the header menu lists (volunteering, running a
+  fundraiser, mosque and school partnerships) and a close. Workplace giving and the social
+  feeds were cut the same day.
+- **Community fundraisers, `/fundraisers`** (added 17 September 2026 after a peer-to-peer
+  campaigns page the user named): browse (`pages/Fundraisers.tsx`), start one in four steps
+  with a live preview (`pages/FundraiserStart.tsx`), and a page per fundraiser with a give
+  card (`pages/Fundraiser.tsx`). **Every fundraiser raises for one of our real appeals**, and
+  its Donate goes to `/give?fundraiser=<slug>`, which books to that appeal's fund.
+  **`SAMPLE_FUNDRAISERS` in `components/fundraiser-data.ts` are invented** (people, totals,
+  messages) and must be emptied or replaced before launch. There is no server, so a
+  fundraiser started on the site is saved in that browser's localStorage only
+  (`services/fundraisers.ts`, `FUNDRAISER_ENDPOINT`), its page says it is a preview, and
+  "Send it to us" emails the details to the office. All of its words are in
   `components/involved-data.ts`. The things to know before editing it:
   **nothing on the page collects a name.** There is no volunteer sign-up, no fundraiser
   wizard and no "register your interest" box, and that is deliberate — the site has no
@@ -384,6 +395,7 @@ are finished.
   and the standing reminder that every date in the diary is unconfirmed — which matters more
   on this page than anywhere else, because this one invites a stranger to turn up.
 
+- **The events diary came back on 17 September 2026** at the user's request: `/events` (no per-event pages), `components/event-data.ts`, `components/EventCard.tsx` and `sections/HomeEvents.tsx`. Every event in it is a placeholder, and the client should confirm it wants events back. What follows is the 16 September removal, kept for the record.
 - **The events diary is gone from the whole site** (16 September 2026, client's request).
   `/events`, `/events/:slug`, `pages/Events.tsx`, `pages/Event.tsx`, `components/event-data.ts`,
   `sections/HomeEvent.tsx` and the event pinned into the header's Get involved panel were all
@@ -400,8 +412,10 @@ are finished.
   attention rather than money, so neither carries gold.
   `sections/HomeSocial.tsx` closes the home page with type and two links and **no iframe**:
   this is the page everybody lands on, and nobody should be handed to Meta for opening it.
-  `sections/InvolvedSocial.tsx` (`/get-involved#social`) has the actual posts — the Facebook
-  page-plugin timeline and a grid of Instagram posts.
+  `sections/InvolvedSocial.tsx` used to carry the actual posts (the Facebook page-plugin
+  timeline and a grid of Instagram posts) on `/get-involved#social`; it was cut on
+  17 September 2026 at the user's request, and the menu's "Latest posts" now goes to
+  `/contact#social` (and from 17 September 2026 to the home page's `/#social`). `facebookTimeline` and `EMBEDDABLE` in `social-data.ts` are unused since.
   **Nothing from Meta loads until a button is pressed.** Both embeds are Meta-served iframes
   that set cookies on every visitor the moment they mount, so they sit behind one consent
   click that says what pressing it does. The precedent is the OpenStreetMap preview in

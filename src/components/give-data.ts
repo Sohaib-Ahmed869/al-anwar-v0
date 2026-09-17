@@ -359,6 +359,36 @@ export const CAUSES: Cause[] = [
     title: 'One person fed for every day missed.',
     ...MEAL,
   },
+  /* QURBANI, added 17 September 2026 with the /dhul-hijjah page. Not one of
+     the nine on the old shop's list, but the charity's own: the 26 May 2025
+     Instagram poster (ig-qurban-yemen-2025.webp, HomeSocial) sells "2025
+     Qurban Yemen" at $250, with a sheep on it. So one share is one sheep in
+     Yemen at $250.
+     TODO before Dhul Hijjah 1448: the office confirms the 2027 price and that
+     a share is still one sheep. It is owed once, so no monthly ladder.
+     Photograph: "Flock of sheep grazing on rocky hillside", Anastasija,
+     pexels.com/photo/33103868, Pexels License. Stock, not Yemen, and never
+     captioned. */
+  {
+    id: 'qurbani',
+    label: 'Qurbani',
+    arabic: 'أضحية',
+    note: 'One sheep sacrificed in Yemen after the Eid prayer, and the meat given to families.',
+    appeal: 'Qurbani',
+    slug: 'qurbani',
+    place: 'families in Yemen',
+    amounts: [
+      { value: 250, label: 'One share' },
+      { value: 500, label: 'Two shares' },
+      { value: 1250, label: 'Five shares' },
+    ],
+    unit: { price: 250, say: (n) => plural(n, 'Qurbani share', 'Qurbani shares') },
+    standing: 'Towards a Qurbani share in Yemen',
+    title: 'One share, given on the day of Eid.',
+    photo: 'hero-qurbani-sheep',
+    alt: 'A flock of sheep grazing on a rocky hillside in evening light',
+    position: '50% 45%',
+  },
 ]
 
 export const money = (v: number) => '$' + v.toLocaleString('en-AU', { maximumFractionDigits: 2 })
@@ -412,12 +442,11 @@ export const TRUST = [
   {
     title: 'Registered with the ACNC',
     body: 'A public benevolent institution, on the national charity register since 2020.',
-    to: '/where-it-goes#registration',
+    to: '/where-it-goes#accounts',
   },
   {
     title: 'Tax deductible',
     body: 'We are a deductible gift recipient. Gifts of $2 and over can be claimed.',
-    to: '/where-it-goes#registration',
   },
   {
     title: 'Zakat, passed on whole',

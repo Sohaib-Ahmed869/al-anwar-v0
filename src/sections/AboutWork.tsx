@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 
 import Reveal from '../components/Reveal'
+import SectionHead, { BREAKOUT, SECTION_Y } from '../components/SectionHead'
 import { ArrowRight, Mail } from '../components/icons'
 import { ORG } from '../components/org-data'
 
@@ -30,6 +31,14 @@ import { ORG } from '../components/org-data'
    reader wants to know where their donation stops and a salary starts, there is
    now nowhere on this site to find out.
 
+   17 September 2026: moved onto the home page's pattern (SectionHead, one
+   ground, ruled panels with a script label instead of gradient cards and
+   chips), and the closing email line is now a teal panel.
+
+   Second pass, 17 September 2026: each card fills with the banner teal from
+   the foot under a pointer, its arrow turns gold, and the whole card is the
+   link.
+
    The headline names the three in the order the cards run — an afternoon, a
    skill, a room — so a reader who only reads the heading still knows what is
    being asked of them.
@@ -48,7 +57,7 @@ const ROLES: Role[] = [
     kind: 'An afternoon',
     title: 'Packing days and drivers',
     body: 'The unglamorous half of this. Boxes get packed in Silverwater and somebody has to drive them. No experience, no interview, and you can come once and never again.',
-    link: { text: 'How volunteering works', to: '/get-involved#volunteer' },
+    link: { text: 'How volunteering works', to: '/volunteer' },
   },
   {
     kind: 'A skill',
@@ -64,75 +73,57 @@ const ROLES: Role[] = [
   },
 ]
 
-/* Green at the shoulder, fading to paper by the time it reaches the words. The
-   gradient is what stops three cards on a white page from reading as three
-   empty boxes — it gives each one a top and a bottom without drawing a single
-   extra line. Under a pointer the card lifts and a second, stronger wash comes
-   up over the first. */
-const CARD =
-  'group relative isolate flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-[linear-gradient(165deg,var(--color-green-pale)_0%,var(--color-paper-2)_58%)] p-s3 transition-[transform,border-color,box-shadow] duration-300 ease-brand hover:-translate-y-1 hover:border-green/40 hover:shadow-[0_22px_48px_-28px_rgba(21,26,24,0.45)] sm:p-s4'
-
-/* Paper at rest, because a pale green chip on a pale green shoulder is not a
-   chip. It fills to solid green under a pointer. */
-const CHIP =
-  'inline-flex items-center rounded-full bg-paper px-3 py-1 text-[10.5px] font-semibold tracking-[0.12em] text-green uppercase shadow-[0_1px_2px_rgba(21,26,24,0.06)] transition-colors duration-300 ease-brand group-hover:bg-green group-hover:text-paper'
-
 export default function AboutWork() {
   return (
     <section
       id="work"
+      aria-labelledby="work-head"
       /* The mega menu links straight here, so the heading has to clear the
          sticky bar when it lands. */
-      className="scroll-mt-[calc(var(--header-h)+24px)] border-t border-line-2 py-s5"
+      className={`scroll-mt-[calc(var(--header-h)+24px)] ${SECTION_Y}`}
     >
       <div className="gutter mx-auto max-w-page">
-        {/* The headline carries the section on its own now that the paragraph
-            beside it has gone, so it is set at display size rather than at the
-            size of a heading with an explanation to lean on. */}
-        <Reveal>
-          <p className="flex items-center gap-3 text-[11px] font-semibold tracking-[0.16em] text-green uppercase">
-            <span aria-hidden="true" className="h-px w-6 bg-green/40" />
-            Volunteer with us
-          </p>
+        <SectionHead
+          id="work-head"
+          eyebrow="Volunteer with us"
+          title="Give an afternoon, a skill, or a room."
+        />
 
-          <h2 className="mt-s2 max-w-[17ch] font-display text-[clamp(30px,4.4vw,54px)] leading-[1.04] tracking-[-0.02em] [text-wrap:balance]">
-            Give an afternoon, a skill, or a room
-          </h2>
-        </Reveal>
-
-        <ol className="mt-s5 grid gap-s3 md:grid-cols-3">
+        {/* Ruled panels, as the values above and AppealsNotSure's zakat side
+            are: the script label says what kind of offer it is. */}
+        <ol className={`mt-s4 grid gap-s2 md:grid-cols-3 lg:mt-s5 ${BREAKOUT}`}>
           {ROLES.map((role, i) => (
             <li key={role.title} className="h-full">
-              <Reveal delay={i * 90} className="h-full">
-                <article className={CARD}>
-                  {/* The second wash, over the resting one. */}
+              <Reveal variant="clip" delay={i * 90} className="h-full">
+                <article className="group relative isolate flex h-full flex-col overflow-hidden rounded-2xl border border-line p-s3 transition-[border-color,transform,box-shadow] duration-300 ease-brand hover:-translate-y-1 hover:border-teal hover:shadow-card sm:p-s4">
+                  {/* Teal rising up from the foot under a pointer, so the card
+                      becomes the banner's panel for as long as it is chosen. */}
                   <span
                     aria-hidden="true"
-                    className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(165deg,rgba(47,107,90,0.17)_0%,transparent_60%)] opacity-0 transition-opacity duration-500 ease-brand group-hover:opacity-100"
+                    className="absolute inset-0 -z-10 origin-bottom scale-y-0 bg-teal transition-transform duration-500 ease-brand group-hover:scale-y-100"
                   />
-
-                  <span
-                    aria-hidden="true"
-                    className="absolute inset-x-0 top-0 h-[3px] origin-left scale-x-0 bg-green transition-transform duration-500 ease-brand group-hover:scale-x-100"
-                  />
-
-                  <p>
-                    <span className={CHIP}>{role.kind}</span>
-                  </p>
-
-                  {/* Two lines' worth of room while the columns are narrow
-                      enough for a title to take them, so the three bodies
-                      start level. Above xl the floor is dropped rather than
-                      left reserving blank. */}
-                  <h3 className="mt-s2 font-display text-[clamp(19px,1.9vw,23px)] leading-snug tracking-[-0.01em] md:min-h-[2.6em] xl:min-h-0">
+                  <div className="flex items-center justify-between gap-s2">
+                    <p className="font-script text-[clamp(24px,2vw,30px)] leading-none text-green transition-colors duration-300 group-hover:text-gold-pale">
+                      {role.kind}
+                    </p>
+                    <span
+                      aria-hidden="true"
+                      className="flex size-10 items-center justify-center rounded-full border border-line text-teal transition-[border-color,background-color,color,transform] duration-300 ease-brand group-hover:-rotate-45 group-hover:border-gold group-hover:bg-gold group-hover:text-ink"
+                    >
+                      <ArrowRight className="h-3.5 w-3.5" />
+                    </span>
+                  </div>
+                  <h3 className="mt-s3 font-display text-[clamp(20px,1.8vw,24px)] leading-[1.18] font-semibold tracking-[-0.018em] text-balance transition-colors duration-300 group-hover:text-paper">
                     {role.title}
                   </h3>
+                  <p className="mt-s2 mb-s3 text-[15px] leading-relaxed text-text-2 transition-colors duration-300 group-hover:text-paper/80">
+                    {role.body}
+                  </p>
 
-                  <p className="mt-s2 text-[15px] leading-relaxed text-text-2">{role.body}</p>
-
+                  {/* The whole card is the link. */}
                   <Link
                     to={role.link.to}
-                    className="mt-auto inline-flex items-center gap-1.5 self-start pt-s3 text-[14.5px] font-semibold text-green transition-colors duration-200 ease-brand hover:text-ink"
+                    className="mt-auto inline-flex items-center gap-1.5 self-start text-[14.5px] font-semibold text-green transition-colors duration-300 after:absolute after:inset-0 group-hover:text-gold-pale"
                   >
                     {role.link.text}
                     <ArrowRight className="h-3 w-3 -translate-x-0.5 transition-transform duration-300 ease-brand group-hover:translate-x-0.5" />
@@ -143,41 +134,31 @@ export default function AboutWork() {
           ))}
         </ol>
 
-        {/* The way out for everyone the three cards did not describe, and the
-            last thing on the page before the footer's dark band. It is lit
-            rather than outlined — a green wash running off one corner and a
-            filled button on it — because a grey box here would have been the
-            page's final word, and the page's final word should be an
-            invitation. Light rather than deep green: the footer under it is
-            already ink, and two dark bands in a row close the page on a mood
-            instead of an offer. */}
-        <Reveal>
-          <div className="relative isolate mt-s4 overflow-hidden rounded-2xl bg-[linear-gradient(115deg,var(--color-green-pale)_0%,#f1f5f2_44%,var(--color-sand)_100%)] p-s3 sm:p-s4">
-            <div
-              aria-hidden="true"
-              className="absolute inset-0 -z-10 bg-[radial-gradient(70%_120%_at_88%_18%,rgba(47,107,90,0.16)_0%,transparent_66%)]"
-            />
-
-            <div className="flex flex-col gap-s3 sm:flex-row sm:items-center sm:justify-between sm:gap-s4">
-              <div>
-                <h3 className="font-display text-[clamp(20px,2.2vw,26px)] leading-snug">
-                  None of those three, and still want to help?
-                </h3>
-                <p className="mt-s1 max-w-[52ch] text-[14.5px] leading-relaxed text-text-2">
-                  Write and say what you are good at. It goes to a person, not a queue, and they
-                  answer within a working day.
-                </p>
-              </div>
-
-              <a
-                href={`mailto:${ORG.email}`}
-                className="group inline-flex shrink-0 items-center gap-2 self-start rounded-full bg-green px-s3 py-2.5 text-[14.5px] font-semibold text-paper transition-[background-color,transform] duration-200 ease-brand hover:-translate-y-0.5 hover:bg-ink sm:self-auto"
-              >
-                <Mail className="h-4 w-4" />
-                {ORG.email}
-                <ArrowRight className="h-3 w-3 -translate-x-0.5 transition-transform duration-300 ease-brand group-hover:translate-x-0.5" />
-              </a>
+        {/* The way out for everyone the three did not describe, and the last
+            thing before the footer. The home banner's teal, with a paper
+            button rather than gold: gold is kept for things that take money. */}
+        <Reveal variant="clip" className={`mt-s2 block ${BREAKOUT}`}>
+          <div className="flex flex-col gap-s3 rounded-2xl bg-teal p-s3 text-paper sm:p-s4 md:flex-row md:items-center md:justify-between md:gap-s4 lg:p-[clamp(32px,3.2vw,52px)]">
+            <div>
+              <p className="font-script text-[clamp(24px,2.2vw,32px)] leading-none text-gold-pale">
+                Something else in mind?
+              </p>
+              <h3 className="mt-2 font-display text-[clamp(22px,2.2vw,30px)] leading-[1.15] font-semibold tracking-[-0.02em] text-balance">
+                Tell us what you are good at.
+              </h3>
+              <p className="mt-s1 max-w-[52ch] text-[15px] leading-[1.55] text-paper/80">
+                It goes to a person, not a queue, and they answer within a working day.
+              </p>
             </div>
+
+            <a
+              href={`mailto:${ORG.email}`}
+              className="group inline-flex min-h-[50px] shrink-0 items-center gap-2 self-start rounded-[10px] bg-paper px-6 text-[15.5px] font-semibold text-ink transition-colors duration-200 ease-brand hover:bg-green-pale md:self-auto"
+            >
+              <Mail className="h-4 w-4" />
+              {ORG.email}
+              <ArrowRight className="h-3 w-3 transition-transform duration-300 ease-brand group-hover:translate-x-0.5" />
+            </a>
           </div>
         </Reveal>
       </div>

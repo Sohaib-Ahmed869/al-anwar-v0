@@ -6,10 +6,20 @@ import Appeals from './pages/Appeals'
 import Appeal from './pages/Appeal'
 import Zakat from './pages/Zakat'
 import ZakatCalculator from './pages/ZakatCalculator'
+import Ramadan from './pages/Ramadan'
+import DhulHijjah from './pages/DhulHijjah'
 import Give from './pages/Give'
 import ThankYou from './pages/ThankYou'
 import WhereItGoes from './pages/WhereItGoes'
 import GetInvolved from './pages/GetInvolved'
+import Events from './pages/Events'
+import Gallery from './pages/Gallery'
+import Fundraisers from './pages/Fundraisers'
+import Volunteer from './pages/Volunteer'
+import Partners from './pages/Partners'
+import BecomePartner from './pages/BecomePartner'
+import FundraiserStart from './pages/FundraiserStart'
+import Fundraiser from './pages/Fundraiser'
 import About from './pages/About'
 import Contact from './pages/Contact'
 import MyGiving from './pages/MyGiving'
@@ -29,11 +39,24 @@ export default function App() {
         <Route path="zakat" element={<Zakat />} />
         <Route path="zakat/calculator" element={<ZakatCalculator />} />
 
+        {/* The seasonal campaigns, switched on in season-data.ts. */}
+        <Route path="ramadan" element={<Ramadan />} />
+        <Route path="dhul-hijjah" element={<DhulHijjah />} />
+
         <Route path="give" element={<Give />} />
         <Route path="thank-you" element={<ThankYou />} />
 
         <Route path="where-it-goes" element={<WhereItGoes />} />
         <Route path="get-involved" element={<GetInvolved />} />
+        <Route path="events" element={<Events />} />
+        <Route path="gallery" element={<Gallery />} />
+
+        <Route path="volunteer" element={<Volunteer />} />
+        <Route path="partners" element={<Partners />} />
+        <Route path="become-a-partner" element={<BecomePartner />} />
+        <Route path="fundraisers" element={<Fundraisers />} />
+        <Route path="fundraisers/start" element={<FundraiserStart />} />
+        <Route path="fundraisers/:slug" element={<Fundraiser />} />
 
         <Route path="about" element={<About />} />
         <Route path="contact" element={<Contact />} />

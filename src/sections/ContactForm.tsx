@@ -1,8 +1,10 @@
-import { useEffect, useId, useRef, useState } from 'react'
+import { useId, useRef, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 
 import { ArrowRight, Check, Copy, Mail, MapPin, Phone, Send } from '../components/icons'
+import { MasjidMark } from '../components/Ornament'
 import Reveal from '../components/Reveal'
+import SectionHead, { BREAKOUT, SECTION_Y } from '../components/SectionHead'
 import {
   CONTACT,
   DIRECTIONS,
@@ -11,6 +13,7 @@ import {
   MESSAGE_MIN,
   TOPICS,
 } from '../components/contact-data'
+import { useDesk } from '../components/desk-status'
 import { PHONE } from '../components/nav-data'
 import { ORG } from '../components/org-data'
 import {
@@ -22,7 +25,15 @@ import {
 } from '../services/contact'
 
 /* ---------------------------------------------------------------------------
-   Contact, section 2 of 4: the form, and how to reach us without it.
+   Contact, section 2 of 3: the form, and how to reach us without it.
+
+   17 SEPTEMBER 2026, on the About page's pattern: the shared SectionHead over
+   the whole width (its action is the phone, at every size now), one ground
+   with no paper-2 band, the form in a ruled card, and the details panel in
+   the logo teal with the masjid standing faintly in its corner, like the
+   mission panel on About. The photograph at the head of the panel is gone
+   with the hero's. Fields, pills, the tally and the send button are teal.
+   Some notes below still describe the older ink panel.
 
    The form is on the left and the details are on the right, and the form is
    first in the document — which is the reverse of how this section started.
@@ -73,7 +84,7 @@ import {
    Sydney reads. It is worked out through Intl from the visitor's own device, so
    it is right from anywhere in the world, and it is the same fact as
    PHONE.hours said in the present tense rather than a second one. See
-   deskStatus() below for what it does not know about.
+   deskStatus() in components/desk-status.ts for what it does not know about.
 
    ── The subject field ───────────────────────────────────────────────────
    Chips on a wide screen, a native <select> on a narrow one, both bound to the
@@ -112,7 +123,7 @@ const LABEL = 'block text-[11px] font-semibold tracking-[0.13em] text-text-3 upp
 
 /** The same label on the dark panel. Worth the second constant rather than a
  *  prop: text-text-3 on ink is under 3:1, so the two grounds cannot share one. */
-const LABEL_INK = 'block text-[11px] font-semibold tracking-[0.13em] text-text-on-ink-2 uppercase'
+const LABEL_INK = 'block text-[11px] font-semibold tracking-[0.13em] text-paper/70 uppercase'
 
 /** Underlined rather than boxed: a row of outlines reads as a database form,
  *  and this is a letter. The gold ring on focus is the design system's, and it
@@ -124,7 +135,11 @@ const LABEL_INK = 'block text-[11px] font-semibold tracking-[0.13em] text-text-o
  *  rule know the field has focus. */
 const FIELD =
   'peer block w-full border-b border-line bg-transparent py-2 text-[15.5px] text-text ' +
-  'placeholder:text-text-3 transition-colors duration-200'
+  'placeholder:text-text-3 transition-colors duration-200 ' +
+  /* No gold ring round a field (user's call, 17 Sep 2026): the drawn rule
+     along its foot is the focus state, and a box round an underlined field
+     read as a glow. Buttons and chips keep the ring. */
+  'focus:outline-none focus-visible:outline-none'
 
 const FIELD_BAD = 'border-alert'
 
@@ -142,7 +157,7 @@ function Underline({ bad }: { bad?: boolean }) {
     <span
       aria-hidden="true"
       className={`pointer-events-none absolute inset-x-0 bottom-0 h-[2px] origin-left transition-transform duration-300 ease-brand ${
-        bad ? 'scale-x-100 bg-alert' : 'scale-x-0 bg-green peer-focus:scale-x-100'
+        bad ? 'scale-x-100 bg-alert' : 'scale-x-0 bg-teal peer-focus:scale-x-100'
       }`}
     />
   )
@@ -153,13 +168,13 @@ const PILL =
   'transition duration-200 ease-brand ' +
   'peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-gold'
 
-const PILL_ON = 'border-green bg-green text-paper shadow-[0_6px_16px_-10px_rgba(47,107,90,0.9)]'
+const PILL_ON = 'border-teal bg-teal text-paper shadow-[0_6px_16px_-10px_rgba(0,103,112,0.9)]'
 
 /* No border colour of its own: an unchosen pill takes it from whether the group
    has been complained about. Two border-colour utilities on one element are
    settled by the order Tailwind happened to emit them in rather than the order
    they are written, so only one of them may ever be on it. */
-const PILL_OFF = 'bg-paper text-text-2 hover:-translate-y-px hover:border-green/45 hover:text-green'
+const PILL_OFF = 'bg-paper text-text-2 hover:-translate-y-px hover:border-teal/45 hover:text-teal'
 
 const EMPTY: ContactPayload = {
   name: '',
@@ -286,36 +301,37 @@ export default function ContactForm() {
     (values.consent ? 1 : 0)
 
   return (
-    <section id={FORM_ID} className="scroll-mt-[calc(var(--header-h)+24px)] bg-paper-2 py-s5">
+    <section
+      id={FORM_ID}
+      aria-labelledby="form-head"
+      className={`scroll-mt-[calc(var(--header-h)+24px)] ${SECTION_Y}`}
+    >
       <div className="gutter mx-auto max-w-page">
-        <div className="grid gap-s5 lg:grid-cols-12 lg:items-start lg:gap-s4 xl:gap-s5">
-          {/* ---------- the form ---------- */}
-          <Reveal className="lg:col-span-7">
-            <p className="flex items-center gap-3 text-[11px] font-semibold tracking-[0.16em] text-green uppercase">
-              <span aria-hidden="true" className="h-px w-6 bg-green/40" />
-              {CONTACT.form.eyebrow}
-            </p>
-
-            <h2 className="mt-s1 font-display text-[clamp(28px,3.4vw,42px)] leading-snug">
-              {CONTACT.form.title}
-            </h2>
-            <p className="mt-s2 max-w-measure text-[15.5px] leading-relaxed text-text-2">
-              {CONTACT.form.intro}
-            </p>
-
-            {/* The panel holding the number is beside this from lg and under it
-                below that, so on a narrow screen the phone is offered here
-                instead — before the first field rather than after the last. */}
-            <p className="mt-s2 text-[15px] text-text-2 lg:hidden">
+        <SectionHead
+          id="form-head"
+          eyebrow={CONTACT.form.eyebrow}
+          title={CONTACT.form.title}
+          lede={CONTACT.form.intro}
+          action={
+            <a
+              href={PHONE.href}
+              className="group flex shrink-0 items-center gap-1.5 text-[14.5px] font-semibold text-green transition-colors duration-200 ease-brand hover:text-ink"
+            >
               {CONTACT.form.ratherRing}{' '}
-              <a
-                href={PHONE.href}
-                className="nums font-medium text-green underline decoration-green/30 underline-offset-4 transition-colors duration-200 hover:decoration-green"
-              >
-                {PHONE.label}
-              </a>
-            </p>
+              <span className="nums">{PHONE.label}</span>
+              <ArrowRight className="h-3 w-3 -translate-x-0.5 transition-transform duration-300 ease-brand group-hover:translate-x-0.5" />
+            </a>
+          }
+        />
 
+        <div
+          className={`mt-s4 grid gap-s4 lg:mt-s5 lg:grid-cols-12 lg:items-start lg:gap-s4 xl:gap-s5 ${BREAKOUT}`}
+        >
+          {/* ---------- the form ---------- */}
+          <Reveal
+            variant="soft"
+            className="rounded-2xl border border-line bg-paper p-s3 sm:p-s4 lg:col-span-7 lg:p-[clamp(32px,3.2vw,52px)]"
+          >
             {sent !== 'no' ? (
               /* The one place on this page a border earns itself: something has
                  changed under you, and the reply needs to read as a different
@@ -324,10 +340,10 @@ export default function ContactForm() {
                  rather than simply appearing. */
               <div
                 role="status"
-                className="relative mt-s4 border-t-2 border-green bg-green-pale/45 p-s3"
+                className="relative border-t-2 border-teal bg-teal/5 p-s3"
                 style={{ animation: 'hero-rise 620ms var(--ease-brand) both' }}
               >
-                <span className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-green text-paper">
+                <span className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-teal text-paper">
                   <Check className="h-5 w-5" />
                 </span>
                 <p className="mt-s2 font-display text-[23px] leading-snug">
@@ -358,7 +374,7 @@ export default function ContactForm() {
                 </button>
               </div>
             ) : (
-              <form ref={formRef} noValidate onSubmit={onSubmit} className="mt-s4">
+              <form ref={formRef} noValidate onSubmit={onSubmit}>
                 {/* The honeypot. Off-screen rather than display:none — a bot
                     that checks for the latter skips it, which is the one thing
                     it must not do. Hidden from people and from screen readers,
@@ -560,7 +576,7 @@ export default function ContactForm() {
                         onChange={(e) => set('consent', e.target.checked)}
                         aria-invalid={errors.consent ? 'true' : undefined}
                         aria-describedby={errors.consent ? `${uid}-consent-bad` : undefined}
-                        className="mt-[3px] h-[17px] w-[17px] shrink-0 accent-green"
+                        className="mt-[3px] h-[17px] w-[17px] shrink-0 accent-teal"
                       />
                       <span>{CONTACT.form.consent}</span>
                     </label>
@@ -601,7 +617,7 @@ export default function ContactForm() {
                   <button
                     type="submit"
                     disabled={sending}
-                    className="group inline-flex min-h-[50px] items-center gap-2.5 rounded-[10px] bg-ink px-s3 text-[15.5px] font-semibold text-paper transition duration-200 ease-brand hover:-translate-y-px hover:bg-green disabled:pointer-events-none disabled:opacity-70"
+                    className="group inline-flex min-h-[50px] items-center gap-2.5 rounded-[10px] bg-teal px-s3 text-[15.5px] font-semibold text-paper transition duration-200 ease-brand hover:-translate-y-px hover:bg-ink disabled:pointer-events-none disabled:opacity-70"
                   >
                     {sending ? (
                       <>
@@ -644,6 +660,7 @@ export default function ContactForm() {
               whatever field you are in — which is the point of putting them
               beside the form rather than under it. */}
           <Reveal
+            variant="soft"
             delay={120}
             className="lg:sticky lg:top-[calc(var(--header-h)+40px)] lg:col-span-5 lg:self-start"
           >
@@ -675,7 +692,7 @@ function Tally({ done }: { done: number }) {
       <p
         className={`text-[12.5px] transition-opacity duration-300 ease-brand ${
           done ? 'opacity-100' : 'opacity-0'
-        } ${all ? 'font-medium text-green' : 'text-text-2'}`}
+        } ${all ? 'font-medium text-teal' : 'text-text-2'}`}
       >
         {all
           ? CONTACT.form.progressDone
@@ -687,7 +704,7 @@ function Tally({ done }: { done: number }) {
       <div className="relative mt-1.5 h-px w-full bg-line">
         <span
           aria-hidden="true"
-          className="absolute -top-px left-0 h-[2px] w-full origin-left bg-green transition-transform duration-500 ease-brand"
+          className="absolute -top-px left-0 h-[2px] w-full origin-left bg-teal transition-transform duration-500 ease-brand"
           style={{ transform: `scaleX(${done / REQUIRED})` }}
         />
       </div>
@@ -723,46 +740,18 @@ function Tally({ done }: { done: number }) {
 --------------------------------------------------------------------------- */
 function Panel() {
   return (
-    <div className="overflow-hidden rounded-2xl bg-ink shadow-card">
-      {/* The photograph, and the heading standing on it. `group` is on the
-          whole picture block rather than the image, so the push answers a
-          pointer anywhere over it. */}
-      <div className="group relative">
-        <div className="overflow-hidden">
-          <img
-            src={CONTACT.reach.photo.src}
-            alt={CONTACT.reach.photo.alt}
-            loading="lazy"
-            decoding="async"
-            className="aspect-[16/10] w-full object-cover transition-transform duration-[900ms] ease-brand select-none group-hover:scale-[1.05] sm:aspect-[2/1] lg:aspect-[4/3]"
-          />
-        </div>
+    <div className="relative isolate overflow-hidden rounded-2xl bg-teal text-paper shadow-card">
+      {/* The logo's masjid, large and faint, standing in the corner. */}
+      <MasjidMark className="pointer-events-none absolute -right-[6%] -bottom-[8%] -z-10 size-[clamp(200px,22vw,320px)] text-paper/[0.07]" />
 
-        {/* Two scrims. The first darkens the foot enough to set type on; the
-            second is a light wash off the top, so the panel and the picture read
-            as one dark object rather than as a photograph with a black bar
-            under it. */}
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,transparent_16%,rgba(21,26,24,0.34)_42%,rgba(21,26,24,0.78)_72%,rgba(21,26,24,0.97)_100%)]"
-        />
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(21,26,24,0.30)_0%,transparent_46%)]"
-        />
+      <div className="p-s3 sm:p-s4 lg:p-[clamp(32px,3vw,44px)]">
+        <p className="font-script text-[clamp(26px,2.4vw,34px)] leading-none text-gold-pale">
+          {CONTACT.reach.eyebrow}
+        </p>
+        <h2 className="mt-2 font-display text-[clamp(24px,2.4vw,32px)] leading-[1.12] font-semibold tracking-[-0.02em] text-balance">
+          {CONTACT.reach.title}
+        </h2>
 
-        <div className="absolute inset-x-0 bottom-0 p-s3 sm:p-s4">
-          <p className="flex items-center gap-3 text-[11px] font-semibold tracking-[0.16em] text-paper/75 uppercase">
-            <span aria-hidden="true" className="h-px w-6 bg-paper/45" />
-            {CONTACT.reach.eyebrow}
-          </p>
-          <h2 className="mt-s1 font-display text-[clamp(26px,2.6vw,34px)] leading-snug text-paper">
-            {CONTACT.reach.title}
-          </h2>
-        </div>
-      </div>
-
-      <div className="px-s3 pb-s3 sm:px-s4 sm:pb-s4">
         <Desk />
 
         <ul className="mt-s3 list-none">
@@ -771,21 +760,21 @@ function Panel() {
           <ReachRow Icon={Phone} label={CONTACT.reach.phone.label}>
             <a
               href={PHONE.href}
-              className="nums text-[17.5px] font-medium text-text-on-ink underline decoration-line-ink decoration-1 underline-offset-[5px] transition-colors duration-200 hover:text-green-pale hover:decoration-green-pale/60"
+              className="nums text-[17.5px] font-medium text-paper underline decoration-paper/30 decoration-1 underline-offset-[5px] transition-colors duration-200 hover:text-gold-pale hover:decoration-gold-pale/60"
             >
               {PHONE.label}
             </a>
-            <span className="mt-1 block text-[13.5px] text-text-on-ink-2">{PHONE.hours}</span>
+            <span className="mt-1 block text-[13.5px] text-paper/70">{PHONE.hours}</span>
           </ReachRow>
 
           <ReachRow Icon={MapPin} label={CONTACT.reach.warehouse.label}>
-            <span className="block text-[17.5px] font-medium text-text-on-ink">{ORG.street}</span>
-            <span className="block text-[14px] text-text-on-ink-2">{ORG.suburb}</span>
+            <span className="block text-[17.5px] font-medium text-paper">{ORG.street}</span>
+            <span className="block text-[14px] text-paper/70">{ORG.suburb}</span>
             <a
               href={DIRECTIONS}
               target="_blank"
               rel="noreferrer noopener"
-              className="group/link mt-1.5 inline-flex items-center gap-1.5 text-[13.5px] text-green-pale underline decoration-green-pale/30 underline-offset-4 transition-colors duration-200 hover:decoration-green-pale"
+              className="group/link mt-1.5 inline-flex items-center gap-1.5 text-[13.5px] text-gold-pale underline decoration-gold-pale/30 underline-offset-4 transition-colors duration-200 hover:decoration-gold-pale"
             >
               {CONTACT.reach.warehouse.directions}
               <ArrowRight className="h-3 w-3 transition-transform duration-300 ease-brand group-hover/link:translate-x-1" />
@@ -797,129 +786,44 @@ function Panel() {
   )
 }
 
-/* --- is anybody there? ---------------------------------------------------
-   Office hours as arithmetic, so the panel can say "open now" rather than
-   leaving somebody in another timezone to work it out from "9 to 5 AEST".
-
-   Everything is read through Intl in Australia/Sydney, which is what makes it
-   right from anywhere: the device supplies the instant, the timezone database
-   supplies the offset, and daylight saving is somebody else's problem. What it
-   cannot know is a public holiday, or a day the office is shut for its own
-   reasons — so the copy says the desk is open, never that a particular person
-   is sitting at it, and the promise of a reply stays in the form's own intro
-   where it can be kept.
-
-   OPENS and SHUTS are the same hours as PHONE.hours in nav-data.ts, which is
-   the sentence this is the arithmetic behind. If one moves, both move.
---------------------------------------------------------------------------- */
-const SYDNEY = 'Australia/Sydney'
-const OPENS = 9
-const SHUTS = 17
-
-const DAYS = [
-  'Sunday',
-  'Monday',
-  'Tuesday',
-  'Wednesday',
-  'Thursday',
-  'Friday',
-  'Saturday',
-] as const
-
-const sydney = (options: Intl.DateTimeFormatOptions) =>
-  new Intl.DateTimeFormat('en-AU', { timeZone: SYDNEY, ...options })
-
-/** Monday to Friday. */
-const working = (day: number) => day > 0 && day < 6
-
-function deskStatus(now: Date) {
-  const d = CONTACT.reach.desk
-
-  const day = DAYS.indexOf(sydney({ weekday: 'long' }).format(now) as (typeof DAYS)[number])
-  /* formatToParts rather than format, so what comes back is the number and not
-     a string with a locale's own decoration around it. Midnight is 24 in some
-     engines and 0 in others. */
-  const hour =
-    Number(
-      sydney({ hour: 'numeric', hour12: false })
-        .formatToParts(now)
-        .find((part) => part.type === 'hour')?.value ?? '0',
-    ) % 24
-
-  const clock = d.clock.replace(
-    '{time}',
-    sydney({ hour: 'numeric', minute: '2-digit', hour12: true }).format(now),
-  )
-
-  /* A weekday name Intl did not hand back in the shape expected. Rather than
-     count forward from the wrong day and name the wrong one, say nothing about
-     when — the hours are in the row below either way. */
-  if (day < 0) return { open: false, clock, line: PHONE.hours }
-
-  if (working(day) && hour >= OPENS && hour < SHUTS) {
-    return { open: true, clock, line: d.openBody }
-  }
-
-  let when: string
-  if (working(day) && hour < OPENS) {
-    when = d.soon
-  } else {
-    /* This evening, the weekend, or a Friday after five: step forward to the
-       next day the office opens and name it, unless that day is simply
-       tomorrow, which is worth saying as tomorrow. */
-    let step = 1
-    while (!working((day + step) % 7)) step += 1
-    when = step === 1 ? d.tomorrow : d.onDay.replace('{day}', DAYS[(day + step) % 7])
-  }
-
-  return { open: false, clock, line: d.closedBody.replace('{when}', when) }
-}
-
 /** Its own component, so a ticking clock does not re-render the form under
  *  somebody's cursor. Every thirty seconds, which is twice as often as the
  *  minute it shows: a clock polled on its own schedule rather than the minute's
  *  can be a whole minute stale, and thirty seconds halves that for one timer. */
 function Desk() {
-  const [now, setNow] = useState(() => new Date())
-
-  useEffect(() => {
-    const tick = window.setInterval(() => setNow(new Date()), 30_000)
-    return () => window.clearInterval(tick)
-  }, [])
-
-  const { open, clock, line } = deskStatus(now)
+  const { open, clock, line } = useDesk()
 
   return (
     <div className="pt-s3">
       <div className="flex flex-wrap items-center justify-between gap-x-s2 gap-y-1">
-        <p className="flex items-center gap-2.5 text-[11px] font-semibold tracking-[0.13em] text-text-on-ink uppercase">
+        <p className="flex items-center gap-2.5 text-[11px] font-semibold tracking-[0.13em] text-paper uppercase">
           {/* A dot, and while the desk is open a ring going out from it. It is
               the only thing on the panel that moves without being asked, which
               is what makes it read as "now" rather than as a label. */}
           <span aria-hidden="true" className="relative flex h-2 w-2 shrink-0">
             {open && (
-              <span className="absolute inset-0 animate-ping rounded-full bg-green-pale/60" />
+              <span className="absolute inset-0 animate-ping rounded-full bg-gold-pale/60" />
             )}
             <span
               className={`relative h-2 w-2 rounded-full ${
-                open ? 'bg-green-pale' : 'bg-text-on-ink-2/45'
+                open ? 'bg-gold-pale' : 'bg-paper/40'
               }`}
             />
           </span>
           {open ? CONTACT.reach.desk.open : CONTACT.reach.desk.closed}
         </p>
 
-        <p className="nums text-[13px] text-text-on-ink-2 tabular-nums">{clock}</p>
+        <p className="nums text-[13px] text-paper/70 tabular-nums">{clock}</p>
       </div>
 
-      <p className="mt-s1 text-[14px] leading-relaxed text-text-on-ink-2">{line}</p>
+      <p className="mt-s1 text-[14px] leading-relaxed text-paper/70">{line}</p>
     </div>
   )
 }
 
 /* --- the three ways of reaching us --------------------------------------- */
 
-const ROW = 'group relative border-t border-line-ink py-s3'
+const ROW = 'group relative border-t border-paper/15 py-s3'
 
 /** The hover rule, sitting exactly on the row's own top hairline and drawing in
  *  from the left. -top-px because the border is outside the padding box. */
@@ -927,13 +831,13 @@ function RowRule() {
   return (
     <span
       aria-hidden="true"
-      className="absolute -top-px left-0 h-px w-full origin-left scale-x-0 bg-green-pale transition-transform duration-500 ease-brand group-hover:scale-x-100"
+      className="absolute -top-px left-0 h-px w-full origin-left scale-x-0 bg-gold-pale transition-transform duration-500 ease-brand group-hover:scale-x-100"
     />
   )
 }
 
 const ICON =
-  'mt-[3px] h-[18px] w-[18px] shrink-0 text-text-on-ink-2 transition-colors duration-300 ease-brand group-hover:text-green-pale'
+  'mt-[3px] h-[18px] w-[18px] shrink-0 text-paper/70 transition-colors duration-300 ease-brand group-hover:text-gold-pale'
 
 function ReachRow({
   Icon,
@@ -997,7 +901,7 @@ function EmailRow() {
           <div className="mt-1.5 flex flex-wrap items-baseline gap-x-s2 gap-y-1">
             <a
               href={`mailto:${ORG.email}`}
-              className="text-[17.5px] font-medium break-all text-text-on-ink underline decoration-line-ink decoration-1 underline-offset-[5px] transition-colors duration-200 hover:text-green-pale hover:decoration-green-pale/60"
+              className="text-[17.5px] font-medium break-all text-paper underline decoration-paper/30 decoration-1 underline-offset-[5px] transition-colors duration-200 hover:text-gold-pale hover:decoration-gold-pale/60"
             >
               {ORG.email}
             </a>
@@ -1005,12 +909,12 @@ function EmailRow() {
             <button
               type="button"
               onClick={copy}
-              className="inline-flex shrink-0 items-center gap-1.5 text-[13px] text-text-on-ink-2 transition-colors duration-200 hover:text-green-pale"
+              className="inline-flex shrink-0 items-center gap-1.5 text-[13px] text-paper/70 transition-colors duration-200 hover:text-gold-pale"
             >
               {/* The tick lands in the space the clipboard icon was in, so the
                   label shifts by nothing when it changes. */}
               {copied ? (
-                <Check className="h-3.5 w-3.5 text-green-pale" />
+                <Check className="h-3.5 w-3.5 text-gold-pale" />
               ) : (
                 <Copy className="h-3.5 w-3.5" />
               )}
