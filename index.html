@@ -11,7 +11,62 @@
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <title>Al-Anwaar</title>
+    <title>Al-Anwaar | Food, water and lasting projects</title>
+
+    <!-- THE LINK PREVIEW. Without these, WhatsApp, Messenger, Slack and iMessage
+         fall back to whatever square icon they can find, which was
+         apple-touch-icon.png at 180x180 blown up to a card and cropped: the
+         blurred mosque the client saw on 21 September 2026.
+
+         og:image MUST be an absolute URL. Every scraper fetches it off its own
+         machine with no page context, so a /og.jpg here fetches nothing. That
+         is the one thing to change when the site moves off the Vercel preview
+         domain to alanwaar.org.au: this og:url and this og:image, and the
+         canonical above them.
+
+         og.jpg is 1200x630, the size Facebook, WhatsApp, LinkedIn and X all
+         read as a wide card, and 130KB, well inside WhatsApp's limit (it
+         silently drops a preview image over roughly 600KB). It is drawn from
+         the site's own parts, not a screenshot: teal, the white wordmark the
+         footer uses, the logo's masjid faint behind, and one of our own Yemen
+         photographs. Regenerate it at that size or scrapers will crop it.
+
+         THESE TAGS ARE THE SAME ON EVERY ROUTE. The app is a Vite SPA and
+         vercel.json rewrites every path to this file, so a scraper reading
+         /give or /appeals gets these words, not that page's. Per-page previews
+         need the routes prerendered; that is a launch job, not this fix. -->
+    <link rel="canonical" href="https://alanwaar.vercel.app/" />
+    <meta
+      name="description"
+      content="Al-Anwaar is an Australian charity delivering food, water and lasting projects to families in Yemen, Gaza, Lebanon and The Gambia. Give zakat, sadaqah or a one-off donation."
+    />
+    <meta name="theme-color" content="#006770" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Al-Anwaar" />
+    <meta property="og:locale" content="en_AU" />
+    <meta property="og:url" content="https://alanwaar.vercel.app/" />
+    <meta property="og:title" content="Al-Anwaar | Food, water and lasting projects" />
+    <meta
+      property="og:description"
+      content="An Australian charity delivering food, water and lasting projects to families in Yemen, Gaza, Lebanon and The Gambia. Give zakat, sadaqah or a one-off donation."
+    />
+    <meta property="og:image" content="https://alanwaar.vercel.app/og.jpg" />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="The Al-Anwaar wordmark beside children filling jerry cans from a water tanker in Yemen."
+    />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Al-Anwaar | Food, water and lasting projects" />
+    <meta
+      name="twitter:description"
+      content="An Australian charity delivering food, water and lasting projects to families in Yemen, Gaza, Lebanon and The Gambia."
+    />
+    <meta name="twitter:image" content="https://alanwaar.vercel.app/og.jpg" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
