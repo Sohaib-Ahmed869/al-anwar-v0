@@ -3,7 +3,8 @@ import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-do
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Drawer } from 'vaul'
 import {
-  ArrowLeftRight, ChevronsUpDown, ExternalLink, KeyRound, LogOut, Menu as MenuIcon, MoreHorizontal, Search, X,
+  ArrowLeftRight, ChevronsUpDown, ExternalLink, KeyRound, LogOut, Menu as MenuIcon, MoreHorizontal, PanelLeftClose,
+  PanelLeftOpen, Search, X,
 } from 'lucide-react'
 import type { Permission } from '../../../shared/access'
 import { ROLES } from '../../../shared/access'
@@ -11,7 +12,7 @@ import { api } from '../api'
 import { useStaff } from '../session'
 import { Avatar, Kbd } from '../ui/bits'
 import { cn } from '../ui/cn'
-import { Menu, MenuItem, MenuLabel, MenuSeparator } from '../ui/Menu'
+import { Menu, MenuItem, MenuLabel, MenuSeparator, Tooltip } from '../ui/Menu'
 import { useHotkey } from '../ui/hooks'
 import { CommandPalette, type PaletteAction } from './CommandPalette'
 import { ChangePasswordDialog } from './ChangePasswordDialog'
@@ -28,8 +29,22 @@ import { ChangePasswordDialog } from './ChangePasswordDialog'
    donor by name, email or number, or start a common action.
 
    A staff member with access to both portals switches between them from the
-   name at the top of the sidebar; the session is the same.
+   name at the foot of the sidebar; the session is the same.
+
+   The desktop sidebar collapses to a rail of icons (the button at its top, or
+   the [ key outside a text field) for more room on wide tables. Collapsed,
+   each item names itself in a tooltip and a waiting count becomes a dot. The
+   choice is remembered in this browser, for both portals.
 --------------------------------------------------------------------------- */
+
+const COLLAPSED_KEY = 'aa:sidebar-collapsed'
+function readCollapsed() {
+  try {
+    return window.localStorage.getItem(COLLAPSED_KEY) === '1'
+  } catch {
+    return false
+  }
+}
 
 export type NavItem = {
   label: string
@@ -65,7 +80,18 @@ export function StaffShell({ portal, groups, badgesQuery, actions = [], searchPa
   const [paletteOpen, setPaletteOpen] = useState(false)
   const [moreOpen, setMoreOpen] = useState(false)
   const [pwOpen, setPwOpen] = useState(false)
+  const [collapsed, setCollapsed] = useState(readCollapsed)
+  const toggleCollapsed = () =>
+    setCollapsed((v) => {
+      try {
+        window.localStorage.setItem(COLLAPSED_KEY, v ? '0' : '1')
+      } catch {
+        /* private mode: it still toggles, it just is not remembered */
+      }
+      return !v
+    })
   useHotkey('k', () => setPaletteOpen((v) => !v))
+  useHotkey('[', toggleCollapsed, { meta: false })
   useEffect(() => {
     setMoreOpen(false)
   }, [loc.pathname])
@@ -90,39 +116,61 @@ export function StaffShell({ portal, groups, badgesQuery, actions = [], searchPa
 
   if (!user) return null
 
-  const nav = (onNavigate?: () => void) => (
-    <nav className="flex flex-col gap-5" aria-label={`${PORTALS[portal].name} navigation`}>
+  /** `rail`: the collapsed desktop sidebar, icons only */
+  const nav = (onNavigate?: () => void, rail = false) => (
+    <nav className={cn('flex flex-col', rail ? 'gap-3' : 'gap-5')} aria-label={`${PORTALS[portal].name} navigation`}>
       {visible.map((g, gi) => (
         <div key={gi}>
-          {g.label && <p className="mb-1 px-3 text-[11px] font-semibold tracking-[0.06em] text-text-3 uppercase">{g.label}</p>}
+          {rail
+            ? gi > 0 && <div aria-hidden className="mx-2 mb-3 border-t border-line" />
+            : g.label && <p className="mb-1 px-3 text-[11px] font-semibold tracking-[0.06em] text-text-3 uppercase">{g.label}</p>}
           <ul className="space-y-px">
             {g.items.map((i) => {
               const n = i.badge ? badges.data?.[i.badge] : undefined
+              const link = (
+                <NavLink
+                  to={i.to}
+                  end={i.end}
+                  onClick={onNavigate}
+                  aria-label={rail ? (n ? `${i.label} (${n})` : i.label) : undefined}
+                  className={({ isActive }) =>
+                    cn(
+                      'group relative flex h-9 items-center gap-3 rounded-[10px] text-[13.5px] font-medium transition-colors pointer-coarse:h-11',
+                      rail ? 'justify-center' : 'px-3',
+                      isActive ? 'bg-green-50 text-green' : 'text-text-2 hover:bg-ink/[.04] hover:text-text',
+                    )
+                  }
+                >
+                  {({ isActive }) => (
+                    <>
+                      <i.icon className={cn('size-[18px] shrink-0', isActive ? 'text-green' : 'text-text-3 group-hover:text-text-2')} />
+                      {rail ? (
+                        n ? <span className="absolute top-1.5 right-3 size-2 rounded-full bg-amber ring-2 ring-paper" /> : null
+                      ) : (
+                        <>
+                          <span className="flex-1 truncate">{i.label}</span>
+                          {n ? (
+                            <span className={cn('nums rounded-full px-1.5 text-[11px] leading-5 font-semibold', isActive ? 'bg-green text-white' : 'bg-amber-pale text-amber')}>
+                              {n > 99 ? '99+' : n}
+                            </span>
+                          ) : null}
+                        </>
+                      )}
+                    </>
+                  )}
+                </NavLink>
+              )
               return (
                 <li key={i.to}>
-                  <NavLink
-                    to={i.to}
-                    end={i.end}
-                    onClick={onNavigate}
-                    className={({ isActive }) =>
-                      cn(
-                        'group flex h-9 items-center gap-3 rounded-[10px] px-3 text-[13.5px] font-medium transition-colors pointer-coarse:h-11',
-                        isActive ? 'bg-green-50 text-green' : 'text-text-2 hover:bg-ink/[.04] hover:text-text',
-                      )
-                    }
-                  >
-                    {({ isActive }) => (
-                      <>
-                        <i.icon className={cn('size-[18px] shrink-0', isActive ? 'text-green' : 'text-text-3 group-hover:text-text-2')} />
-                        <span className="flex-1 truncate">{i.label}</span>
-                        {n ? (
-                          <span className={cn('nums rounded-full px-1.5 text-[11px] leading-5 font-semibold', isActive ? 'bg-green text-white' : 'bg-amber-pale text-amber')}>
-                            {n > 99 ? '99+' : n}
-                          </span>
-                        ) : null}
-                      </>
-                    )}
-                  </NavLink>
+                  {rail ? (
+                    /* the tooltip wraps a span: its trigger merges classNames as
+                       strings, and NavLink's className is a function */
+                    <Tooltip content={n ? `${i.label} · ${n}` : i.label} side="right">
+                      <span className="block">{link}</span>
+                    </Tooltip>
+                  ) : (
+                    link
+                  )}
                 </li>
               )
             })}
@@ -167,35 +215,92 @@ export function StaffShell({ portal, groups, badgesQuery, actions = [], searchPa
   return (
     <div className="min-h-dvh bg-ground">
       {/* ---------- desktop sidebar ---------- */}
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-[264px] flex-col border-r border-line bg-paper lg:flex">
-        <div className="flex h-16 items-center justify-between px-5">
-          {brand}
-          <span className={cn('rounded-md px-2 py-1 text-[11px] font-semibold tracking-wide uppercase', portal === 'compliance' ? 'bg-teal-pale text-teal' : 'bg-green-50 text-green')}>
-            {PORTALS[portal].name}
-          </span>
-        </div>
+      <aside
+        className={cn(
+          'fixed inset-y-0 left-0 z-30 hidden flex-col border-r border-line bg-paper transition-[width] duration-200 ease-out lg:flex',
+          collapsed ? 'w-[72px]' : 'w-[264px]',
+        )}
+      >
+        {collapsed ? (
+          <div className="flex h-16 items-center justify-center">
+            <Tooltip content="Expand sidebar  [" side="right">
+              <button
+                type="button"
+                onClick={toggleCollapsed}
+                aria-label="Expand sidebar"
+                aria-expanded={false}
+                className="group grid size-10 place-items-center rounded-[10px] transition-colors hover:bg-ink/[.04]"
+              >
+                {/* the mark is the first 126 of the wordmark's 600 columns */}
+                <span className="block h-7 w-[26px] overflow-hidden group-hover:hidden group-focus-visible:hidden">
+                  <img src="/assets/images/Al-Anwaar-Logo-600x136.png" alt="" className="h-7 w-auto max-w-none" />
+                </span>
+                <PanelLeftOpen className="hidden size-[18px] text-text-2 group-hover:block group-focus-visible:block" />
+              </button>
+            </Tooltip>
+          </div>
+        ) : (
+          <div className="flex h-16 items-center justify-between gap-2 pr-3 pl-5">
+            {brand}
+            <span className="flex items-center gap-1">
+              <span className={cn('rounded-md px-2 py-1 text-[11px] font-semibold tracking-wide uppercase', portal === 'compliance' ? 'bg-teal-pale text-teal' : 'bg-green-50 text-green')}>
+                {PORTALS[portal].name}
+              </span>
+              <Tooltip content="Collapse sidebar  [" side="bottom">
+                <button
+                  type="button"
+                  onClick={toggleCollapsed}
+                  aria-label="Collapse sidebar"
+                  aria-expanded
+                  className="grid size-8 place-items-center rounded-lg text-text-3 transition-colors hover:bg-ink/[.04] hover:text-text-2"
+                >
+                  <PanelLeftClose className="size-[18px]" />
+                </button>
+              </Tooltip>
+            </span>
+          </div>
+        )}
         <div className="px-3 pb-3">
-          <button
-            type="button"
-            onClick={() => setPaletteOpen(true)}
-            className="flex h-9 w-full items-center gap-2.5 rounded-[10px] bg-paper-2 px-3 text-[13px] text-text-3 ring-1 ring-line ring-inset transition-colors hover:text-text-2 hover:ring-[#cdcdc6]"
-          >
-            <Search className="size-4" />
-            <span className="flex-1 text-left">Search or jump to…</span>
-            <Kbd>⌘K</Kbd>
-          </button>
+          {collapsed ? (
+            <Tooltip content="Search or jump to…  ⌘K" side="right">
+              <button
+                type="button"
+                onClick={() => setPaletteOpen(true)}
+                aria-label="Search or jump to"
+                className="grid h-9 w-full place-items-center rounded-[10px] bg-paper-2 text-text-3 ring-1 ring-line ring-inset transition-colors hover:text-text-2 hover:ring-[#cdcdc6]"
+              >
+                <Search className="size-4" />
+              </button>
+            </Tooltip>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setPaletteOpen(true)}
+              className="flex h-9 w-full items-center gap-2.5 rounded-[10px] bg-paper-2 px-3 text-[13px] text-text-3 ring-1 ring-line ring-inset transition-colors hover:text-text-2 hover:ring-[#cdcdc6]"
+            >
+              <Search className="size-4" />
+              <span className="flex-1 text-left">Search or jump to…</span>
+              <Kbd>⌘K</Kbd>
+            </button>
+          )}
         </div>
-        <div className="min-h-0 flex-1 overflow-y-auto px-3 pt-2 pb-6">{nav()}</div>
+        <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto px-3 pt-2 pb-6">{nav(undefined, collapsed)}</div>
         <div className="border-t border-line p-3">
           {userMenu(
-            <button type="button" className="flex w-full items-center gap-3 rounded-[10px] p-2 text-left transition-colors hover:bg-ink/[.04]">
-              <Avatar name={user.name} size="sm" />
-              <span className="min-w-0 flex-1">
-                <span className="block truncate text-[13.5px] font-medium text-text">{user.name}</span>
-                <span className="block truncate text-[12px] text-text-3">{ROLES[user.role].label}</span>
-              </span>
-              <ChevronsUpDown className="size-4 text-text-3" />
-            </button>,
+            collapsed ? (
+              <button type="button" aria-label={`${user.name}: account menu`} className="grid w-full place-items-center rounded-[10px] p-2 transition-colors hover:bg-ink/[.04]">
+                <Avatar name={user.name} size="sm" />
+              </button>
+            ) : (
+              <button type="button" className="flex w-full items-center gap-3 rounded-[10px] p-2 text-left transition-colors hover:bg-ink/[.04]">
+                <Avatar name={user.name} size="sm" />
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-[13.5px] font-medium text-text">{user.name}</span>
+                  <span className="block truncate text-[12px] text-text-3">{ROLES[user.role].label}</span>
+                </span>
+                <ChevronsUpDown className="size-4 text-text-3" />
+              </button>
+            ),
           )}
         </div>
       </aside>
@@ -216,7 +321,7 @@ export function StaffShell({ portal, groups, badgesQuery, actions = [], searchPa
         </button>
       </header>
 
-      <main className="lg:pl-[264px]">
+      <main className={cn('transition-[padding] duration-200 ease-out', collapsed ? 'lg:pl-[72px]' : 'lg:pl-[264px]')}>
         <div className="mx-auto w-full max-w-[1320px] px-4 pt-5 pb-28 sm:px-6 sm:pt-8 lg:px-10 lg:pb-16">
           <div key={loc.pathname} className="animate-portal-in">
             <Outlet />
