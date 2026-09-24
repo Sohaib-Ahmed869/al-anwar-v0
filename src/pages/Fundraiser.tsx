@@ -4,7 +4,7 @@ import NotFound from './NotFound'
 import { appealBySlug } from '../components/appeals-data'
 import FundraiserBand from '../sections/FundraiserBand'
 import FundraiserBody from '../sections/FundraiserBody'
-import { fundraiserBySlug } from '../services/fundraisers'
+import { useFundraiser } from '../services/fundraisers'
 
 /* ---------------------------------------------------------------------------
    One community fundraiser, /fundraisers/<slug>.
@@ -15,13 +15,14 @@ import { fundraiserBySlug } from '../services/fundraisers'
                                           gift goes, latest supporters
    3. More ............. FundraiserBody   three more fundraiser cards
 
-   A slug that is neither listed nor saved in this browser is the site's 404.
+   A slug the server does not know (or has not approved) is the site's 404;
+   until it answers, the page holds its space rather than flash one.
 --------------------------------------------------------------------------- */
 export default function Fundraiser() {
   const { slug } = useParams()
-  const fundraiser = fundraiserBySlug(slug)
+  const { fundraiser, ready } = useFundraiser(slug)
   const appeal = appealBySlug(fundraiser?.appeal)
-  if (!fundraiser || !appeal) return <NotFound />
+  if (!fundraiser || !appeal) return ready ? <NotFound /> : <div className="min-h-[80svh]" aria-busy="true" />
 
   return (
     <>

@@ -5,7 +5,7 @@ import Reveal from '../components/Reveal'
 import SectionHead, { BREAKOUT, SECTION_Y } from '../components/SectionHead'
 import { ArrowRight } from '../components/icons'
 import { FUNDRAISE } from '../components/involved-data'
-import { allFundraisers } from '../services/fundraisers'
+import { useFundraisers } from '../services/fundraisers'
 import { FundraiseSteps } from './FundraisersHow'
 
 /* ---------------------------------------------------------------------------
@@ -20,7 +20,7 @@ import { FundraiseSteps } from './FundraisersHow'
 --------------------------------------------------------------------------- */
 
 export default function InvolvedFundraise() {
-  const live = allFundraisers().slice(0, 3)
+  const live = useFundraisers().list.slice(0, 3)
 
   return (
     <section

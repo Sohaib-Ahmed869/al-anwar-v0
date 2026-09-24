@@ -37,7 +37,7 @@ const COLUMNS = [
       { label: 'Zakat', to: '/zakat' },
       { label: 'Zakat calculator', to: '/zakat#calculator' },
       { label: 'Community fundraisers', to: '/fundraisers' },
-      { label: 'Your giving', to: '/my-giving' },
+      { label: 'Your giving', to: '/account' },
     ],
   },
   {

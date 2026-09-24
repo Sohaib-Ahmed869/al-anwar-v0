@@ -5,14 +5,15 @@ import { looksLikeEmail } from './contact'
 /* ---------------------------------------------------------------------------
    A volunteer application: what it is, whether it is filled in, and where it
    goes. Same rules as services/contact.ts: nothing at the top level touches
-   `window`, and ENDPOINT is empty because the site has no server, so
-   `submitApplication` opens the applicant's own email with the application
-   written out, and the page says so. It never shows a tick for something that
-   has not arrived.
+   `window`. ENDPOINT is the platform's enquiries inbox, where it arrives as a
+   volunteer enquiry with the roles, times and suburb kept as details. If
+   ENDPOINT is ever emptied, `submitApplication` opens the applicant's own
+   email with the application written out, and the page says so. It never
+   shows a tick for something that has not arrived.
 --------------------------------------------------------------------------- */
 
-/** Fill this in once there is somewhere to post to. */
-export const ENDPOINT = ''
+/** The platform's enquiries inbox. Empty it to fall back to the mail client. */
+export const ENDPOINT = '/api/public/enquiries'
 
 export type Application = {
   first: string
@@ -74,8 +75,20 @@ export async function submitApplication(a: Application): Promise<'endpoint' | 'm
     try {
       const res = await fetch(ENDPOINT, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(a),
+        headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'aa' },
+        body: JSON.stringify({
+          type: 'volunteer',
+          name: `${a.first.trim()} ${a.last.trim()}`,
+          email: a.email.trim(),
+          phone: a.phone.trim() || undefined,
+          subject: 'Volunteer application',
+          message: applicationBody(a),
+          meta: {
+            suburb: a.suburb.trim(),
+            roles: a.roles.map((id) => ROLES.items.find((r) => r.id === id)?.title ?? id),
+            when: a.when,
+          },
+        }),
       })
       return res.ok ? 'endpoint' : 'failed'
     } catch {

@@ -4,13 +4,15 @@ import { looksLikeEmail } from './contact'
 
 /* ---------------------------------------------------------------------------
    A partnership enquiry: its fields, its checks, and where it goes. The same
-   rules as services/volunteer.ts: ENDPOINT is empty because the site has no
-   server, so `submitEnquiry` opens the sender's own email with the enquiry
-   written out and the page says so. Never a tick for something unsent.
+   rules as services/volunteer.ts: ENDPOINT is the platform's enquiries inbox,
+   where it arrives as a partner enquiry with the organisation's details kept
+   alongside. If ENDPOINT is ever emptied, `submitEnquiry` opens the sender's
+   own email with the enquiry written out and the page says so. Never a tick
+   for something unsent.
 --------------------------------------------------------------------------- */
 
-/** Fill this in once there is somewhere to post to. */
-export const ENDPOINT = ''
+/** The platform's enquiries inbox. Empty it to fall back to the mail client. */
+export const ENDPOINT = '/api/public/enquiries'
 
 export type Enquiry = {
   type: string
@@ -75,8 +77,22 @@ export async function submitEnquiry(e: Enquiry): Promise<'endpoint' | 'mail' | '
     try {
       const res = await fetch(ENDPOINT, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(e),
+        headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'aa' },
+        body: JSON.stringify({
+          type: 'partner',
+          name: e.name.trim(),
+          email: e.email.trim(),
+          phone: e.phone.trim() || undefined,
+          subject: `Partnership enquiry: ${e.org.trim()}`,
+          message: e.message.trim(),
+          meta: {
+            partnership: PARTNER_TYPES.find((t) => t.id === e.type)?.title ?? e.type,
+            organisation: e.org.trim(),
+            role: e.role.trim(),
+            website: e.website.trim(),
+            location: e.location.trim(),
+          },
+        }),
       })
       return res.ok ? 'endpoint' : 'failed'
     } catch {

@@ -13,3 +13,6 @@ Thumbs.db
 .vscode/*
 !.vscode/extensions.json
 .idea
+
+# local dev database and uploaded files
+.data

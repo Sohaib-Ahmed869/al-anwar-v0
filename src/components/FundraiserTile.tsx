@@ -61,11 +61,6 @@ export default function FundraiserTile({
       />
       <span aria-hidden="true" className="reveal-curtain absolute inset-0 z-20 bg-teal" />
 
-      {f.local && (
-        <span className="absolute top-3 left-3 rounded-full bg-gold-pale px-3 py-1 text-[12px] font-semibold text-ink">
-          Preview
-        </span>
-      )}
       <span
         aria-hidden="true"
         className="absolute top-3 right-3 flex h-9 w-9 translate-y-1 items-center justify-center rounded-full bg-paper/90 text-ink opacity-0 transition-[opacity,transform] duration-300 ease-brand group-focus-within:translate-y-0 group-focus-within:opacity-100 group-hover:translate-y-0 group-hover:opacity-100"

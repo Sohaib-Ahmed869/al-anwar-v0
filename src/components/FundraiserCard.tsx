@@ -56,11 +56,6 @@ export default function FundraiserCard({ fundraiser: f }: { fundraiser: Fundrais
             {reason}
           </span>
         )}
-        {f.local && (
-          <span className="absolute top-3 right-3 rounded-full bg-gold-pale px-3 py-1 text-[12px] font-semibold text-ink">
-            Preview
-          </span>
-        )}
       </div>
 
       <div className="flex flex-1 flex-col p-s3">

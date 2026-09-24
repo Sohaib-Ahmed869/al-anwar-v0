@@ -5,7 +5,9 @@ import { CAUSES, MIN_GIFT, takesMonthly } from '../components/give-data'
 
    Two consumers, the same way services/contact.ts has two:
      - the form in sections/GiveForm.tsx, in the browser
-     - api/checkout.ts, which turns a gift into a Stripe or PayPal payment page
+     - server/routes/public.ts, which turns a gift into a Stripe or PayPal
+       payment page (it loads this file by path; api/checkout.ts, the
+       earlier stand-alone handler, is no longer what serves the site)
 
    so the rules are written once and imported by both. Nothing at the top level
    of this module touches `window`; keep it that way, or the server cannot
@@ -19,21 +21,33 @@ import { CAUSES, MIN_GIFT, takesMonthly } from '../components/give-data'
    keeps the site out of PCI scope entirely and needs no payment library in the
    bundle.
 
-   CHECKOUT_ENDPOINT is empty because the site has no server yet. Until it is
-   set, `startCheckout` returns `not-connected` and the form says, in words,
-   that online payment is not switched on and points at the bank details. It
-   must never pretend a payment went through.
+   CHECKOUT_ENDPOINT is the platform API's /api/public/checkout (server/
+   routes/public.ts), which runs validateGift below on every gift before it
+   does anything else. It answers one of three ways:
+     { kind: 'redirect', url }   Stripe's or PayPal's page — or, while the
+                                 platform has no Stripe keys, /thank-you for
+                                 a gift recorded in SIMULATED mode, which the
+                                 thank-you page says in so many words
+     { kind: 'bank', url, … }    a transfer pledge with its own reference;
+                                 /thank-you shows the details to pay to
+     an error                    shown under the button, nothing charged
+   If CHECKOUT_ENDPOINT is ever emptied again, `startCheckout` returns
+   `not-connected` and the form says, in words, that online payment is not
+   switched on and points at the bank details. It must never pretend a
+   payment went through.
 
    ── Monthly ─────────────────────────────────────────────────────────────
-   A gift carries a `frequency`, and a monthly one is a Stripe subscription
-   rather than a payment. PayPal cannot take one here: recurring PayPal needs a
-   billing plan set up against a product in advance, which nothing in this repo
-   creates, so `validateGift` refuses the combination outright instead of
-   letting a monthly gift through as a single charge.
+   A gift carries a `frequency`. A monthly one takes the first payment through
+   Stripe with the card saved, and the platform's scheduler charges that card
+   each month after (server/jobs/recurring.ts). PayPal cannot take one here:
+   recurring PayPal needs a billing plan set up against a product in advance,
+   which nothing in this repo creates, so `validateGift` refuses the
+   combination outright instead of letting a monthly gift through as a single
+   charge.
 --------------------------------------------------------------------------- */
 
-/** Set to '/api/checkout' once api/checkout.ts is deployed with its keys. */
-export const CHECKOUT_ENDPOINT = ''
+/** The platform API. Empty it to switch online giving off (see above). */
+export const CHECKOUT_ENDPOINT = '/api/public/checkout'
 
 /** What the card processor takes, asked for in dollars on the form. */
 export const FEE_RATE = 0.026
@@ -53,6 +67,11 @@ export type GiftPayload = {
   frequency: Frequency
   /** a place or appeal the donor came from, e.g. "Gaza"; display only */
   appeal?: string
+  /** the appeal's slug when the gift came from one (/appeals/<slug>, or a
+   *  fundraiser's appeal), so the server can count it towards that appeal */
+  appealSlug?: string
+  /** the fundraiser's slug when the gift came through one */
+  fundraiser?: string
   /** the gift itself, in dollars, before any fee */
   amount: number
   coverFee: boolean
@@ -110,20 +129,71 @@ export type CheckoutResult =
   | { kind: 'not-connected' }
   | { kind: 'failed'; message: string }
 
-/** Ask the server for a payment page, and hand back where to send the donor. */
+type CheckoutReply = {
+  kind?: 'redirect' | 'bank'
+  url?: string
+  error?: { message?: string; fields?: Record<string, string> }
+}
+
+/** Ask the server for a payment page, and hand back where to send the donor.
+ *  A bank-transfer pledge comes back with a url as well: the thank-you page,
+ *  which shows the reference and the account to pay into. */
 export async function startCheckout(p: GiftPayload): Promise<CheckoutResult> {
   if (!CHECKOUT_ENDPOINT) return { kind: 'not-connected' }
 
   try {
     const res = await fetch(CHECKOUT_ENDPOINT, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      /* the platform refuses a state change without this header — it is the
+         half of its CSRF defence a cross-site form cannot fake */
+      headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'aa' },
       body: JSON.stringify(p),
     })
-    const body = (await res.json().catch(() => ({}))) as { url?: string; message?: string }
+    const body = (await res.json().catch(() => ({}))) as CheckoutReply
     if (res.ok && body.url) return { kind: 'redirect', url: body.url }
-    return { kind: 'failed', message: body.message ?? 'We could not start the payment.' }
+    /* the first field the server objected to says more than the headline */
+    const field = body.error?.fields && Object.values(body.error.fields)[0]
+    return { kind: 'failed', message: field ?? body.error?.message ?? 'We could not start the payment.' }
   } catch {
     return { kind: 'failed', message: 'We could not reach the payment service. Check your connection.' }
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   What the thank-you page reads back: the gift as the server has it, so the
+   page shows what actually happened rather than what the form hoped for.
+   Money is in CENTS here, as everywhere on the platform API.
+--------------------------------------------------------------------------- */
+
+export type GiftStatus = {
+  id: string
+  number: string
+  status: 'succeeded' | 'pending' | 'failed' | 'refunded'
+  amount: number
+  fee: number
+  designation: string
+  method: 'card' | 'paypal' | 'bank' | 'cash' | 'cheque' | 'event'
+  appealTitle: string | null
+  fundraiserTitle: string | null
+  date: string
+  receiptNumber: string | null
+  receiptEmailed: boolean
+  reference: string | null
+  firstName: string | null
+  frequency: 'once' | 'weekly' | 'fortnightly' | 'monthly'
+  instalments: number | null
+  nextChargeAt: string | null
+  bank: { accountName: string; bsb: string; accountNumber: string } | null
+  failureReason: string | null
+  /** no payment provider is connected; nothing real was charged */
+  simulated: boolean
+}
+
+export async function giftStatus(id: string): Promise<GiftStatus | null> {
+  try {
+    const res = await fetch(`/api/public/gifts/${encodeURIComponent(id)}/status`)
+    return res.ok ? ((await res.json()) as GiftStatus) : null
+  } catch {
+    return null
   }
 }

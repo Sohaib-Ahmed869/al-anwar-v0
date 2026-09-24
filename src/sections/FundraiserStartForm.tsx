@@ -1,9 +1,9 @@
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 
 import FundraiserCard from '../components/FundraiserCard'
 import { BREAKOUT } from '../components/SectionHead'
-import { REASONS, START } from '../components/fundraiser-data'
+import { REASONS, SENT, START } from '../components/fundraiser-data'
 import { PLACES, appealBySlug } from '../components/appeals-data'
 
 import { appealView } from '../components/appeal-view'
@@ -13,7 +13,7 @@ import {
   checkStep,
   appealsFor,
   draftToFundraiser,
-  saveLocal,
+  submitFundraiser,
   shrinkPhoto,
   type Draft,
 } from '../services/fundraisers'
@@ -36,10 +36,11 @@ import {
    On the right, from lg up, the fundraiser card as it will appear, redrawn on
    every keystroke. On a phone it sits under the form.
 
-   CREATING IT saves to this browser only (services/fundraisers.ts) and opens
-   the new page, which says plainly that it is a preview and offers to email
-   it to the office. If the browser will not store it (private mode, or a
-   photo too big) it tries again without the photo, then says so.
+   CREATING IT posts the draft to the platform (submitFundraiser in
+   services/fundraisers.ts). It lands in the admin approval queue, the
+   organiser is emailed a link to their account, and the form ends on SENT:
+   no link to share, because the page is not public until it is approved.
+   A field the server rejects takes the user back to the step it is on.
 --------------------------------------------------------------------------- */
 
 const LABEL = 'block text-[11px] font-semibold tracking-[0.13em] text-text-3 uppercase'
@@ -123,7 +124,6 @@ function Field({
 
 export default function FundraiserStartForm() {
   const uid = useId()
-  const navigate = useNavigate()
   const top = useRef<HTMLDivElement>(null)
   const fileRef = useRef<HTMLInputElement>(null)
 
@@ -133,6 +133,8 @@ export default function FundraiserStartForm() {
   const [titleTouched, setTitleTouched] = useState(false)
   const [photoError, setPhotoError] = useState('')
   const [saveError, setSaveError] = useState('')
+  const [sending, setSending] = useState(false)
+  const [sent, setSent] = useState(false)
 
   const set = <K extends keyof Draft>(k: K, v: Draft[K]) => {
     setD((prev) => ({ ...prev, [k]: v }))
@@ -162,13 +164,26 @@ export default function FundraiserStartForm() {
     }
     if (step < 3) return go(step + 1)
 
-    const f = draftToFundraiser(d)
-    if (saveLocal(f)) return navigate(`/fundraisers/${f.slug}`)
-    const bare = { ...f, photo: undefined }
-    if (saveLocal(bare)) return navigate(`/fundraisers/${f.slug}`)
-    setSaveError(
-      'Your browser would not save this page (it may be in private mode). Try again in a normal window, or write to us and we will set it up.',
-    )
+    if (sending) return
+    setSending(true)
+    setSaveError('')
+    void submitFundraiser(d).then((r) => {
+      setSending(false)
+      if (r.ok) {
+        setSent(true)
+        top.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        return
+      }
+      setSaveError(r.message)
+      const fields = r.fields ?? {}
+      if (Object.keys(fields).length) {
+        /* back to the first step with something wrong on it */
+        const stepOf: Record<string, number> = { reason: 0, appeal: 1, title: 2, story: 2, goal: 2, ends: 2, photo: 2 }
+        const first = Math.min(...Object.keys(fields).map((k) => stepOf[k] ?? 3))
+        setStep(first)
+        setErrors(fields)
+      }
+    })
   }
 
   const onPhoto = async (file: File | undefined) => {
@@ -194,8 +209,46 @@ export default function FundraiserStartForm() {
     }),
     /* no reason chip until one is chosen */
     reason: (d.reason ?? '') as Draft['reason'] & string,
-    local: false,
   }
+
+  if (sent)
+    return (
+      <section aria-labelledby="sent-title" className="pt-[clamp(32px,5vw,64px)] pb-[clamp(56px,6.5vw,96px)]">
+        <div ref={top} className="gutter mx-auto max-w-page scroll-mt-[calc(var(--header-h)+16px)]">
+          <div className={`grid gap-s5 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] ${BREAKOUT}`}>
+            <div role="status">
+              <p className="inline-flex items-center gap-2 font-script text-[clamp(21px,1.9vw,27px)] leading-none text-green">
+                <Check className="h-4 w-4" />
+                {SENT.eyebrow}
+              </p>
+              <h1
+                id="sent-title"
+                className="mt-s2 font-display text-[clamp(34px,4.4vw,58px)] leading-[1.04] font-semibold tracking-[-0.025em]"
+              >
+                {SENT.title}
+              </h1>
+              <p className="mt-s3 max-w-[54ch] text-[clamp(15.5px,1.2vw,17px)] leading-[1.55] text-text-2">{SENT.body}</p>
+              <p className="mt-s2 max-w-[54ch] text-[clamp(15.5px,1.2vw,17px)] leading-[1.55] text-text-2">{SENT.manage}</p>
+              <div className="mt-s4 flex flex-wrap items-center gap-s3">
+                <Link
+                  to="/account/fundraisers"
+                  className="group inline-flex min-h-[52px] items-center gap-2 rounded-[10px] bg-teal px-6 text-[15.5px] font-semibold text-paper transition duration-200 ease-brand hover:-translate-y-px hover:bg-ink"
+                >
+                  {SENT.account}
+                  <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 ease-brand group-hover:translate-x-0.5" />
+                </Link>
+                <Link to="/fundraisers" className="min-h-[48px] content-center text-[15px] font-semibold text-text-2 hover:text-text">
+                  {SENT.browse}
+                </Link>
+              </div>
+            </div>
+            <div className="pointer-events-none" inert>
+              <FundraiserCard fundraiser={preview} />
+            </div>
+          </div>
+        </div>
+      </section>
+    )
 
   return (
     <section aria-labelledby="start-title" className="pt-[clamp(32px,5vw,64px)] pb-[clamp(56px,6.5vw,96px)]">
@@ -574,9 +627,10 @@ export default function FundraiserStartForm() {
               )}
               <button
                 type="submit"
-                className="group inline-flex min-h-[52px] items-center gap-2 rounded-[10px] bg-teal px-6 text-[15.5px] font-semibold text-paper transition duration-200 ease-brand hover:-translate-y-px hover:bg-ink"
+                disabled={sending}
+                className="group inline-flex min-h-[52px] disabled:opacity-70 items-center gap-2 rounded-[10px] bg-teal px-6 text-[15.5px] font-semibold text-paper transition duration-200 ease-brand hover:-translate-y-px hover:bg-ink"
               >
-                {step < 3 ? START.next : START.create}
+                {step < 3 ? START.next : sending ? SENT.sending : START.create}
                 <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 ease-brand group-hover:translate-x-0.5" />
               </button>
             </div>

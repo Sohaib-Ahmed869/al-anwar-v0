@@ -529,15 +529,15 @@ export default function Header() {
             {/* Quiet, so it never competes with the gold beside it. Below lg the
                 drawer carries it instead. */}
             <Link
-              to="/my-giving"
+              to="/account"
               aria-label="Sign in"
               className={`group hidden h-10 items-center gap-2 rounded-[10px] px-2.5 text-[15px] font-medium transition-colors duration-200 ease-brand lg:flex xl:px-3 ${
                 solid
                   ? `hover:bg-ink/[0.045] hover:text-ink ${
-                      location.pathname === '/my-giving' ? 'text-ink' : 'text-text-2'
+                      location.pathname.startsWith('/account') ? 'text-ink' : 'text-text-2'
                     }`
                   : `hover:bg-paper/10 hover:text-paper ${
-                      location.pathname === '/my-giving' ? 'text-paper' : 'text-text-on-ink-2'
+                      location.pathname.startsWith('/account') ? 'text-paper' : 'text-text-on-ink-2'
                     }`
               }`}
             >

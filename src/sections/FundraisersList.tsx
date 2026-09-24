@@ -6,7 +6,7 @@ import Reveal from '../components/Reveal'
 import SectionHead, { BREAKOUT, SECTION_Y } from '../components/SectionHead'
 import { LISTING, REASONS, type Reason } from '../components/fundraiser-data'
 import { ArrowRight } from '../components/icons'
-import { allFundraisers } from '../services/fundraisers'
+import { useFundraisers } from '../services/fundraisers'
 
 /* ---------------------------------------------------------------------------
    /fundraisers, section 2 of 3: every fundraiser, filtered by occasion.
@@ -43,7 +43,7 @@ const SPAN: Record<Size, string> = {
 }
 
 export default function FundraisersList() {
-  const list = allFundraisers()
+  const { list } = useFundraisers()
   const [on, setOn] = useState<Reason | 'all'>('all')
   const shown = on === 'all' ? list : list.filter((f) => f.reason === on)
   const chips = REASONS.filter((r) => list.some((f) => f.reason === r.id))

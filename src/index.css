@@ -172,6 +172,29 @@
      only meant to read where the ground is darker than the card. */
   --shadow-card: 0 1px 2px rgba(20, 26, 24, 0.05), 0 26px 50px -34px rgba(20, 26, 24, 0.35);
 
+  /* ---- THE PORTALS (donor, admin, compliance) ------------------------------
+     Status tones for badges, charts and banners. Each has a strong ink for
+     type and a pale ground to sit on; every pair clears 4.5:1. The rule on the
+     public site still holds inside the portals: gold is the give action and the
+     focus ring, and a status is never gold. */
+  --color-green-600: #265a4b;
+  --color-green-50: #f1f6f3;
+  --color-teal-pale: #e3f0f1;
+  --color-amber: #8a5a00;
+  --color-amber-pale: #fbf1dc;
+  --color-red: #a63a1c;
+  --color-red-pale: #fbebe6;
+  --color-violet: #5b4b99;
+  --color-violet-pale: #efecf8;
+  --color-gold-50: #fbf6e8;
+
+  /* Things that float over the page: menus, popovers, dialogs, the palette. */
+  --shadow-pop: 0 0 0 1px rgba(20, 26, 24, 0.06), 0 8px 24px -6px rgba(20, 26, 24, 0.14),
+    0 24px 48px -16px rgba(20, 26, 24, 0.18);
+  /* A card on the portal ground: a hairline's worth of shade, no more. */
+  --shadow-soft: 0 1px 2px rgba(20, 26, 24, 0.04), 0 1px 1px rgba(20, 26, 24, 0.02);
+  --shadow-lift: 0 1px 2px rgba(20, 26, 24, 0.05), 0 10px 24px -12px rgba(20, 26, 24, 0.16);
+
   /* Motion */
   --ease-brand: cubic-bezier(0.22, 0.61, 0.36, 1);
   /* For things arriving: fast out of the gate and a long, soft settle. The
@@ -335,6 +358,105 @@
     padding-inline: var(--gutter);
   }
 
+  /* Room for the iPhone home indicator under a fixed bottom bar. */
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .scrollbar-none {
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   THE PORTALS. The public site hides the document's scrollbar and draws its
+   own over the page (components/ScrollBar.tsx) so photographs reach both
+   edges. The portals are tools, not photographs: they put a real, slim
+   scrollbar back while one is mounted (PortalRoot sets data-portal on <html>).
+--------------------------------------------------------------------------- */
+html[data-portal] {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(21, 26, 24, 0.22) transparent;
+}
+html[data-portal]::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+html[data-portal]::-webkit-scrollbar-thumb,
+html[data-portal] ::-webkit-scrollbar-thumb {
+  background-color: rgba(21, 26, 24, 0.2);
+}
+
+@keyframes portal-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 6px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+/* The page entrance fades and does NOT move: a transform on the page
+   wrapper, even mid-animation, makes it the containing block for every
+   position:fixed element inside it, so bulk-action bars and sticky save bars
+   would stick to the page instead of the screen. */
+@keyframes portal-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.animate-portal-in {
+  animation: portal-fade 260ms var(--ease-reveal) both;
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: -100% 0;
+  }
+}
+.skeleton {
+  background: linear-gradient(90deg, #ecece7 0%, #f5f5f1 40%, #ecece7 80%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s linear infinite;
+}
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, -4px, 0) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes dialog-in {
+  from {
+    opacity: 0;
+    transform: translate3d(-50%, calc(-50% + 12px), 0) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(-50%, -50%, 0);
+  }
+}
+@keyframes sheet-in {
+  from {
+    transform: translate3d(100%, 0, 0);
+  }
+  to {
+    transform: none;
+  }
 }
 
 /* ---------------------------------------------------------------------------

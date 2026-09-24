@@ -1,15 +1,97 @@
-# Al-Anwaar — website
+# Al-Anwaar — website and donation platform
 
-React + Vite + Tailwind v4 + TypeScript.
+React + Vite + Tailwind v4 + TypeScript on the front; Node + Express 5 + MongoDB
+(Mongoose) behind it — the MERN stack the proposal names.
 
 ## Run it
 
 ```
 npm install
-npm run dev      # http://localhost:5173
-npm run build    # type-check, then build to dist/
-npm run preview  # serve the built dist/
+npm run dev        # the site on http://localhost:5190 and the API on :4600, together
+npm run typecheck  # client and server
+npm run build      # type-check both, then build the site to dist/
+npm start          # the API (NODE_ENV=production also serves dist/)
 ```
+
+Nothing has to be installed or configured for development. With no `.env`:
+
+- **the database** is an embedded MongoDB whose files live in `.data/mongo`, and it
+  seeds itself with two years of invented giving the first time (`SEED_RESET=1` wipes
+  and re-seeds). Set `MONGODB_URI` for Atlas.
+- **email** is not sent. Every message — receipts, sign-in codes, reminders — is kept
+  in Admin → Email log, rendered exactly as it would arrive. Set `SMTP_*` (Amazon SES)
+  to send for real.
+- **payments** are simulated: a card gift goes straight through, and a regular gift on
+  a card ending 0002 is declined, so the retry and fix-your-card path can be walked.
+  Every screen says "simulated" while this is on. Set `STRIPE_SECRET_KEY` and the
+  PayPal keys for the real thing.
+
+`.env.example` lists every setting and what happens when it is empty.
+
+### Signing in, in development
+
+| Portal | Where | Who |
+| --- | --- | --- |
+| Donor | `/account` | `amina.rahman@example.com` — the six-digit code is shown on screen |
+| Admin | `/admin` | `yusuf@` owner · `maryam@` admin · `omar@` finance · `fatima@` fundraising · `bilal@` volunteer — all `@alanwaar.group`, password `alanwaar-demo` |
+| Compliance | `/compliance` | `khalid@alanwaar.group` (or any admin/owner), same password |
+
+`node scripts/shot.mjs admin/donors --mobile` screenshots any page, signed in as
+anyone (`--as`, `--donor`), into `.data/shots/`.
+
+## The platform
+
+```
+shared/            the vocabulary both sides compile: designations, methods, plan and
+                   gift statuses, roles and permissions, the ACNC register definitions,
+                   the API's types, money formatting. Money is integer CENTS everywhere.
+server/
+  index.ts         boot: database, seed, HTTP, background jobs
+  app.ts           the API under /api — see the map at the top of the file
+  models/          Mongoose: Donor, Gift, Plan, Appeal, Fundraiser, Enquiry, Campaign,
+                   EmailMessage, BankImport, Staff, AuditEvent, RegisterEntry,
+                   Obligation, LibraryDocument, Settings
+  lib/             giving.ts (the one road a gift takes in), plans.ts (charging a
+                   regular gift, and what a decline does), payments.ts, email.ts,
+                   auth.ts, audit.ts, storage.ts (S3 or disk), matching.ts (bank lines)
+  emails/          every email the platform sends, one function each
+  routes/          auth, public (the website), donor (/api/me), admin, compliance
+  jobs/            regular gifts, pre-payment notices, campaign batches, reminders
+  seed/            the invented development data
+src/
+  portal/          the three portals' shared kit: ui/, charts/, shell/, api.ts, session.tsx
+  account/         the donor portal       /account
+  admin/           the admin portal       /admin
+  compliance/      the compliance portal  /compliance
+```
+
+**Three audiences, two cookies.** Donors sign in with an emailed code (or Google /
+Facebook when their keys are set) and get an `aa_donor` session; staff sign in with a
+password and get `aa_staff`. No route accepts both, and every `/api/me` query is scoped
+to the signed-in donor — none of them takes a donor id from the request.
+
+**Permissions are one table** (`shared/access.ts`). The server checks it on every
+route and the portals read the same table to decide what to draw, so a volunteer
+entering cash gifts is never shown an export button and cannot call one either.
+
+**Every change is logged** with the person and the time (`lib/audit.ts`), append-only,
+and the compliance portal exports it.
+
+**One road for a gift.** Website checkout, the monthly scheduler, a confirmed bank
+line and a cash gift at an event all go through `recordGift()`, which is what makes
+one donor record and one receipt trail true.
+
+**The portals are separate chunks**, lazy-loaded from `App.tsx` outside the public
+`Layout`; a visitor reading an appeal never downloads them.
+
+### Deploying
+
+One process serves the API and, with `NODE_ENV=production`, the built site from
+`dist/`: `npm run build && NODE_ENV=production npm start` on AWS (EC2, ECS or App
+Runner) with `MONGODB_URI`, `JWT_SECRET`, `APP_URL`, SES SMTP, Stripe, PayPal and
+`S3_BUCKET` set. The Stripe webhook is `POST /api/webhooks/stripe`
+(`checkout.session.completed`). The Vercel handlers in `api/` predate the server and
+are superseded by it.
 
 ## Where things are
 
@@ -370,11 +452,12 @@ are finished.
   with a live preview (`pages/FundraiserStart.tsx`), and a page per fundraiser with a give
   card (`pages/Fundraiser.tsx`). **Every fundraiser raises for one of our real appeals**, and
   its Donate goes to `/give?fundraiser=<slug>`, which books to that appeal's fund.
-  **`SAMPLE_FUNDRAISERS` in `components/fundraiser-data.ts` are invented** (people, totals,
-  messages) and must be emptied or replaced before launch. There is no server, so a
-  fundraiser started on the site is saved in that browser's localStorage only
-  (`services/fundraisers.ts`, `FUNDRAISER_ENDPOINT`), its page says it is a preview, and
-  "Send it to us" emails the details to the office. All of its words are in
+  **The fundraisers come from the platform** (`GET /api/public/fundraisers`), read through
+  `useFundraisers()` / `useFundraiser()` in `services/fundraisers.ts`. One started on
+  `/fundraisers/start` is posted to `POST /api/public/fundraisers`: the organiser is found
+  or created by email, the page waits in Admin → Fundraisers for approval, they are emailed
+  a link to `/account/fundraisers`, and the form ends on "sent for approval" (25 September
+  2026; this replaced the localStorage preview and the invented `SAMPLE_FUNDRAISERS`). All of its words are in
   `components/involved-data.ts`. The things to know before editing it:
   **nothing on the page collects a name.** There is no volunteer sign-up, no fundraiser
   wizard and no "register your interest" box, and that is deliberate — the site has no

@@ -1,5 +1,14 @@
-import { Routes, Route } from 'react-router-dom'
+import { lazy, Suspense } from 'react'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import Layout from './components/Layout'
+
+/* The three portals are their own chunks: a visitor reading an appeal never
+   downloads the admin portal, and the portals bring their own shells, so they
+   sit outside the public Layout's header and footer. */
+const AccountApp = lazy(() => import('./account/AccountApp'))
+const AdminApp = lazy(() => import('./admin/AdminApp'))
+const ComplianceApp = lazy(() => import('./compliance/ComplianceApp'))
+const portal = (el: React.ReactNode) => <Suspense fallback={<div className="min-h-dvh bg-ground" />}>{el}</Suspense>
 
 import Home from './pages/Home'
 import Appeals from './pages/Appeals'
@@ -22,7 +31,6 @@ import FundraiserStart from './pages/FundraiserStart'
 import Fundraiser from './pages/Fundraiser'
 import About from './pages/About'
 import Contact from './pages/Contact'
-import MyGiving from './pages/MyGiving'
 import Privacy from './pages/Privacy'
 import Terms from './pages/Terms'
 import NotFound from './pages/NotFound'
@@ -30,6 +38,10 @@ import NotFound from './pages/NotFound'
 export default function App() {
   return (
     <Routes>
+      <Route path="account/*" element={portal(<AccountApp />)} />
+      <Route path="admin/*" element={portal(<AdminApp />)} />
+      <Route path="compliance/*" element={portal(<ComplianceApp />)} />
+
       <Route element={<Layout />}>
         <Route index element={<Home />} />
 
@@ -60,7 +72,8 @@ export default function App() {
 
         <Route path="about" element={<About />} />
         <Route path="contact" element={<Contact />} />
-        <Route path="my-giving" element={<MyGiving />} />
+        {/* The donor portal replaced the old stub; the path is kept for old links. */}
+        <Route path="my-giving" element={<Navigate to="/account" replace />} />
 
         {/* The two the footer's small print points at. */}
         <Route path="privacy" element={<Privacy />} />

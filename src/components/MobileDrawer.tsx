@@ -169,7 +169,7 @@ export default function MobileDrawer({ open, onClose }: Props) {
         <a href={PHONE.href} className="nums text-text-2">
           {PHONE.label} &middot; {PHONE.hours}
         </a>
-        <Link to="/my-giving" onClick={onClose} className="text-text-2">
+        <Link to="/account" onClick={onClose} className="text-text-2">
           Sign in to your giving
         </Link>
       </div>

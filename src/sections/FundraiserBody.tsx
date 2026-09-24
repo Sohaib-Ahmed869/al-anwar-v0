@@ -5,12 +5,11 @@ import FundraiserCard, { fundraiserGiveHref } from '../components/FundraiserCard
 import Reveal from '../components/Reveal'
 import SectionHead, { BREAKOUT, SECTION_Y } from '../components/SectionHead'
 import { MasjidMark } from '../components/Ornament'
-import { LOCAL_NOTICE, type Fundraiser } from '../components/fundraiser-data'
-import { PLACES, type Appeal } from '../components/appeals-data'
+import { type Fundraiser } from '../components/fundraiser-data'
+import { type Appeal } from '../components/appeals-data'
 import { money } from '../components/appeal-view'
-import { ORG } from '../components/org-data'
 import { ArrowRight, Check, Copy, Facebook, Mail, WhatsApp } from '../components/icons'
-import { allFundraisers } from '../services/fundraisers'
+import { useFundraisers } from '../services/fundraisers'
 
 /* ---------------------------------------------------------------------------
    A single fundraiser, sections 2 and 3: the story, and more fundraisers.
@@ -20,27 +19,10 @@ import { allFundraisers } from '../services/fundraisers'
    latest supporters. Under the story, share buttons: a copy of the link, and
    plain share links to WhatsApp, Facebook and email. They are links, not
    embeds, so nothing from Meta loads on this page.
-
-   A fundraiser started in this browser (f.local) opens with LOCAL_NOTICE: it
-   is not published, and "Send it to us" drafts an email with everything in
-   it so the office can set it up.
 --------------------------------------------------------------------------- */
 
 const fmtDate = (iso: string) =>
   new Date(`${iso}T12:00:00`).toLocaleDateString('en-AU', { day: 'numeric', month: 'short' })
-
-function sendToUs(f: Fundraiser, appeal: Appeal) {
-  const body = [
-    `Title: ${f.title}`,
-    `Organiser: ${f.organiser}`,
-    `Appeal: ${appeal.title} (${PLACES[appeal.country]})`,
-    `Goal: ${money(f.goal)}`,
-    `Ends: ${f.ends}`,
-    '',
-    ...f.story,
-  ].join('\n')
-  return `mailto:${ORG.email}?subject=${encodeURIComponent(`New fundraiser: ${f.title}`)}&body=${encodeURIComponent(body)}`
-}
 
 export default function FundraiserBody({ fundraiser: f, appeal }: { fundraiser: Fundraiser; appeal: Appeal }) {
   const [copied, setCopied] = useState(false)
@@ -62,8 +44,8 @@ export default function FundraiserBody({ fundraiser: f, appeal }: { fundraiser: 
     }
   }
 
-  const more = allFundraisers()
-    .filter((x) => x.slug !== f.slug)
+  const more = useFundraisers()
+    .list.filter((x) => x.slug !== f.slug)
     .slice(0, 3)
 
   const shareLink =
@@ -73,23 +55,6 @@ export default function FundraiserBody({ fundraiser: f, appeal }: { fundraiser: 
     <>
       <section aria-labelledby="story-head" className={SECTION_Y}>
         <div className="gutter mx-auto max-w-page">
-          {f.local && (
-            <div
-              className={`mb-s4 flex flex-col gap-s2 rounded-2xl bg-gold-pale/40 p-s3 ring-1 ring-gold/30 sm:flex-row sm:items-center sm:justify-between ${BREAKOUT}`}
-            >
-              <div>
-                <p className="font-semibold">{LOCAL_NOTICE.title}</p>
-                <p className="mt-1 max-w-[70ch] text-[14.5px] leading-relaxed text-text-2">{LOCAL_NOTICE.body}</p>
-              </div>
-              <a
-                href={sendToUs(f, appeal)}
-                className="inline-flex min-h-[46px] shrink-0 items-center gap-2 self-start rounded-[10px] bg-teal px-5 text-[14.5px] font-semibold text-paper transition-colors duration-200 ease-brand hover:bg-ink sm:self-auto"
-              >
-                <Mail className="h-4 w-4" />
-                {LOCAL_NOTICE.action}
-              </a>
-            </div>
-          )}
 
           <div className={`grid gap-s5 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] ${BREAKOUT}`}>
             {/* --- the story --- */}

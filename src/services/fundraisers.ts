@@ -1,54 +1,164 @@
-import { REASONS, SAMPLE_FUNDRAISERS, type Fundraiser, type Reason } from '../components/fundraiser-data'
+import { useEffect, useState, useSyncExternalStore } from 'react'
+
+import { REASONS, type Fundraiser, type Reason, type Supporter } from '../components/fundraiser-data'
 import { APPEAL_LIST, appealBySlug } from '../components/appeals-data'
 
 /* ---------------------------------------------------------------------------
    Where fundraisers come from, and where a new one goes.
 
-   FUNDRAISER_ENDPOINT is empty because the site has no server, the same
-   situation as CHECKOUT_ENDPOINT in services/give.ts. Until it is set, a
-   fundraiser started on /fundraisers/start is saved to this browser's
-   localStorage and nowhere else, and every page that shows it says so
-   (LOCAL_NOTICE). It must never look published when it is not: the person
-   who made it would share a link nobody else can open.
+   The platform API (server/routes/public.ts) is the only source. The list is
+   fetched once per visit into a small store the pages subscribe to
+   (useFundraisers); one fundraiser's page fetches its own record, which adds
+   the latest supporters (useFundraiser).
 
-   TO SWITCH IT ON: an endpoint that takes the payload below, stores it for
-   review, and returns { slug }; a list endpoint the pages read instead of
-   SAMPLE_FUNDRAISERS; and the Stripe webhook in api/checkout.ts adding each
-   paid gift to the fundraiser named in the gift's metadata.
+   A fundraiser started on /fundraisers/start is POSTed to FUNDRAISER_ENDPOINT.
+   It goes into the admin approval queue as 'pending' and is not public until
+   the team approves it, so the start form ends on a "sent for approval"
+   screen rather than on a page nobody else could open. The organiser is
+   emailed a link to manage it from their account (/account/fundraisers).
+
+   Amounts arrive in cents and are dollars from here on, as the pages expect.
 --------------------------------------------------------------------------- */
 
-/** Set once a server stores fundraisers. */
-export const FUNDRAISER_ENDPOINT = ''
+export const FUNDRAISER_ENDPOINT = '/api/public/fundraisers'
 
-const KEY = 'al-anwaar:fundraisers'
+type ApiFundraiser = {
+  slug: string
+  title: string
+  story: string
+  occasion: string
+  organiser: string
+  appeal: { slug?: string; title: string }
+  target: number
+  raised: number
+  donorCount: number
+  image?: string
+  endsAt?: string
+  createdAt?: string
+  recent?: { name: string; amount: number; on?: string; message?: string }[]
+}
 
-export function localFundraisers(): Fundraiser[] {
-  try {
-    const raw = window.localStorage.getItem(KEY)
-    const list = raw ? (JSON.parse(raw) as Fundraiser[]) : []
-    return Array.isArray(list) ? list.filter((f) => appealBySlug(f.appeal)) : []
-  } catch {
-    return []
+/** The reason a page is raising for, read off the appeal it supports. */
+function reasonOf(f: ApiFundraiser): Reason {
+  if (f.occasion === 'memory') return 'memory'
+  const causes = appealBySlug(f.appeal.slug)?.causes ?? []
+  return REASONS.find((r) => r.id !== 'memory' && r.causes.some((c) => causes.includes(c)))?.id ?? 'food'
+}
+
+const day = (iso?: string) => (iso ? iso.slice(0, 10) : '')
+
+function fromApi(f: ApiFundraiser): Fundraiser {
+  const created = day(f.createdAt) || day(new Date().toISOString())
+  return {
+    slug: f.slug,
+    title: f.title,
+    organiser: f.organiser,
+    reason: reasonOf(f),
+    appeal: f.appeal.slug ?? '',
+    goal: Math.round(f.target / 100),
+    raised: Math.round(f.raised / 100),
+    supporters: f.donorCount,
+    created,
+    /* a page with no end date runs on; show it a year out rather than as over */
+    ends: day(f.endsAt) || day(new Date(Date.parse(created) + 365 * 86_400_000).toISOString()),
+    story: f.story
+      .split(/\n\s*\n/)
+      .map((p) => p.trim())
+      .filter(Boolean),
+    photo: f.image,
+    recent: (f.recent ?? []).map(
+      (r): Supporter => ({ name: r.name, amount: Math.round(r.amount / 100), on: day(r.on), message: r.message }),
+    ),
   }
 }
 
-/** Returns false when the browser refused (private mode, or the photo was too
- *  big for storage). */
-export function saveLocal(f: Fundraiser): boolean {
-  try {
-    const rest = localFundraisers().filter((x) => x.slug !== f.slug)
-    window.localStorage.setItem(KEY, JSON.stringify([{ ...f, local: true }, ...rest]))
-    return true
-  } catch {
-    return false
-  }
+/* ---------- the list, fetched once and shared ---------- */
+
+type State = { list: Fundraiser[]; ready: boolean }
+let state: State = { list: [], ready: false }
+let loading: Promise<void> | null = null
+const listeners = new Set<() => void>()
+
+function load() {
+  loading ??= fetch(FUNDRAISER_ENDPOINT)
+    .then((res) => (res.ok ? (res.json() as Promise<{ items: ApiFundraiser[] }>) : { items: [] }))
+    .then(({ items }) => items.map(fromApi).filter((f) => appealBySlug(f.appeal)))
+    /* the pages all cope with an empty list; they never show invented ones */
+    .catch(() => [] as Fundraiser[])
+    .then((list) => {
+      state = { list, ready: true }
+      listeners.forEach((l) => l())
+    })
+  return loading
 }
 
-/** Newest first: this browser's own, then the listed ones. */
-export const allFundraisers = (): Fundraiser[] => [...localFundraisers(), ...SAMPLE_FUNDRAISERS]
+const subscribe = (l: () => void) => {
+  listeners.add(l)
+  void load()
+  return () => listeners.delete(l)
+}
 
-export const fundraiserBySlug = (slug: string | null | undefined) =>
-  slug ? allFundraisers().find((f) => f.slug === slug) : undefined
+/** Every live fundraiser, newest first, and whether the list has arrived. */
+export function useFundraisers(): State {
+  return useSyncExternalStore(subscribe, () => state, () => state)
+}
+
+/** One fundraiser, with its latest supporters. `ready` is false until the
+ *  server has answered, so a page can wait rather than flash a 404. */
+export function useFundraiser(slug: string | null | undefined): { fundraiser?: Fundraiser; ready: boolean } {
+  const { list } = useFundraisers()
+  const [one, setOne] = useState<{ slug: string; fundraiser?: Fundraiser } | null>(null)
+  useEffect(() => {
+    if (!slug) return
+    let live = true
+    fetch(`${FUNDRAISER_ENDPOINT}/${encodeURIComponent(slug)}`)
+      .then((res) => (res.ok ? (res.json() as Promise<ApiFundraiser>) : null))
+      .catch(() => null)
+      .then((f) => {
+        if (live) setOne({ slug, fundraiser: f ? fromApi(f) : undefined })
+      })
+    return () => {
+      live = false
+    }
+  }, [slug])
+  if (!slug) return { ready: true }
+  if (one?.slug === slug) return { fundraiser: one.fundraiser, ready: true }
+  /* the listed copy (no supporters yet) while the full record is on its way */
+  const listed = list.find((f) => f.slug === slug)
+  return { fundraiser: listed, ready: false }
+}
+
+/** Sends a finished draft to the approval queue. */
+export async function submitFundraiser(d: Draft): Promise<{ ok: true } | { ok: false; message: string; fields?: Record<string, string> }> {
+  try {
+    const res = await fetch(FUNDRAISER_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'aa' },
+      body: JSON.stringify({
+        appeal: d.appeal,
+        reason: d.reason,
+        title: d.title.trim(),
+        story: d.story.trim(),
+        goal: parseFloat(d.goal.replace(/[^\d.]/g, '')) || 0,
+        ends: d.ends,
+        photo: d.photo || undefined,
+        first: d.first.trim(),
+        last: d.last.trim(),
+        email: d.email.trim(),
+        group: d.group.trim() || undefined,
+      }),
+    })
+    if (res.ok) return { ok: true }
+    const body = (await res.json().catch(() => null)) as { error?: { message?: string; fields?: Record<string, string> } } | null
+    return {
+      ok: false,
+      message: body?.error?.message || 'We could not save your fundraiser. Please try again in a minute.',
+      fields: body?.error?.fields,
+    }
+  } catch {
+    return { ok: false, message: 'We could not reach our server. Check your connection and try again.' }
+  }
+}
 
 /** The appeals a reason can raise for. */
 export const appealsFor = (reason: Reason | null) => {
@@ -114,9 +224,7 @@ export function checkStep(step: number, d: Draft, today = new Date()): Record<st
 export function draftToFundraiser(d: Draft, now = new Date()): Fundraiser {
   const organiser = d.group.trim() || `${d.first.trim()} ${d.last.trim().charAt(0).toUpperCase()}.`
   const base = slugify(d.title)
-  const taken = new Set(allFundraisers().map((f) => f.slug))
-  let slug = base
-  for (let i = 2; taken.has(slug); i++) slug = `${base}-${i}`
+  const slug = base
   return {
     slug,
     title: d.title.trim(),
@@ -134,12 +242,11 @@ export function draftToFundraiser(d: Draft, now = new Date()): Fundraiser {
       .filter(Boolean),
     photo: d.photo || undefined,
     recent: [],
-    local: true,
   }
 }
 
 /** Shrinks a chosen photo to at most 1400px wide as a JPEG data URL, so it fits
- *  in localStorage. Rejects anything that is not an image. */
+ *  in the request. Rejects anything that is not an image. */
 export function shrinkPhoto(file: File, max = 1400): Promise<string> {
   return new Promise((resolve, reject) => {
     if (!file.type.startsWith('image/')) return reject(new Error('not-image'))

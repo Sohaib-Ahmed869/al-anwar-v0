@@ -17,9 +17,12 @@ import { ORG } from '../components/org-data'
    it importable from a server — check before adding anything here.
 
    ── Where it posts ──────────────────────────────────────────────────────
-   ENDPOINT is empty, because this site has no server yet. Until it is filled
-   in, `submit` hands the finished message to the writer's own email client and
-   says so. It does NOT show a tick.
+   ENDPOINT is the platform API (server/routes/public.ts), which files the
+   message in the admin portal's enquiries inbox, attached to the donor record
+   when the address is one we know. The topic decides which pile it lands in
+   (enquiryTypeOf, below). If ENDPOINT is ever emptied, `submit` hands the
+   finished message to the writer's own email client and says so. It does NOT
+   show a tick.
 
    That distinction is the point, and it should survive whoever wires this up:
    a contact form that swallows a message and shows a green tick is worse than
@@ -28,8 +31,16 @@ import { ORG } from '../components/org-data'
    success card reads differently for each.
 --------------------------------------------------------------------------- */
 
-/** Fill this in once there is somewhere to post to. See api/contact.ts. */
-export const ENDPOINT = ''
+/** The platform's enquiries inbox. Empty it to fall back to the mail client. */
+export const ENDPOINT = '/api/public/enquiries'
+
+/** Which pile of the admin inbox a topic belongs in. */
+export function enquiryTypeOf(topic: string): 'contact' | 'volunteer' | 'partner' | 'fundraising' {
+  if (topic === 'Volunteering') return 'volunteer'
+  if (topic === 'Partnership or media') return 'partner'
+  if (topic === 'Fundraising or an event') return 'fundraising'
+  return 'contact'
+}
 
 export type ContactPayload = {
   name: string
@@ -175,17 +186,31 @@ export async function submit(payload: ContactPayload): Promise<Sent> {
     try {
       const res = await fetch(ENDPOINT, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'aa' },
+        body: JSON.stringify({
+          type: enquiryTypeOf(payload.topic),
+          name: payload.name.trim(),
+          email: payload.email.trim(),
+          phone: payload.phone.trim() || undefined,
+          subject: payload.topic,
+          message: payload.message.trim(),
+          meta: { consent: payload.consent },
+          company: payload.company,
+        }),
       })
       const body = (await res.json().catch(() => null)) as
-        | { ok: boolean; errors?: FieldErrors }
+        | { ok?: boolean; error?: { fields?: Record<string, string> } }
         | null
 
       if (res.ok && body?.ok) return { ok: true, via: 'endpoint' }
+      /* the server's field names are the form's, bar the topic */
+      const f = body?.error?.fields
+      const errors: FieldErrors = f
+        ? { name: f.name, email: f.email, phone: f.phone, topic: f.subject, message: f.message }
+        : {}
       return {
         ok: false,
-        errors: body?.errors,
+        errors: Object.values(errors).some(Boolean) ? errors : undefined,
         message: CONTACT.form.errors.failed,
       }
     } catch {

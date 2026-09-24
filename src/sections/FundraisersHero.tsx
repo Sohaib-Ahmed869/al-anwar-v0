@@ -6,7 +6,7 @@ import { LISTING } from '../components/fundraiser-data'
 import { PLACES, appealBySlug } from '../components/appeals-data'
 import { money } from '../components/appeal-view'
 import { ArrowRight } from '../components/icons'
-import { allFundraisers, daysLeft, percentOf } from '../services/fundraisers'
+import { useFundraisers, daysLeft, percentOf } from '../services/fundraisers'
 
 /* ---------------------------------------------------------------------------
    /fundraisers, section 1 of 3: the hero.
@@ -23,15 +23,14 @@ import { allFundraisers, daysLeft, percentOf } from '../services/fundraisers'
    photo behind the page is its photo. The community totals sit under the
    intro as three plain figures on a hairline, not a card.
 
-   While SAMPLE_FUNDRAISERS are listed, every figure here is invented too.
+   The figures are the live fundraisers' own, from the platform.
 --------------------------------------------------------------------------- */
 
 const H = LISTING.hero
 
 export default function FundraisersHero() {
   const depth = useHeroDepth()
-  const list = allFundraisers()
-  const listed = list.filter((f) => !f.local)
+  const { list: listed } = useFundraisers()
   const featured =
     [...listed].filter((f) => f.raised < f.goal).sort((a, b) => percentOf(b) - percentOf(a))[0] ??
     listed[0]

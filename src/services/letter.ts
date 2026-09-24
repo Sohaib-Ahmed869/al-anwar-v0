@@ -18,9 +18,11 @@ import { ORG } from '../components/org-data'
    it importable from a server. Check that before adding anything here.
 
    ── Where it posts ──────────────────────────────────────────────────────
-   ENDPOINT is empty, because this site has no server yet. Until it is filled
-   in, `submit` hands a one-line message to the writer's own email client and
-   says so on screen. It does NOT show a tick.
+   ENDPOINT is the platform API (server/routes/public.ts), which puts the
+   address on the supporter list with the letter switched on — a new record if
+   we have never met, the existing one if we have. If ENDPOINT is ever emptied,
+   `submit` hands a one-line message to the writer's own email client and says
+   so on screen. It does NOT show a tick.
 
    That distinction is carried over from the contact form deliberately. An
    address typed into a box that goes nowhere is worse than no box at all: the
@@ -30,8 +32,8 @@ import { ORG } from '../components/org-data'
    reads differently for each.
 --------------------------------------------------------------------------- */
 
-/** Fill this in once there is somewhere to post to. See api/letter.ts. */
-export const ENDPOINT = ''
+/** The platform API. Empty it to fall back to the mail client. */
+export const ENDPOINT = '/api/public/letter'
 
 export type LetterPayload = {
   email: string
@@ -92,15 +94,16 @@ export async function submit(payload: LetterPayload): Promise<Joined> {
     try {
       const res = await fetch(ENDPOINT, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'aa' },
         body: JSON.stringify(payload),
       })
       const body = (await res.json().catch(() => null)) as
-        | { ok: boolean; errors?: LetterErrors }
+        | { ok?: boolean; error?: { fields?: LetterErrors } }
         | null
 
       if (res.ok && body?.ok) return { ok: true, via: 'endpoint' }
-      return { ok: false, errors: body?.errors, message: LETTER.errors.failed }
+      const email = body?.error?.fields?.email
+      return { ok: false, errors: email ? { email } : undefined, message: LETTER.errors.failed }
     } catch {
       /* Offline, blocked, or the endpoint is down. The address stays in the
          field — nothing is cleared on a failure. */

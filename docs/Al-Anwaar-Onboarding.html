@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Al Anwaar Onboarding</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap">
+<style>
+  html, body { margin:0; padding:0; height:100%; background:#0A1730; overflow:hidden; }
+  #stage { position:absolute; left:50%; top:50%; width:1920px; height:1080px; transform-origin:50% 50%; }
+  #stage > section { position:absolute; left:0; top:0; width:1920px; height:1080px; overflow:hidden;
+                     box-sizing:border-box; opacity:0; transition:opacity .18s ease; }
+  #stage > section.is-active { opacity:1; }
+  #stage > section * { box-sizing:border-box; }
+  #stage aside { display:none; }
+  #stage p, #stage h1, #stage h2, #stage h3 { margin:0; }
+  #stage table { border-collapse:collapse; width:100%; overflow:hidden; }
+  #stage th, #stage td { padding:14px 24px; text-align:left; vertical-align:middle;
+                         border-bottom:1px solid #D7E0F2; font-weight:inherit; }
+  #stage tr:last-child td { border-bottom:none; }
+  #bar { position:fixed; right:18px; bottom:14px; font:13px/1 -apple-system, Segoe UI, sans-serif;
+         color:#8FAAD6; letter-spacing:.08em; user-select:none; }
+  #notes { position:fixed; left:0; right:0; bottom:0; max-height:36vh; overflow:auto; display:none;
+           background:#06101F; color:#C6D6F2; padding:18px 24px 22px;
+           font:16px/1.5 -apple-system, Segoe UI, sans-serif; border-top:1px solid #1E3560; }
+  #notes.on { display:block; }
+  @media print {
+    html, body { background:#fff; overflow:visible; height:auto; }
+    @page { size:1920px 1080px; margin:0; }
+    #stage { position:static; width:auto; height:auto; transform:none !important; }
+    #stage > section { position:relative; opacity:1 !important; transition:none;
+                       page-break-after:always; break-after:page; }
+    #bar, #notes { display:none !important; }
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+<section id="cover" data-transition="fade" style="background:#102A56; color:#A9BCE0; font-family:'Inter', Arial, sans-serif; padding:128px; display:flex; flex-direction:column; justify-content:space-between">
+  <p style="font-size:24px; font-weight:600; letter-spacing:4px; text-transform:uppercase; color:#7FA8FF">Onboarding session · 21 September 2026</p>
+  <div style="display:flex; flex-direction:column; gap:28px">
+    <h1 style="font-family:'Poppins', Arial, sans-serif; font-size:104px; font-weight:700; color:#FFFFFF; line-height:1.05; width:1400px">Al Anwaar Donation Platform</h1>
+    <div style="width:96px; height:8px; background:#4D82F5"></div>
+    <p style="font-size:34px; line-height:1.45; width:1280px">Replacing the WordPress shop with a platform built for a charity: the website and giving, a donor portal, an admin portal, and the records the ACNC expects.</p>
+  </div>
+  <div style="display:flex; gap:64px">
+    <div style="flex:1; display:flex; flex-direction:column; gap:10px">
+      <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#7FA8FF">Presented by</p>
+      <p style="font-size:30px; color:#FFFFFF; line-height:1.35">Sohaib<br>Technical Project Manager</p>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:10px">
+      <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#7FA8FF">Client</p>
+      <p style="font-size:30px; color:#FFFFFF; line-height:1.35">Al Anwaar Charity Group Ltd<br>Donation platform, new build</p>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:10px">
+      <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#7FA8FF">Build</p>
+      <p style="font-size:30px; color:#FFFFFF; line-height:1.35">Five weeks<br>16 Sep to 20 Oct 2026</p>
+    </div>
+  </div>
+  <aside>Welcome and thanks for the time. This session is onboarding, not a sales meeting — the proposal is signed, week one is behind us, and the purpose today is to make sure everyone knows what is being built, how we work week to week, and exactly what we need from your side to keep to 20 October.</aside>
+</section>
+<section id="agenda" data-transition="fade" style="background:#FBFCFE; color:#33456A; font-family:'Inter', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:40px">
+  <div style="display:flex; flex-direction:column; gap:16px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#1D4ED8">Today</p>
+    <h2 style="font-family:'Poppins', Arial, sans-serif; font-size:64px; font-weight:700; color:#0F2A5E; line-height:1.1">What we will cover</h2>
+    <div style="width:72px; height:6px; background:#1D4ED8"></div>
+  </div>
+  <div style="display:flex; flex-direction:column; gap:16px">
+    <div style="display:flex; gap:40px; align-items:center; background:#E9EEF9; border-radius:16px; padding:18px 40px">
+      <p style="font-family:'Poppins', Arial, sans-serif; font-size:32px; font-weight:700; color:#1D4ED8; width:60px">01</p>
+      <p style="font-family:'Poppins', Arial, sans-serif; font-size:34px; font-weight:600; color:#0F2A5E; width:480px">Who you work with</p>
+      <p style="flex:1; font-size:28px; line-height:1.4">The team behind the build, and your single point of contact</p>
+    </div>
+    <div style="display:flex; gap:40px; align-items:center; background:#E9EEF9; border-radius:16px; padding:18px 40px">
+      <p style="font-family:'Poppins', Arial, sans-serif; font-size:32px; font-weight:700; color:#1D4ED8; width:60px">02</p>
+      <p style="font-family:'Poppins', Arial, sans-serif; font-size:34px; font-weight:600; color:#0F2A5E; width:480px">Where we are</p>
+      <p style="flex:1; font-size:28px; line-height:1.4">The five week timeline, and what week one delivered</p>
+    </div>
+    <div style="display:flex; gap:40px; align-items:center; background:#E9EEF9; border-radius:16px; padding:18px 40px">
+      <p style="font-family:'Poppins', Arial, sans-serif; font-size:32px; font-weight:700; color:#1D4ED8; width:60px">03</p>
+      <p style="font-family:'Poppins', Arial, sans-serif; font-size:34px; font-weight:600; color:#0F2A5E; width:480px">Platform scope</p>
+      <p style="flex:1; font-size:28px; line-height:1.4">What we are replacing, and what the platform covers</p>
+    </div>
+    <div style="display:flex; gap:40px; align-items:center; background:#E9EEF9; border-radius:16px; padding:18px 40px">
+      <p style="font-family:'Poppins', Arial, sans-serif; font-size:32px; font-weight:700; color:#1D4ED8; width:60px">04</p>
+      <p style="font-family:'Poppins', Arial, sans-serif; font-size:34px; font-weight:600; color:#0F2A5E; width:480px">The modules</p>
+      <p style="flex:1; font-size:28px; line-height:1.4">Website and giving, donor portal, admin portal, compliance</p>
+    </div>
+    <div style="display:flex; gap:40px; align-items:center; background:#E9EEF9; border-radius:16px; padding:18px 40px">
+      <p style="font-family:'Poppins', Arial, sans-serif; font-size:32px; font-weight:700; color:#1D4ED8; width:60px">05</p>
+      <p style="font-family:'Poppins', Arial, sans-serif; font-size:34px; font-weight:600; color:#0F2A5E; width:480px">How we deliver it</p>
+      <p style="flex:1; font-size:28px; line-height:1.4">Weekly demos, sign off gates, testing and go live</p>
+    </div>
+    <div style="display:flex; gap:40px; align-items:center; background:#102A56; border-radius:16px; padding:18px 40px">
+      <p style="font-family:'Poppins', Arial, sans-serif; font-size:32px; font-weight:700; color:#7FA8FF; width:60px">06</p>
+      <p style="font-family:'Poppins', Arial, sans-serif; font-size:34px; font-weight:600; color:#FFFFFF; width:480px">What we need from you</p>
+      <p style="flex:1; font-size:28px; line-height:1.4; color:#C6D6F2">The items, the owner and the date for each stage</p>
+    </div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; font-size:24px; color:#5C6E92; width:900px">Al Anwaar donation platform · Onboarding</p>
+  <p style="position:absolute; right:128px; bottom:64px; font-size:24px; color:#5C6E92; width:120px; text-align:right">02</p>
+  <aside>Six items, about forty minutes, then questions. The last one is the one that matters most for keeping to the date — I will leave you with a written list of it.</aside>
+</section>
+<section id="team" data-transition="fade" style="background:#FBFCFE; color:#33456A; font-family:'Inter', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:44px">
+  <div style="display:flex; flex-direction:column; gap:16px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#1D4ED8">Introductions</p>
+    <h2 style="font-family:'Poppins', Arial, sans-serif; font-size:64px; font-weight:700; color:#0F2A5E; line-height:1.1">One team, working closely</h2>
+    <div style="width:72px; height:6px; background:#1D4ED8"></div>
+  </div>
+  <p style="font-size:30px; line-height:1.45; width:1440px">This is a partnership with constant communication. You have a dedicated project manager as your single point of contact, and you sign off the work at every stage.</p>
+  <div style="display:flex; gap:32px; align-items:stretch">
+    <div style="flex:1; display:flex; flex-direction:column; gap:14px; background:#E9EEF9; border:1px solid #D7E0F2; border-radius:20px; padding:40px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:48px; height:48px; color:#1D4ED8; flex:none"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"/><path d="M16.5 5.6a3 3 0 0 1 0 5.6M18 20c0-2.4-.9-4.3-2.3-5.4"/></svg>
+      <h3 style="font-family:'Poppins', Arial, sans-serif; font-size:32px; font-weight:700; color:#0F2A5E; line-height:1.2">Project Manager</h3>
+      <p style="font-size:26px; font-weight:600; color:#1D4ED8; line-height:1.3">Sohaib</p>
+      <p style="font-size:26px; line-height:1.45">Your single point of contact for cadence, demos and sign offs.</p>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:14px; background:#E9EEF9; border:1px solid #D7E0F2; border-radius:20px; padding:40px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:48px; height:48px; color:#1D4ED8; flex:none"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.6.5.9 1.1.9 1.8V16h5.4v-.4c0-.7.3-1.3.9-1.8A6 6 0 0 0 12 3z"/></svg>
+      <h3 style="font-family:'Poppins', Arial, sans-serif; font-size:32px; font-weight:700; color:#0F2A5E; line-height:1.2">Design</h3>
+      <p style="font-size:26px; font-weight:600; color:#1D4ED8; line-height:1.3">Product design</p>
+      <p style="font-size:26px; line-height:1.45">A designer owning the giving journey and the visual system.</p>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:14px; background:#E9EEF9; border:1px solid #D7E0F2; border-radius:20px; padding:40px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:48px; height:48px; color:#1D4ED8; flex:none"><path d="M8.5 7.5 3 12l5.5 4.5M15.5 7.5 21 12l-5.5 4.5"/></svg>
+      <h3 style="font-family:'Poppins', Arial, sans-serif; font-size:32px; font-weight:700; color:#0F2A5E; line-height:1.2">Engineering</h3>
+      <p style="font-size:26px; font-weight:600; color:#1D4ED8; line-height:1.3">Backend and web</p>
+      <p style="font-size:26px; line-height:1.45">Engineers building the site, the portals and the payments.</p>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:14px; background:#E9EEF9; border:1px solid #D7E0F2; border-radius:20px; padding:40px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:48px; height:48px; color:#1D4ED8; flex:none"><path d="M12 3l7 3v5.5c0 4.2-2.9 7.9-7 9.5-4.1-1.6-7-5.3-7-9.5V6l7-3z"/><path d="m9 12 2.2 2.2L15.5 10"/></svg>
+      <h3 style="font-family:'Poppins', Arial, sans-serif; font-size:32px; font-weight:700; color:#0F2A5E; line-height:1.2">QA and Security</h3>
+      <p style="font-size:26px; font-weight:600; color:#1D4ED8; line-height:1.3">Test and release</p>
+      <p style="font-size:26px; line-height:1.45">Testing, security checks, release and handover.</p>
+    </div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; font-size:24px; color:#5C6E92; width:900px">Al Anwaar donation platform · Onboarding</p>
+  <p style="position:absolute; right:128px; bottom:64px; font-size:24px; color:#5C6E92; width:120px; text-align:right">03</p>
+  <aside>I am your single point of contact. Anything you need — a change, a question, a demo, an escalation — comes to me and I take it to the team. You will not be chasing four different people.</aside>
+</section>
+<section id="timeline" data-transition="fade" style="background:#EEF2FA; color:#33456A; font-family:'Inter', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:40px">
+  <div style="display:flex; align-items:end; gap:48px">
+    <div style="flex:1; display:flex; flex-direction:column; gap:16px">
+      <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#1D4ED8">Where we are</p>
+      <h2 style="font-family:'Poppins', Arial, sans-serif; font-size:64px; font-weight:700; color:#0F2A5E; line-height:1.1">Five weeks, one behind us</h2>
+      <div style="width:72px; height:6px; background:#1D4ED8"></div>
+    </div>
+    <p style="font-size:28px; width:520px; line-height:1.4; text-align:right">16 September to 20 October 2026<br><b style="color:#0F2A5E">Week 1 complete · Week 2 in progress</b></p>
+  </div>
+  <div style="display:flex; gap:24px">
+    <div style="flex:1; height:10px; background:#1D4ED8; border-radius:6px"></div>
+    <div style="flex:1; height:10px; background:#C9D6EE; border-radius:6px"></div>
+    <div style="flex:1; height:10px; background:#C9D6EE; border-radius:6px"></div>
+    <div style="flex:1; height:10px; background:#C9D6EE; border-radius:6px"></div>
+    <div style="flex:1; height:10px; background:#C9D6EE; border-radius:6px"></div>
+  </div>
+  <div style="flex:1; display:flex; gap:24px; align-items:stretch">
+    <div style="flex:1; display:flex; flex-direction:column; gap:12px; background:#102A56; border-radius:20px; padding:40px 36px">
+      <div style="display:flex; gap:10px; align-items:center">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:28px; height:28px; color:#6FE0A8; flex:none"><circle cx="12" cy="12" r="9"/><path d="m8.5 12 2.4 2.4 4.6-4.8"/></svg>
+        <p style="font-size:24px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:#6FE0A8">Done</p>
+      </div>
+      <h3 style="font-family:'Poppins', Arial, sans-serif; font-size:32px; font-weight:700; color:#FFFFFF; line-height:1.2">Week 1</h3>
+      <p style="font-size:24px; color:#A9BCE0; line-height:1.35">16 to 22 Sep</p>
+      <p style="font-size:24px; color:#DCE7F8; line-height:1.45">Brand applied to the design and signed off. Site structure and page templates built.</p>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:12px; background:#FFFFFF; border:2px solid #1D4ED8; border-radius:20px; padding:40px 36px">
+      <div style="display:flex; gap:10px; align-items:center">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:28px; height:28px; color:#1D4ED8; flex:none"><path d="M3 12h3.5l2.5-6 4 13 2.5-7H21"/></svg>
+        <p style="font-size:24px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:#1D4ED8">Now</p>
+      </div>
+      <h3 style="font-family:'Poppins', Arial, sans-serif; font-size:32px; font-weight:700; color:#0F2A5E; line-height:1.2">Week 2</h3>
+      <p style="font-size:24px; color:#5C6E92; line-height:1.35">23 to 29 Sep</p>
+      <p style="font-size:24px; line-height:1.45">Public pages and copy, the donation flow, the zakat calculator, Stripe and PayPal in test.</p>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:12px; background:#FFFFFF; border:1px solid #D7E0F2; border-radius:20px; padding:40px 36px">
+      <div style="display:flex; gap:10px; align-items:center">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:28px; height:28px; color:#8FA2C4; flex:none"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.4 2"/></svg>
+        <p style="font-size:24px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:#8FA2C4">Next</p>
+      </div>
+      <h3 style="font-family:'Poppins', Arial, sans-serif; font-size:32px; font-weight:700; color:#0F2A5E; line-height:1.2">Week 3</h3>
+      <p style="font-size:24px; color:#5C6E92; line-height:1.35">30 Sep to 6 Oct</p>
+      <p style="font-size:24px; line-height:1.45">Donor portal: account, giving history, plans, receipts and the tax statement.</p>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:12px; background:#FFFFFF; border:1px solid #D7E0F2; border-radius:20px; padding:40px 36px">
+      <div style="display:flex; gap:10px; align-items:center">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:28px; height:28px; color:#8FA2C4; flex:none"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.4 2"/></svg>
+        <p style="font-size:24px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:#8FA2C4">Next</p>
+      </div>
+      <h3 style="font-family:'Poppins', Arial, sans-serif; font-size:32px; font-weight:700; color:#0F2A5E; line-height:1.2">Week 4</h3>
+      <p style="font-size:24px; color:#5C6E92; line-height:1.35">7 to 13 Oct</p>
+      <p style="font-size:24px; line-height:1.45">Admin portal, bank import, Xero export, compliance registers, staff logins.</p>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:12px; background:#FFFFFF; border:1px solid #D7E0F2; border-radius:20px; padding:40px 36px">
+      <div style="display:flex; gap:10px; align-items:center">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:28px; height:28px; color:#8FA2C4; flex:none"><path d="M13.5 3 5.5 13.2h5L10 21l8.2-10.4h-5.2L13.5 3z"/></svg>
+        <p style="font-size:24px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:#8FA2C4">Go live</p>
+      </div>
+      <h3 style="font-family:'Poppins', Arial, sans-serif; font-size:32px; font-weight:700; color:#0F2A5E; line-height:1.2">Week 5</h3>
+      <p style="font-size:24px; color:#5C6E92; line-height:1.35">14 to 20 Oct</p>
+      <p style="font-size:24px; line-height:1.45">Testing with real cards, your review, training, then live on your domain.</p>
+    </div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; font-size:24px; color:#5C6E92; width:1200px">Your current site stays live and untouched until the new platform is confirmed working.</p>
+  <p style="position:absolute; right:128px; bottom:64px; font-size:24px; color:#5C6E92; width:120px; text-align:right">04</p>
+  <aside>Week one is behind us: the brand is on the design and signed off, and the page structure is built. We are in week two now, which is the public site and the giving flow. The date at the end does not move — what moves, if anything, is scope, and that is a conversation we have early, not late.</aside>
+</section>
+<section id="scope" data-section="What we are replacing, what the platform covers, and the modules inside it" data-transition="fade" style="background:#FBFCFE; color:#33456A; font-family:'Inter', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:44px">
+  <div style="display:flex; flex-direction:column; gap:16px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#1D4ED8">Platform scope</p>
+    <h2 style="font-family:'Poppins', Arial, sans-serif; font-size:64px; font-weight:700; color:#0F2A5E; line-height:1.1">From a shop to a charity platform</h2>
+    <div style="width:72px; height:6px; background:#1D4ED8"></div>
+  </div>
+  <div style="display:flex; gap:48px; align-items:stretch">
+    <div style="flex:1; display:flex; flex-direction:column; gap:24px; background:#EEF2FA; border-radius:20px; padding:40px">
+      <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#7C8EB0">Today · WordPress shop</p>
+      <h3 style="font-family:'Poppins', Arial, sans-serif; font-size:36px; font-weight:700; color:#0F2A5E; line-height:1.2">What you work around</h3>
+      <div style="display:flex; flex-direction:column; gap:18px">
+        <p style="font-size:26px; line-height:1.4">Every appeal a product, every gift an order</p>
+        <p style="font-size:26px; line-height:1.4">No donor record, history split across orders</p>
+        <p style="font-size:26px; line-height:1.4">Bank transfers matched by hand, line by line</p>
+        <p style="font-size:26px; line-height:1.4">No recurring giving, no instalments</p>
+        <p style="font-size:26px; line-height:1.4">Zakat and sadaqah not tracked on the gift</p>
+        <p style="font-size:26px; line-height:1.4">Receipts and tax statements sent by hand</p>
+      </div>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:24px; background:#102A56; border-radius:20px; padding:40px">
+      <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#7FA8FF">From 20 October</p>
+      <h3 style="font-family:'Poppins', Arial, sans-serif; font-size:36px; font-weight:700; color:#FFFFFF; line-height:1.2">What the platform gives</h3>
+      <div style="display:flex; flex-direction:column; gap:18px">
+        <p style="font-size:26px; line-height:1.4; color:#DCE7F8">One donor record: gifts, plans, receipts</p>
+        <p style="font-size:26px; line-height:1.4; color:#DCE7F8">Card, PayPal and transfer in one flow</p>
+        <p style="font-size:26px; line-height:1.4; color:#DCE7F8">Weekly, fortnightly and monthly plans</p>
+        <p style="font-size:26px; line-height:1.4; color:#DCE7F8">Bank statements imported and matched</p>
+        <p style="font-size:26px; line-height:1.4; color:#DCE7F8">Zakat, sadaqah and lillah on every gift</p>
+        <p style="font-size:26px; line-height:1.4; color:#DCE7F8">Tax deductible receipts emailed in seconds</p>
+      </div>
+    </div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; font-size:24px; color:#5C6E92; width:1300px">Built on MongoDB, Express, React and Node, hosted on AWS · Stripe and PayPal in Al Anwaar's own accounts</p>
+  <p style="position:absolute; right:128px; bottom:64px; font-size:24px; color:#5C6E92; width:120px; text-align:right">05</p>
+  <aside>Nothing about the current setup is anyone's fault — it is a shop being used as a donation system, and a shop cannot hold a donor. Everything on the right comes from that one change.</aside>
+</section>
+<section id="modules" data-transition="fade" style="background:#FBFCFE; color:#33456A; font-family:'Inter', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:40px">
+  <div style="display:flex; flex-direction:column; gap:16px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#1D4ED8">The modules</p>
+    <h2 style="font-family:'Poppins', Arial, sans-serif; font-size:64px; font-weight:700; color:#0F2A5E; line-height:1.1">The platform in four parts</h2>
+    <div style="width:72px; height:6px; background:#1D4ED8"></div>
+  </div>
+  <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:28px">
+    <div style="display:flex; flex-direction:column; gap:12px; background:#E9EEF9; border:1px solid #D7E0F2; border-radius:20px; padding:36px">
+      <div style="display:flex; gap:16px; align-items:center">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:36px; height:36px; color:#1D4ED8; flex:none"><circle cx="12" cy="12" r="9"/><path d="M3.2 9.8h17.6M3.2 14.2h17.6"/><path d="M12 3c2.6 2.4 3.9 5.4 3.9 9S14.6 18.6 12 21c-2.6-2.4-3.9-5.4-3.9-9S9.4 5.4 12 3z"/></svg>
+        <p style="font-family:'Poppins', Arial, sans-serif; font-size:26px; font-weight:700; letter-spacing:2px; color:#1D4ED8">01</p>
+      </div>
+      <h3 style="font-family:'Poppins', Arial, sans-serif; font-size:36px; font-weight:700; color:#0F2A5E; line-height:1.2">Website and giving</h3>
+      <p style="font-size:26px; line-height:1.45">The full site, appeal pages, seasonal campaigns, the zakat calculator, and a one minute donation flow.</p>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:12px; background:#E9EEF9; border:1px solid #D7E0F2; border-radius:20px; padding:36px">
+      <div style="display:flex; gap:16px; align-items:center">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:36px; height:36px; color:#1D4ED8; flex:none"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"/><path d="M16.5 5.6a3 3 0 0 1 0 5.6M18 20c0-2.4-.9-4.3-2.3-5.4"/></svg>
+        <p style="font-family:'Poppins', Arial, sans-serif; font-size:26px; font-weight:700; letter-spacing:2px; color:#1D4ED8">02</p>
+      </div>
+      <h3 style="font-family:'Poppins', Arial, sans-serif; font-size:36px; font-weight:700; color:#0F2A5E; line-height:1.2">Donor portal</h3>
+      <p style="font-size:26px; line-height:1.45">Supporters see their giving history, manage their regular gifts, re-send receipts and get tax statements.</p>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:12px; background:#E9EEF9; border:1px solid #D7E0F2; border-radius:20px; padding:36px">
+      <div style="display:flex; gap:16px; align-items:center">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:36px; height:36px; color:#1D4ED8; flex:none"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.6v3M12 18.4v3M21.4 12h-3M5.6 12h-3M18.6 5.4l-2.1 2.1M7.5 16.5l-2.1 2.1M18.6 18.6l-2.1-2.1M7.5 7.5 5.4 5.4"/></svg>
+        <p style="font-family:'Poppins', Arial, sans-serif; font-size:26px; font-weight:700; letter-spacing:2px; color:#1D4ED8">03</p>
+      </div>
+      <h3 style="font-family:'Poppins', Arial, sans-serif; font-size:36px; font-weight:700; color:#0F2A5E; line-height:1.2">Admin portal</h3>
+      <p style="font-size:26px; line-height:1.45">Donor records, appeals, email campaigns, enquiries, the dashboard, bank imports and offline gifts.</p>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:12px; background:#E9EEF9; border:1px solid #D7E0F2; border-radius:20px; padding:36px">
+      <div style="display:flex; gap:16px; align-items:center">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:36px; height:36px; color:#1D4ED8; flex:none"><path d="M12 3l7 3v5.5c0 4.2-2.9 7.9-7 9.5-4.1-1.6-7-5.3-7-9.5V6l7-3z"/></svg>
+        <p style="font-family:'Poppins', Arial, sans-serif; font-size:26px; font-weight:700; letter-spacing:2px; color:#1D4ED8">04</p>
+      </div>
+      <h3 style="font-family:'Poppins', Arial, sans-serif; font-size:36px; font-weight:700; color:#0F2A5E; line-height:1.2">Compliance and records</h3>
+      <p style="font-size:26px; line-height:1.45">ACNC registers, a statutory calendar with reminders, the document library and an exportable audit trail.</p>
+    </div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; font-size:24px; color:#5C6E92; width:1300px">All four are built from one set of components, so a fix in the giving flow fixes it everywhere</p>
+  <p style="position:absolute; right:128px; bottom:64px; font-size:24px; color:#5C6E92; width:120px; text-align:right">06</p>
+  <aside>Four parts, one system. The next four slides take each one in turn — stop me on any of them.</aside>
+</section>
+<section id="giving" data-transition="fade" style="background:#EEF2FA; color:#33456A; font-family:'Inter', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:40px">
+  <div style="display:flex; align-items:end; gap:48px">
+    <div style="flex:1; display:flex; flex-direction:column; gap:16px">
+      <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#1D4ED8">Module 01 · Giving</p>
+      <h2 style="font-family:'Poppins', Arial, sans-serif; font-size:64px; font-weight:700; color:#0F2A5E; line-height:1.1">One flow, under a minute</h2>
+      <div style="width:72px; height:6px; background:#1D4ED8"></div>
+    </div>
+    <p style="font-size:28px; width:560px; line-height:1.4; text-align:right">No cart and no checkout.<br><b style="color:#0F2A5E">Giving is not shopping.</b></p>
+  </div>
+  <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:28px">
+    <div style="display:flex; flex-direction:column; gap:10px; background:#FFFFFF; border:1px solid #D7E0F2; border-radius:18px; padding:32px">
+      <p style="font-family:'Poppins', Arial, sans-serif; font-size:26px; font-weight:700; color:#1D4ED8">Step 1</p>
+      <h3 style="font-family:'Poppins', Arial, sans-serif; font-size:32px; font-weight:700; color:#0F2A5E; line-height:1.2">Pick an appeal</h3>
+      <p style="font-size:25px; line-height:1.45">From an appeal page, the zakat calculator, a campaign link or the donate button.</p>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:10px; background:#FFFFFF; border:1px solid #D7E0F2; border-radius:18px; padding:32px">
+      <p style="font-family:'Poppins', Arial, sans-serif; font-size:26px; font-weight:700; color:#1D4ED8">Step 2</p>
+      <h3 style="font-family:'Poppins', Arial, sans-serif; font-size:32px; font-weight:700; color:#0F2A5E; line-height:1.2">Choose the amount</h3>
+      <p style="font-size:25px; line-height:1.45">Suggested amounts, any other amount, or units such as food packs and Qurban shares.</p>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:10px; background:#FFFFFF; border:1px solid #D7E0F2; border-radius:18px; padding:32px">
+      <p style="font-family:'Poppins', Arial, sans-serif; font-size:26px; font-weight:700; color:#1D4ED8">Step 3</p>
+      <h3 style="font-family:'Poppins', Arial, sans-serif; font-size:32px; font-weight:700; color:#0F2A5E; line-height:1.2">Choose how often</h3>
+      <p style="font-size:25px; line-height:1.45">Once, weekly, fortnightly or monthly, or split a larger gift into instalments.</p>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:10px; background:#FFFFFF; border:1px solid #D7E0F2; border-radius:18px; padding:32px">
+      <p style="font-family:'Poppins', Arial, sans-serif; font-size:26px; font-weight:700; color:#1D4ED8">Step 4</p>
+      <h3 style="font-family:'Poppins', Arial, sans-serif; font-size:32px; font-weight:700; color:#0F2A5E; line-height:1.2">Add the details</h3>
+      <p style="font-size:25px; line-height:1.45">Name, email, and whether the gift is zakat, sadaqah, lillah, kaffarah or general.</p>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:10px; background:#FFFFFF; border:1px solid #D7E0F2; border-radius:18px; padding:32px">
+      <p style="font-family:'Poppins', Arial, sans-serif; font-size:26px; font-weight:700; color:#1D4ED8">Step 5</p>
+      <h3 style="font-family:'Poppins', Arial, sans-serif; font-size:32px; font-weight:700; color:#0F2A5E; line-height:1.2">Pay</h3>
+      <p style="font-size:25px; line-height:1.45">Card through Stripe, PayPal, or bank transfer with a reference shown on screen.</p>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:10px; background:#102A56; border-radius:18px; padding:32px">
+      <p style="font-family:'Poppins', Arial, sans-serif; font-size:26px; font-weight:700; color:#7FA8FF">Step 6</p>
+      <h3 style="font-family:'Poppins', Arial, sans-serif; font-size:32px; font-weight:700; color:#FFFFFF; line-height:1.2">Receipt and record</h3>
+      <p style="font-size:25px; line-height:1.45; color:#DCE7F8">Receipt emailed in seconds, the appeal total moves, the gift saved to the donor.</p>
+    </div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; font-size:24px; color:#5C6E92; width:1400px">Also built in: fee cover, anonymous giving, failed payment retries, donation widgets and campaign links</p>
+  <p style="position:absolute; right:128px; bottom:64px; font-size:24px; color:#5C6E92; width:120px; text-align:right">07</p>
+  <aside>The money settles into Al Anwaar's own Stripe and PayPal accounts. We never hold a donor's money at any point. If a card is declined, the system retries, emails the donor a link to fix it, and flags it to your team — instead of the plan quietly dying.</aside>
+</section>
+<section id="donor-portal" data-transition="fade" style="background:#FBFCFE; color:#33456A; font-family:'Inter', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:40px">
+  <div style="display:flex; align-items:end; gap:48px">
+    <div style="flex:1; display:flex; flex-direction:column; gap:16px">
+      <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#1D4ED8">Module 02 · Donor portal</p>
+      <h2 style="font-family:'Poppins', Arial, sans-serif; font-size:64px; font-weight:700; color:#0F2A5E; line-height:1.1">Donors look after themselves</h2>
+      <div style="width:72px; height:6px; background:#1D4ED8"></div>
+    </div>
+    <p style="font-size:28px; width:520px; line-height:1.4; text-align:right">Every request below is one<br><b style="color:#0F2A5E">your office stops handling</b></p>
+  </div>
+  <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:28px">
+    <div style="display:flex; flex-direction:column; gap:12px; background:#E9EEF9; border:1px solid #D7E0F2; border-radius:18px; padding:32px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:36px; height:36px; color:#1D4ED8; flex:none"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.4 2"/></svg>
+      <h3 style="font-family:'Poppins', Arial, sans-serif; font-size:32px; font-weight:700; color:#0F2A5E; line-height:1.2">Giving history</h3>
+      <p style="font-size:25px; line-height:1.45">Every gift they have given, by card, by transfer or in person at an event.</p>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:12px; background:#E9EEF9; border:1px solid #D7E0F2; border-radius:18px; padding:32px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:36px; height:36px; color:#1D4ED8; flex:none"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.6v3M12 18.4v3M21.4 12h-3M5.6 12h-3M18.6 5.4l-2.1 2.1M7.5 16.5l-2.1 2.1M18.6 18.6l-2.1-2.1M7.5 7.5 5.4 5.4"/></svg>
+      <h3 style="font-family:'Poppins', Arial, sans-serif; font-size:32px; font-weight:700; color:#0F2A5E; line-height:1.2">Regular gifts</h3>
+      <p style="font-size:25px; line-height:1.45">Pause, change the amount, switch card or cancel, at any hour, without ringing you.</p>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:12px; background:#E9EEF9; border:1px solid #D7E0F2; border-radius:18px; padding:32px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:36px; height:36px; color:#1D4ED8; flex:none"><path d="M5 4.5A1.5 1.5 0 0 1 6.5 3H19v15.5H6.5A1.5 1.5 0 0 0 5 20V4.5z"/><path d="M5 18.5A1.5 1.5 0 0 1 6.5 17H19v4H6.5A1.5 1.5 0 0 1 5 19.5z"/></svg>
+      <h3 style="font-family:'Poppins', Arial, sans-serif; font-size:32px; font-weight:700; color:#0F2A5E; line-height:1.2">Receipts and tax</h3>
+      <p style="font-size:25px; line-height:1.45">Any receipt re-sent in one press, and the whole year as one tax statement.</p>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:12px; background:#E9EEF9; border:1px solid #D7E0F2; border-radius:18px; padding:32px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:36px; height:36px; color:#1D4ED8; flex:none"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"/><path d="M16.5 5.6a3 3 0 0 1 0 5.6M18 20c0-2.4-.9-4.3-2.3-5.4"/></svg>
+      <h3 style="font-family:'Poppins', Arial, sans-serif; font-size:32px; font-weight:700; color:#0F2A5E; line-height:1.2">Their own details</h3>
+      <p style="font-size:25px; line-height:1.45">Address, phone, email and what they want to hear about, kept current by them.</p>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:12px; background:#E9EEF9; border:1px solid #D7E0F2; border-radius:18px; padding:32px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:36px; height:36px; color:#1D4ED8; flex:none"><path d="m12 3.5 2.7 5.6 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1L3.2 10l6.1-.9L12 3.5z"/></svg>
+      <h3 style="font-family:'Poppins', Arial, sans-serif; font-size:32px; font-weight:700; color:#0F2A5E; line-height:1.2">Fundraising pages</h3>
+      <p style="font-size:25px; line-height:1.45">A page for a wedding, a walk or a birthday, counting towards your appeal.</p>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:12px; background:#E9EEF9; border:1px solid #D7E0F2; border-radius:18px; padding:32px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:36px; height:36px; color:#1D4ED8; flex:none"><rect x="4.5" y="10.5" width="15" height="10" rx="2"/><path d="M8 10.5V7.8a4 4 0 0 1 8 0v2.7"/></svg>
+      <h3 style="font-family:'Poppins', Arial, sans-serif; font-size:32px; font-weight:700; color:#0F2A5E; line-height:1.2">Secure login</h3>
+      <p style="font-size:25px; line-height:1.45">A one time code by email, or sign in with a Google or Facebook account.</p>
+    </div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; font-size:24px; color:#5C6E92; width:1400px">Supporter pages come into a queue for your approval before anything goes public</p>
+  <p style="position:absolute; right:128px; bottom:64px; font-size:24px; color:#5C6E92; width:120px; text-align:right">08</p>
+  <aside>The tax statement matters more than it looks. Most of those requests arrive in the same two weeks at the end of June, and today every one of them is a person in your office digging through orders.</aside>
+</section>
+<section id="admin-portal" data-transition="fade" style="background:#FBFCFE; color:#33456A; font-family:'Inter', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:40px">
+  <div style="display:flex; align-items:end; gap:48px">
+    <div style="flex:1; display:flex; flex-direction:column; gap:16px">
+      <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#1D4ED8">Module 03 · Admin portal</p>
+      <h2 style="font-family:'Poppins', Arial, sans-serif; font-size:64px; font-weight:700; color:#0F2A5E; line-height:1.1">Where your team runs it</h2>
+      <div style="width:72px; height:6px; background:#1D4ED8"></div>
+    </div>
+    <p style="font-size:28px; width:520px; line-height:1.4; text-align:right">Every action is logged<br><b style="color:#0F2A5E">with the name and the time</b></p>
+  </div>
+  <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:28px">
+    <div style="display:flex; flex-direction:column; gap:12px; background:#E9EEF9; border:1px solid #D7E0F2; border-radius:18px; padding:32px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:36px; height:36px; color:#1D4ED8; flex:none"><ellipse cx="12" cy="6" rx="7.5" ry="3"/><path d="M4.5 6v12c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3V6"/><path d="M4.5 12c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3"/></svg>
+      <h3 style="font-family:'Poppins', Arial, sans-serif; font-size:32px; font-weight:700; color:#0F2A5E; line-height:1.2">Donor records</h3>
+      <p style="font-size:25px; line-height:1.45">One record per donor, with every gift, what it was for, and every email sent.</p>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:12px; background:#E9EEF9; border:1px solid #D7E0F2; border-radius:18px; padding:32px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:36px; height:36px; color:#1D4ED8; flex:none"><circle cx="10.5" cy="10.5" r="6"/><path d="m15 15 5 5"/></svg>
+      <h3 style="font-family:'Poppins', Arial, sans-serif; font-size:32px; font-weight:700; color:#0F2A5E; line-height:1.2">Duplicates</h3>
+      <p style="font-size:25px; line-height:1.45">The same person under two emails is flagged and merged, losing no history.</p>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:12px; background:#E9EEF9; border:1px solid #D7E0F2; border-radius:18px; padding:32px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:36px; height:36px; color:#1D4ED8; flex:none"><path d="M4 20h16"/><path d="M7 20v-6M12 20V5M17 20v-9"/></svg>
+      <h3 style="font-family:'Poppins', Arial, sans-serif; font-size:32px; font-weight:700; color:#0F2A5E; line-height:1.2">Appeals</h3>
+      <p style="font-size:25px; line-height:1.45">Set the target, write the story, open and close it, and watch the total move.</p>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:12px; background:#E9EEF9; border:1px solid #D7E0F2; border-radius:18px; padding:32px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:36px; height:36px; color:#1D4ED8; flex:none"><path d="M21 3 3 10.5l7.2 2.8L13 21l8-18z"/><path d="m10.2 13.3 4-4.4"/></svg>
+      <h3 style="font-family:'Poppins', Arial, sans-serif; font-size:32px; font-weight:700; color:#0F2A5E; line-height:1.2">Email campaigns</h3>
+      <p style="font-size:25px; line-height:1.45">Sent to a group you choose: monthly donors, one country, or lapsed givers.</p>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:12px; background:#E9EEF9; border:1px solid #D7E0F2; border-radius:18px; padding:32px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:36px; height:36px; color:#1D4ED8; flex:none"><path d="M20 12.5c0 3.6-3.6 6.5-8 6.5-1 0-2-.2-2.9-.5L4 20l1.3-3.4C4.5 15.4 4 14 4 12.5 4 8.9 7.6 6 12 6s8 2.9 8 6.5z"/></svg>
+      <h3 style="font-family:'Poppins', Arial, sans-serif; font-size:32px; font-weight:700; color:#0F2A5E; line-height:1.2">Enquiries</h3>
+      <p style="font-size:25px; line-height:1.45">Events, volunteers, partners and messages, attached to the donor record.</p>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:12px; background:#E9EEF9; border:1px solid #D7E0F2; border-radius:18px; padding:32px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:36px; height:36px; color:#1D4ED8; flex:none"><circle cx="8" cy="12" r="3.5"/><path d="M11.5 12H21M18 12v3.2M15 12v2.4"/></svg>
+      <h3 style="font-family:'Poppins', Arial, sans-serif; font-size:32px; font-weight:700; color:#0F2A5E; line-height:1.2">Staff access</h3>
+      <p style="font-size:25px; line-height:1.45">Each person gets only what their role needs. A volunteer sees no exports.</p>
+    </div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; font-size:24px; color:#5C6E92; width:1400px">Dashboard: raised this month and year, regular giving, appeal performance, new and lapsed donors</p>
+  <p style="position:absolute; right:128px; bottom:64px; font-size:24px; color:#5C6E92; width:120px; text-align:right">09</p>
+  <aside>Staff access is worth pausing on in week four. We will need a list of who needs a login and what each of them should be able to see — a volunteer entering cash gifts should not be able to export your donor list.</aside>
+</section>
+<section id="bank" data-transition="fade" style="background:#EEF2FA; color:#33456A; font-family:'Inter', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:36px">
+  <div style="display:flex; align-items:end; gap:48px">
+    <div style="flex:1; display:flex; flex-direction:column; gap:16px">
+      <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#1D4ED8">Inside the admin portal</p>
+      <h2 style="font-family:'Poppins', Arial, sans-serif; font-size:64px; font-weight:700; color:#0F2A5E; line-height:1.1">Bank transfers, matched for you</h2>
+      <div style="width:72px; height:6px; background:#1D4ED8"></div>
+    </div>
+    <p style="font-size:28px; width:500px; line-height:1.4; text-align:right">This is the part that replaces<br><b style="color:#0F2A5E">the work you do by hand</b></p>
+  </div>
+  <div style="display:flex; gap:24px; align-items:stretch">
+    <div style="flex:1; display:flex; flex-direction:column; gap:10px; background:#FFFFFF; border:1px solid #D7E0F2; border-radius:18px; padding:32px">
+      <p style="font-family:'Poppins', Arial, sans-serif; font-size:26px; font-weight:700; color:#1D4ED8">01</p>
+      <h3 style="font-family:'Poppins', Arial, sans-serif; font-size:30px; font-weight:700; color:#0F2A5E; line-height:1.2">Upload</h3>
+      <p style="font-size:25px; line-height:1.45">Export the statement from your bank and upload the file.</p>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:10px; background:#FFFFFF; border:1px solid #D7E0F2; border-radius:18px; padding:32px">
+      <p style="font-family:'Poppins', Arial, sans-serif; font-size:26px; font-weight:700; color:#1D4ED8">02</p>
+      <h3 style="font-family:'Poppins', Arial, sans-serif; font-size:30px; font-weight:700; color:#0F2A5E; line-height:1.2">Match</h3>
+      <p style="font-size:25px; line-height:1.45">Each line is matched to a donor and an appeal by name and reference.</p>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:10px; background:#FFFFFF; border:1px solid #D7E0F2; border-radius:18px; padding:32px">
+      <p style="font-family:'Poppins', Arial, sans-serif; font-size:26px; font-weight:700; color:#1D4ED8">03</p>
+      <h3 style="font-family:'Poppins', Arial, sans-serif; font-size:30px; font-weight:700; color:#0F2A5E; line-height:1.2">Check</h3>
+      <p style="font-size:25px; line-height:1.45">Every match is shown on screen before anything is saved.</p>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:10px; background:#102A56; border-radius:18px; padding:32px">
+      <p style="font-family:'Poppins', Arial, sans-serif; font-size:26px; font-weight:700; color:#7FA8FF">04</p>
+      <h3 style="font-family:'Poppins', Arial, sans-serif; font-size:30px; font-weight:700; color:#FFFFFF; line-height:1.2">Confirm</h3>
+      <p style="font-size:25px; line-height:1.45; color:#DCE7F8">You press confirm. Gifts are saved and receipts go out.</p>
+    </div>
+  </div>
+  <div style="display:flex; gap:24px; align-items:stretch">
+    <div style="flex:1; display:flex; flex-direction:column; gap:8px; padding:28px 32px; background:#DEE7F6; border-radius:18px">
+      <h3 style="font-family:'Poppins', Arial, sans-serif; font-size:26px; font-weight:700; color:#0F2A5E; line-height:1.2">Nothing guessed quietly</h3>
+      <p style="font-size:24px; line-height:1.4">Anything unsure waits in an unmatched queue until a person decides.</p>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:8px; padding:28px 32px; background:#DEE7F6; border-radius:18px">
+      <h3 style="font-family:'Poppins', Arial, sans-serif; font-size:26px; font-weight:700; color:#0F2A5E; line-height:1.2">Cash and cheques too</h3>
+      <p style="font-size:24px; line-height:1.4">Gifts given at events or in person are entered in the same few clicks.</p>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:8px; padding:28px 32px; background:#DEE7F6; border-radius:18px">
+      <h3 style="font-family:'Poppins', Arial, sans-serif; font-size:26px; font-weight:700; color:#0F2A5E; line-height:1.2">One trail, plus Xero</h3>
+      <p style="font-size:24px; line-height:1.4">One receipt history per donor, and an export in the shape Xero expects.</p>
+    </div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; font-size:24px; color:#5C6E92; width:1400px">Income reports by appeal, by designation, by country and by date range, for your accountant</p>
+  <p style="position:absolute; right:128px; bottom:64px; font-size:24px; color:#5C6E92; width:120px; text-align:right">10</p>
+  <aside>The preview step is deliberate. Nothing is written to a donor record until someone has seen it, because a wrong match reaching a donor as a receipt is much harder to undo than a slow queue.</aside>
+</section>
+<section id="compliance" data-transition="fade" style="background:#FBFCFE; color:#33456A; font-family:'Inter', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:40px">
+  <div style="display:flex; align-items:end; gap:48px">
+    <div style="flex:1; display:flex; flex-direction:column; gap:16px">
+      <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#1D4ED8">Module 04 · Compliance</p>
+      <h2 style="font-family:'Poppins', Arial, sans-serif; font-size:64px; font-weight:700; color:#0F2A5E; line-height:1.1">The ACNC records, in one place</h2>
+      <div style="width:72px; height:6px; background:#1D4ED8"></div>
+    </div>
+    <p style="font-size:28px; width:520px; line-height:1.4; text-align:right">Instead of spread across<br><b style="color:#0F2A5E">separate spreadsheets</b></p>
+  </div>
+  <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:28px">
+    <div style="display:flex; flex-direction:column; gap:12px; background:#E9EEF9; border:1px solid #D7E0F2; border-radius:18px; padding:32px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:36px; height:36px; color:#1D4ED8; flex:none"><path d="M5 4.5A1.5 1.5 0 0 1 6.5 3H19v15.5H6.5A1.5 1.5 0 0 0 5 20V4.5z"/><path d="M5 18.5A1.5 1.5 0 0 1 6.5 17H19v4H6.5A1.5 1.5 0 0 1 5 19.5z"/></svg>
+      <h3 style="font-family:'Poppins', Arial, sans-serif; font-size:32px; font-weight:700; color:#0F2A5E; line-height:1.2">Registers</h3>
+      <p style="font-size:25px; line-height:1.45">Responsible people, overseas partners, policies, risks and conflicts.</p>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:12px; background:#E9EEF9; border:1px solid #D7E0F2; border-radius:18px; padding:32px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:36px; height:36px; color:#1D4ED8; flex:none"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.4 2"/></svg>
+      <h3 style="font-family:'Poppins', Arial, sans-serif; font-size:32px; font-weight:700; color:#0F2A5E; line-height:1.2">Statutory calendar</h3>
+      <p style="font-size:25px; line-height:1.45">The AIS and every other date, each with an owner and an email reminder.</p>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:12px; background:#E9EEF9; border:1px solid #D7E0F2; border-radius:18px; padding:32px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:36px; height:36px; color:#1D4ED8; flex:none"><path d="M7.5 19.5A4.5 4.5 0 0 1 7 10.6a5.5 5.5 0 0 1 10.6 1.4 3.8 3.8 0 0 1-.6 7.5H7.5z"/></svg>
+      <h3 style="font-family:'Poppins', Arial, sans-serif; font-size:32px; font-weight:700; color:#0F2A5E; line-height:1.2">Document library</h3>
+      <p style="font-size:25px; line-height:1.45">Policies, partner agreements and reports, versioned, with who read what.</p>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:12px; background:#E9EEF9; border:1px solid #D7E0F2; border-radius:18px; padding:32px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:36px; height:36px; color:#1D4ED8; flex:none"><path d="M12 3l7 3v5.5c0 4.2-2.9 7.9-7 9.5-4.1-1.6-7-5.3-7-9.5V6l7-3z"/><path d="m9 12 2.2 2.2L15.5 10"/></svg>
+      <h3 style="font-family:'Poppins', Arial, sans-serif; font-size:32px; font-weight:700; color:#0F2A5E; line-height:1.2">Audit trail</h3>
+      <p style="font-size:25px; line-height:1.45">Every action with the person and the time, exportable when asked.</p>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:12px; background:#E9EEF9; border:1px solid #D7E0F2; border-radius:18px; padding:32px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:36px; height:36px; color:#1D4ED8; flex:none"><path d="M4 20h16"/><path d="M7 20v-6M12 20V5M17 20v-9"/></svg>
+      <h3 style="font-family:'Poppins', Arial, sans-serif; font-size:32px; font-weight:700; color:#0F2A5E; line-height:1.2">Reports</h3>
+      <p style="font-size:25px; line-height:1.45">Receipts issued, income by appeal and designation, activity by country.</p>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:12px; background:#102A56; border-radius:18px; padding:32px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:36px; height:36px; color:#7FA8FF; flex:none"><path d="M12 4 2.8 20h18.4L12 4z"/><path d="M12 10v4.6M12 17.4v.2"/></svg>
+      <h3 style="font-family:'Poppins', Arial, sans-serif; font-size:32px; font-weight:700; color:#FFFFFF; line-height:1.2">To be clear</h3>
+      <p style="font-size:25px; line-height:1.45; color:#DCE7F8">We are a technology partner, not auditors or lawyers.</p>
+    </div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; font-size:24px; color:#5C6E92; width:1400px">The platform stores and reports on the records you already keep, and pulls the year's evidence together</p>
+  <p style="position:absolute; right:128px; bottom:64px; font-size:24px; color:#5C6E92; width:120px; text-align:right">11</p>
+  <aside>Your auditor's compliance report is given to us and loaded in — we do not produce it. Nothing here is legal, tax or audit advice; what the platform does is keep the evidence in one place so the year end is not a scramble.</aside>
+</section>
+<section id="delivery" data-section="How we work week to week, what we need from Al Anwaar, and what happens next" data-transition="fade" style="background:#EEF2FA; color:#33456A; font-family:'Inter', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:40px">
+  <div style="display:flex; align-items:end; gap:48px">
+    <div style="flex:1; display:flex; flex-direction:column; gap:16px">
+      <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#1D4ED8">How we deliver it</p>
+      <h2 style="font-family:'Poppins', Arial, sans-serif; font-size:64px; font-weight:700; color:#0F2A5E; line-height:1.1">No surprises at the end</h2>
+      <div style="width:72px; height:6px; background:#1D4ED8"></div>
+    </div>
+    <p style="font-size:28px; width:520px; line-height:1.4; text-align:right">You see working software<br><b style="color:#0F2A5E">every single week</b></p>
+  </div>
+  <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:28px">
+    <div style="display:flex; flex-direction:column; gap:12px; background:#FFFFFF; border:1px solid #D7E0F2; border-radius:18px; padding:32px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:36px; height:36px; color:#1D4ED8; flex:none"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"/><path d="M16.5 5.6a3 3 0 0 1 0 5.6M18 20c0-2.4-.9-4.3-2.3-5.4"/></svg>
+      <h3 style="font-family:'Poppins', Arial, sans-serif; font-size:32px; font-weight:700; color:#0F2A5E; line-height:1.2">One approver</h3>
+      <p style="font-size:25px; line-height:1.45">You name one person who can approve content and sign off each stage.</p>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:12px; background:#FFFFFF; border:1px solid #D7E0F2; border-radius:18px; padding:32px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:36px; height:36px; color:#1D4ED8; flex:none"><path d="M8 5.5 18.5 12 8 18.5v-13z"/></svg>
+      <h3 style="font-family:'Poppins', Arial, sans-serif; font-size:32px; font-weight:700; color:#0F2A5E; line-height:1.2">Weekly demo</h3>
+      <p style="font-size:25px; line-height:1.45">At the end of each week you get a link you can click through yourself.</p>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:12px; background:#FFFFFF; border:1px solid #D7E0F2; border-radius:18px; padding:32px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:36px; height:36px; color:#1D4ED8; flex:none"><path d="m4.5 12.5 4.5 4.5L19.5 6.5"/></svg>
+      <h3 style="font-family:'Poppins', Arial, sans-serif; font-size:32px; font-weight:700; color:#0F2A5E; line-height:1.2">Sign off gates</h3>
+      <p style="font-size:25px; line-height:1.45">Design, then giving, then the portals. Each is signed off before we move.</p>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:12px; background:#FFFFFF; border:1px solid #D7E0F2; border-radius:18px; padding:32px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:36px; height:36px; color:#1D4ED8; flex:none"><rect x="4.5" y="10.5" width="15" height="10" rx="2"/><path d="M8 10.5V7.8a4 4 0 0 1 8 0v2.7"/></svg>
+      <h3 style="font-family:'Poppins', Arial, sans-serif; font-size:32px; font-weight:700; color:#0F2A5E; line-height:1.2">Your site stays up</h3>
+      <p style="font-size:25px; line-height:1.45">The current site runs untouched until the new one is confirmed working.</p>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:12px; background:#FFFFFF; border:1px solid #D7E0F2; border-radius:18px; padding:32px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:36px; height:36px; color:#1D4ED8; flex:none"><path d="M15.5 3.5a5.5 5.5 0 0 0-5 7.7L3.8 17.9a2 2 0 0 0 2.8 2.8l6.7-6.7a5.5 5.5 0 0 0 7-6.9l-3 3-2.8-.7-.7-2.8 3-3a5.5 5.5 0 0 0-1.3-.1z"/></svg>
+      <h3 style="font-family:'Poppins', Arial, sans-serif; font-size:32px; font-weight:700; color:#0F2A5E; line-height:1.2">Tested with real cards</h3>
+      <p style="font-size:25px; line-height:1.45">Stripe and PayPal stay in test mode until week five, then we test live.</p>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:12px; background:#102A56; border-radius:18px; padding:32px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:36px; height:36px; color:#7FA8FF; flex:none"><path d="M12 4 2.5 8.5 12 13l9.5-4.5L12 4z"/><path d="M6.5 10.8v4.7c0 1.5 2.5 2.8 5.5 2.8s5.5-1.3 5.5-2.8v-4.7"/><path d="M21.5 8.5v5"/></svg>
+      <h3 style="font-family:'Poppins', Arial, sans-serif; font-size:32px; font-weight:700; color:#FFFFFF; line-height:1.2">Training and handover</h3>
+      <p style="font-size:25px; line-height:1.45; color:#DCE7F8">A session for whoever runs it, with written notes left behind.</p>
+    </div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; font-size:24px; color:#5C6E92; width:1400px">Payment milestones: 40% at sign off · 30% when both portals are done · 30% on go live and handover</p>
+  <p style="position:absolute; right:128px; bottom:64px; font-size:24px; color:#5C6E92; width:120px; text-align:right">12</p>
+  <aside>The one thing that slows a five week build is waiting on a decision. One approver, and feedback back inside two working days, is what keeps 20 October real.</aside>
+</section>
+<section id="needs" data-transition="fade" style="background:#FBFCFE; color:#33456A; font-family:'Inter', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:40px">
+  <div style="display:flex; align-items:end; gap:48px">
+    <div style="flex:1; display:flex; flex-direction:column; gap:16px">
+      <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#1D4ED8">What we need from you</p>
+      <h2 style="font-family:'Poppins', Arial, sans-serif; font-size:64px; font-weight:700; color:#0F2A5E; line-height:1.1">Your side of the five weeks</h2>
+      <div style="width:72px; height:6px; background:#1D4ED8"></div>
+    </div>
+    <p style="font-size:28px; width:480px; line-height:1.4; text-align:right">Late items do not delay us<br><b style="color:#0F2A5E">quietly — they delay go live</b></p>
+  </div>
+  <table style="font-family:'Inter', Arial, sans-serif; font-size:27px; color:#33456A; padding:14px 24px; border:1px solid #D7E0F2; border-radius:16px">
+    <tr style="background:#102A56">
+      <th style="width:20%; text-align:left; color:#FFFFFF; font-weight:600">Stage</th>
+      <th style="width:60%; text-align:left; color:#FFFFFF; font-weight:600">What we need</th>
+      <th style="width:20%; text-align:left; color:#FFFFFF; font-weight:600">By</th>
+    </tr>
+    <tr style="background:#FFFFFF">
+      <td style="color:#0F2A5E">Right now</td>
+      <td>One named approver for content and sign offs, the week five reviewers, and any automations you run today</td>
+      <td style="color:#1D4ED8">Today</td>
+    </tr>
+    <tr style="background:#F2F6FC">
+      <td style="color:#0F2A5E">Week 2<br>Website and giving</td>
+      <td>Photos and video you own, Stripe and PayPal in the charity's name, a sending email account, and domain access</td>
+      <td style="color:#1D4ED8">Wed 23 Sep</td>
+    </tr>
+    <tr style="background:#FFFFFF">
+      <td style="color:#0F2A5E">Weeks 3 and 4<br>The two portals</td>
+      <td>The auditor's compliance report, and a list of the staff and volunteers who need a login</td>
+      <td style="color:#1D4ED8">Tue 30 Sep</td>
+    </tr>
+    <tr style="background:#F2F6FC">
+      <td style="color:#0F2A5E">Week 5<br>Testing and go live</td>
+      <td>Your reviewers available across the week, with feedback back to us in time for us to fix it before go live</td>
+      <td style="color:#1D4ED8">Wed 14 Oct</td>
+    </tr>
+  </table>
+  <div style="display:flex; gap:32px; align-items:center; background:#102A56; border-radius:18px; padding:24px 40px">
+    <p style="font-size:26px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#7FA8FF; width:300px">The two today</p>
+    <p style="flex:1; font-size:28px; line-height:1.4; color:#FFFFFF">Name your single approver, and start the Stripe and PayPal accounts this week. Both are opened in the charity's name and verification can take a few days.</p>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; font-size:24px; color:#5C6E92; width:1400px">We will send this list in writing after the meeting, with a name against each item</p>
+  <p style="position:absolute; right:128px; bottom:64px; font-size:24px; color:#5C6E92; width:120px; text-align:right">13</p>
+  <aside>This is the slide to photograph. The Stripe and PayPal accounts are the one people underestimate — they are opened in the charity's name and can take a few days of verification, so starting that this week matters.</aside>
+</section>
+<section id="next" data-transition="fade" style="background:#102A56; color:#C6D6F2; font-family:'Inter', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:48px">
+  <div style="display:flex; flex-direction:column; gap:16px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#7FA8FF">Next steps</p>
+    <h2 style="font-family:'Poppins', Arial, sans-serif; font-size:72px; font-weight:700; color:#FFFFFF; line-height:1.1">Before we speak again</h2>
+    <div style="width:96px; height:8px; background:#4D82F5"></div>
+  </div>
+  <div style="display:flex; flex-direction:column; gap:20px">
+    <div style="display:flex; gap:40px; align-items:center; background:#17356B; border-radius:16px; padding:26px 40px">
+      <p style="font-size:26px; font-weight:600; color:#7FA8FF; width:260px">Today</p>
+      <p style="flex:1; font-size:30px; line-height:1.4; color:#FFFFFF">Confirm your single approver, and the reviewers for week five</p>
+    </div>
+    <div style="display:flex; gap:40px; align-items:center; background:#17356B; border-radius:16px; padding:26px 40px">
+      <p style="font-size:26px; font-weight:600; color:#7FA8FF; width:260px">Wed 23 Sep</p>
+      <p style="flex:1; font-size:30px; line-height:1.4; color:#FFFFFF">Photography, domain access, the sending email account, and the Stripe and PayPal accounts started</p>
+    </div>
+    <div style="display:flex; gap:40px; align-items:center; background:#17356B; border-radius:16px; padding:26px 40px">
+      <p style="font-size:26px; font-weight:600; color:#7FA8FF; width:260px">Tue 29 Sep</p>
+      <p style="flex:1; font-size:30px; line-height:1.4; color:#FFFFFF">Demo: the public site and the full giving flow, on a link you can click through</p>
+    </div>
+    <div style="display:flex; gap:40px; align-items:center; background:#17356B; border-radius:16px; padding:26px 40px">
+      <p style="font-size:26px; font-weight:600; color:#7FA8FF; width:260px">Tue 20 Oct</p>
+      <p style="flex:1; font-size:30px; line-height:1.4; color:#FFFFFF">Go live on your domain, with the old site retired once the new one is confirmed</p>
+    </div>
+  </div>
+  <h3 style="font-family:'Poppins', Arial, sans-serif; font-size:44px; font-weight:700; color:#FFFFFF; line-height:1.2">Questions?</h3>
+  <p style="position:absolute; left:128px; bottom:64px; font-size:24px; color:#8FAAD6; width:1400px">Sohaib · Technical Project Manager · your single point of contact for anything on this build</p>
+  <p style="position:absolute; right:128px; bottom:64px; font-size:24px; color:#8FAAD6; width:120px; text-align:right">14</p>
+  <aside>Close by repeating the two asks that actually matter: the named approver, and the payment accounts started this week. Everything else we can work around.</aside>
+</section>
+</div>
+<div id="bar"><span id="num">1</span> / 14 &nbsp;·&nbsp; &larr; &rarr; to move &nbsp;·&nbsp; N for notes &nbsp;·&nbsp; Ctrl+P for PDF</div>
+<div id="notes"></div>
+<script>
+  var slides = Array.prototype.slice.call(document.querySelectorAll('#stage > section'));
+  var stage = document.getElementById('stage');
+  var numEl = document.getElementById('num');
+  var notesEl = document.getElementById('notes');
+  var i = 0;
+
+  function fit() {
+    var s = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+    stage.style.transform = 'translate(-50%, -50%) scale(' + s + ')';
+  }
+  function show(n) {
+    i = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach(function (el, k) { el.classList.toggle('is-active', k === i); });
+    numEl.textContent = i + 1;
+    var note = slides[i].querySelector('aside');
+    notesEl.textContent = note ? note.textContent.trim() : 'No notes for this slide.';
+    if (location.hash.slice(1) !== slides[i].id) history.replaceState(null, '', '#' + slides[i].id);
+  }
+  window.addEventListener('resize', fit);
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') { show(i + 1); e.preventDefault(); }
+    else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { show(i - 1); e.preventDefault(); }
+    else if (e.key === 'Home') { show(0); }
+    else if (e.key === 'End') { show(slides.length - 1); }
+    else if (e.key === 'n' || e.key === 'N') { notesEl.classList.toggle('on'); }
+    else if (e.key === 'f' || e.key === 'F') {
+      if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen();
+    }
+  });
+  document.addEventListener('click', function (e) { if (!notesEl.contains(e.target)) show(i + 1); });
+  window.addEventListener('hashchange', function () {
+    var n = slides.findIndex(function (el) { return el.id === location.hash.slice(1); });
+    if (n > -1 && n !== i) show(n);
+  });
+  fit();
+  var start = slides.findIndex(function (el) { return el.id === location.hash.slice(1); });
+  show(start > -1 ? start : 0);
+</script>
+</body>
+</html>

@@ -27,7 +27,8 @@ import {
   takesMonthly,
 } from '../components/give-data'
 import { PLACES, appealBySlug } from '../components/appeals-data'
-import { fundraiserBySlug } from '../services/fundraisers'
+import { useFundraiser } from '../services/fundraisers'
+import type { Fundraiser } from '../components/fundraiser-data'
 import Reveal, { useInView } from '../components/Reveal'
 import { ArrowRight, Check, HandHeart, Lock } from '../components/icons'
 import { ORG } from '../components/org-data'
@@ -83,10 +84,13 @@ import { feeOf, startCheckout, type Frequency, type Provider } from '../services
    PAYING
    The last step chooses Stripe (card, Apple Pay, Google Pay) or PayPal and
    hands the gift to services/give.ts, which asks the server for that
-   provider's hosted page and sends the donor there. With no server yet the
-   button says so in place — "Online payment is not switched on yet" and the
-   bank details — and NEVER shows a success state. Gold is the give
-   button alone, as everywhere; every Continue is teal.
+   provider's hosted page and sends the donor there; /thank-you then reads the
+   gift back from the server and shows what really happened. The appeal's slug
+   rides along (appealSlug, fundraiser) so the gift counts towards the appeal
+   it came from. If the endpoint is ever switched off the button says so in
+   place — "Online payment is not switched on yet" and the bank details — and
+   NEVER shows a success state. Gold is the give button alone, as everywhere;
+   every Continue is teal.
 --------------------------------------------------------------------------- */
 
 const STEPS = ['Gift', 'Details', 'Pay']
@@ -106,7 +110,7 @@ type Status =
   | { kind: 'failed'; message: string }
 
 /** Everything the link and the router state say, resolved once, on arrival. */
-function useArrival() {
+function useArrival(fundraiser: Fundraiser | undefined) {
   const [params] = useSearchParams()
   const location = useLocation()
 
@@ -115,7 +119,6 @@ function useArrival() {
        the hero's ?appeal=meals goes through APPEALS in give-data.ts. */
     /* A community fundraiser (/fundraisers/<slug>) gives to its appeal's fund,
        and the fundraiser's own title is what the form says it is for. */
-    const fundraiser = fundraiserBySlug(params.get('fundraiser'))
     const named = appealBySlug(fundraiser?.appeal ?? params.get('appeal'))
     const place = named
       ? {
@@ -137,10 +140,15 @@ function useArrival() {
     )
     const hasFund = CAUSES.some((c) => c.id === fundId)
 
+    /* ?frequency=monthly from a campaign link, honoured only where the fund
+       takes a monthly gift at all — the same rule the Monthly tab keeps */
+    const frequency: Frequency =
+      params.get('frequency') === 'monthly' && takesMonthly(CAUSES[causeIndex]) ? 'monthly' : 'once'
+
     const raw = parseFloat(params.get('amount') ?? '')
     const amount = Number.isFinite(raw) && raw >= MIN_GIFT ? raw : null
     const rung =
-      amount === null ? -1 : CAUSES[causeIndex].amounts.findIndex((a) => a.value === amount)
+      amount === null ? -1 : rungsFor(CAUSES[causeIndex], frequency).findIndex((a) => a.value === amount)
 
     const handed = (location.state as { donor?: Donor } | null)?.donor
     const donor = handed ? { ...EMPTY_DONOR, ...handed } : EMPTY_DONOR
@@ -149,7 +157,11 @@ function useArrival() {
     const step = !hasFund || amount === null ? 0 : donorDone ? 2 : 1
     return {
       causeIndex,
+      frequency,
       appeal: place && hasFund && CAUSES[causeIndex].id === place.fund ? place.label : null,
+      /** for the server, so the gift counts towards the appeal it came from */
+      appealSlug: named?.slug,
+      fundraiserSlug: fundraiser?.slug,
       chosen: amount === null ? 0 : rung >= 0 ? rung : null,
       typed: amount !== null && rung < 0 ? String(amount) : '',
       donor,
@@ -159,20 +171,29 @@ function useArrival() {
       step,
       /** the link chose something, so the reader lands on the form */
       prefilled:
-        ['appeal', 'designation', 'amount', 'country', 'fundraiser'].some((k) => params.has(k)) || !!handed,
+        ['appeal', 'designation', 'amount', 'country', 'fundraiser', 'frequency'].some((k) => params.has(k)) || !!handed,
     }
   })[0]
 }
 
+/* A gift for a community fundraiser waits for the fundraiser to arrive from
+   the server, because everything the form starts with is read from it once. */
 export default function GiveForm() {
+  const [params] = useSearchParams()
+  const { fundraiser, ready } = useFundraiser(params.get('fundraiser'))
+  if (!ready) return <div className="min-h-[70svh]" aria-busy="true" />
+  return <GiveFormReady fundraiser={fundraiser} />
+}
+
+function GiveFormReady({ fundraiser }: { fundraiser: Fundraiser | undefined }) {
   const uid = useId()
-  const start = useArrival()
+  const start = useArrival(fundraiser)
 
   const [step, setStep] = useState(start.step)
   const [reached, setReached] = useState(start.step)
   const [causeIndex, setCauseIndex] = useState(start.causeIndex)
   const [appeal, setAppeal] = useState<string | null>(start.appeal)
-  const [frequency, setFrequency] = useState<Frequency>('once')
+  const [frequency, setFrequency] = useState<Frequency>(start.frequency)
   const [chosen, setChosen] = useState<number | null>(start.chosen)
   const [typed, setTyped] = useState(start.typed)
   const [amountError, setAmountError] = useState('')
@@ -325,6 +346,10 @@ export default function GiveForm() {
     const result = await startCheckout({
       fund: cause.id,
       appeal: appeal ?? undefined,
+      /* only while the form is still giving to that appeal: changing the fund
+         clears `appeal`, and the slug goes with it */
+      appealSlug: appeal ? start.appealSlug : undefined,
+      fundraiser: appeal ? start.fundraiserSlug : undefined,
       frequency,
       amount,
       coverFee,
