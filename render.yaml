@@ -1,0 +1,93 @@
+# Render Blueprint: the platform API (server/). The site itself is on Vercel,
+# which forwards /api/* here (vercel.json), so the browser sees one origin and
+# the session cookies work unchanged.
+#
+# Starter, not free: the free plan sleeps when idle, and while it sleeps the
+# background jobs (regular gifts, reminders, campaign batches) stop, which the
+# platform depends on. It also has no disk for uploads.
+
+services:
+  - type: web
+    name: al-anwaar-api
+    runtime: node
+    region: singapore
+    plan: starter
+    branch: main
+    # tsx runs the server in production and is a dev dependency, so keep dev
+    # dependencies in the install even though NODE_ENV is production
+    buildCommand: npm ci --include=dev
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeploy: true
+    # uploaded files (appeal and fundraiser photos, compliance documents) when
+    # S3_BUCKET is empty; DATA_DIR points the server at this disk
+    disk:
+      name: data
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: "22"
+      - key: DATA_DIR
+        value: /var/data
+      # Vercel's rewrite, then Render's own proxy
+      - key: TRUST_PROXY
+        value: "2"
+      - key: JWT_SECRET
+        generateValue: true
+      # STAGING: fills an empty database with the invented demo data and the
+      # demo staff logins (password alanwaar-demo). Set to 0, and use a fresh
+      # database, before real donors arrive.
+      - key: SEED_DEMO
+        value: "1"
+
+      # required: the Atlas connection string
+      - key: MONGODB_URI
+        sync: false
+      # required: the public site's address on Vercel, used in emailed links
+      - key: APP_URL
+        sync: false
+
+      # optional: empty keeps email in Admin > Email log
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+
+      # optional: empty keeps payments simulated
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: PAYPAL_CLIENT_ID
+        sync: false
+      - key: PAYPAL_CLIENT_SECRET
+        sync: false
+      - key: PAYPAL_API
+        value: https://api-m.sandbox.paypal.com
+
+      # optional: empty stores files on the disk above
+      - key: S3_BUCKET
+        sync: false
+      - key: S3_REGION
+        value: ap-southeast-2
+      - key: AWS_ACCESS_KEY_ID
+        sync: false
+      - key: AWS_SECRET_ACCESS_KEY
+        sync: false
+
+      # optional: donor sign-in with Google / Facebook
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: FACEBOOK_APP_ID
+        sync: false
+      - key: FACEBOOK_APP_SECRET
+        sync: false

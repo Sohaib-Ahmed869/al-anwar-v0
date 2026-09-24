@@ -96,8 +96,10 @@ type SeedDonor = {
 }
 
 export async function seedIfEmpty() {
-  if (env.isProd) return
-  if (env.seedReset) {
+  /* production never seeds, unless SEED_DEMO=1 asks for the invented data on
+     a staging deploy; SEED_RESET stays a development-only switch */
+  if (env.isProd && !env.seedDemo) return
+  if (env.seedReset && !env.isProd) {
     console.log('[seed] SEED_RESET=1 — wiping the development database')
     await mongoose.connection.dropDatabase()
   }

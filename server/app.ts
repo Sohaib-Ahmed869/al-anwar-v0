@@ -32,7 +32,10 @@ import complianceRoutes from './routes/compliance'
 
 export function createApp() {
   const app = express()
-  app.set('trust proxy', 1)
+  /* how many proxies stand in front: 1 behind a load balancer, 2 when the
+     site's host (Vercel) forwards /api to it as well, so client IPs, and
+     with them the rate limits, stay per visitor */
+  app.set('trust proxy', env.trustProxy)
   app.disable('x-powered-by')
   app.use(helmet({ contentSecurityPolicy: false, crossOriginEmbedderPolicy: false }))
 

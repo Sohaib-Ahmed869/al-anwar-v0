@@ -107,11 +107,18 @@ Optional variables: SMTP (Amazon SES), `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_S
 it, uploads go to `.data/uploads`, which is not durable on most hosts). Google and
 Facebook donor sign-in are also optional.
 
-**Current status (25 September 2026):** runs locally only, on the embedded database.
-The plan is the frontend on Vercel and the API on Render, with MongoDB Atlas. The
-Vercel build then needs the API origin for `/api`, either through a rewrite or a base
-URL, plus cross-site cookie settings. Don't deploy until the user asks.
+**Hosting (25 September 2026):**
+- **API on Render**, set up in `render.yaml` as the service `al-anwaar-api` on the
+  Starter plan, with a 1 GB disk at `/var/data` set as `DATA_DIR`.
+- **Site on Vercel**, set up in `vercel.json`, which rewrites `/api/*` to
+  `https://al-anwaar-api.onrender.com`. If the Render service gets a different URL,
+  change it there too.
+
+Because of the rewrite, the browser sees a single origin, so the `lax` session cookies
+work without CORS. `TRUST_PROXY=2` accounts for both proxies. `.vercelignore` keeps
+`api/` and `server/` out of the Vercel upload. `SEED_DEMO=1` seeds the demo data into
+an empty production database for staging. Turn it off before real donors arrive.
 
 The production shape is **one Node process** that serves `/api` and the built `dist/`.
 It needs a persistent process because of the timers, and a real MongoDB (Atlas).
-`vercel.json` and the handlers in `api/` predate the server and are superseded by it.
+The handlers in `api/` predate the server and are superseded by it.

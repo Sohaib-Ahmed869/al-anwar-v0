@@ -34,6 +34,8 @@ export const env = {
   jwtSecret: e.JWT_SECRET || devSecret(),
   mongoUri: e.MONGODB_URI || '',
   seedReset: e.SEED_RESET === '1',
+  /** seed the invented demo data into an empty production database (staging only) */
+  seedDemo: e.SEED_DEMO === '1',
   smtp: e.SMTP_HOST
     ? { host: e.SMTP_HOST, port: Number(e.SMTP_PORT || 587), user: e.SMTP_USER || '', pass: e.SMTP_PASS || '' }
     : null,
@@ -45,6 +47,7 @@ export const env = {
   google: e.GOOGLE_CLIENT_ID && e.GOOGLE_CLIENT_SECRET ? { id: e.GOOGLE_CLIENT_ID, secret: e.GOOGLE_CLIENT_SECRET } : null,
   facebook: e.FACEBOOK_APP_ID && e.FACEBOOK_APP_SECRET ? { id: e.FACEBOOK_APP_ID, secret: e.FACEBOOK_APP_SECRET } : null,
   dataDir: e.DATA_DIR || '.data',
+  trustProxy: Number(e.TRUST_PROXY || 1),
 }
 
 /** True when payments are not connected to a real provider. The portals show
