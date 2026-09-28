@@ -4,6 +4,7 @@ import { ImageOff, Megaphone, Plus, Star } from 'lucide-react'
 import { COUNTRIES, type AppealStatus } from '../../../shared/domain'
 import type { Appeal, Page } from '../../../shared/types'
 import { api } from '../../portal/api'
+import QuickGiveList from '../components/QuickGiveList'
 import { daysUntil, formatDay, formatMoney, formatNumber } from '../../portal/format'
 import {
   ButtonLink, Card, EmptyState, Money, PageHeader, Pagination, Progress, SearchInput, Segmented, Select, Skeleton,
@@ -50,9 +51,14 @@ export default function Appeals() {
         title="Appeals"
         description="What the website asks people to give to. Set the target, the story and the suggested amounts; close an appeal and its page and history stay."
         actions={
-          <ButtonLink to="/admin/appeals/new" variant="primary" icon={<Plus />}>
-            New appeal
-          </ButtonLink>
+          <>
+            <ButtonLink to="#quick-give" onClick={(e) => { e.preventDefault(); document.getElementById('quick-give')?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }}>
+              Quick-donate list
+            </ButtonLink>
+            <ButtonLink to="/admin/appeals/new" variant="primary" icon={<Plus />}>
+              New appeal
+            </ButtonLink>
+          </>
         }
       />
 
@@ -127,6 +133,11 @@ export default function Appeals() {
           )}
         </>
       )}
+
+      {/* The home page's "Donate now" box, ordered and named here (28 September 2026). */}
+      <div className="mt-8">
+        <QuickGiveList />
+      </div>
     </>
   )
 }

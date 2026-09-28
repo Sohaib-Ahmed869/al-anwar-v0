@@ -191,8 +191,8 @@ export default function HomeImpact() {
       <div className="gutter mx-auto max-w-page">
         <SectionHead
           id="impact-head"
-          eyebrow="Your gift at work"
-          title="What your money has already done."
+          eyebrow="Your donation at work"
+          title="The result of your support."
           action={
             <Link
               to="/where-it-goes"

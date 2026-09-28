@@ -5,6 +5,7 @@ import { FileText, Mail, Receipt, SearchX } from 'lucide-react'
 import { fyLabel } from '../../../shared/domain'
 import { api, errorMessage } from '../../portal/api'
 import { formatDay, plural } from '../../portal/format'
+import { DateRangePicker, RangeStatementActions, isoDay, resolveRange } from '../components/DateRange'
 import {
   Badge, Button, Card, DataTable, EmptyState, IconButton, Money, PageHeader, Pagination, SearchInput, Skeleton, Toolbar, buttonClass, toast,
   useDebounced, useUrlState, type Column,
@@ -16,16 +17,20 @@ import { GiftSheet } from '../components/GiftSheet'
 /* ---------------------------------------------------------------------------
    Receipts & tax. Two things live here, in the order people need them:
 
-   1. The tax statement — one document per financial year (July to June) with
+   1. A statement for any dates: presets (this or last financial year, the
+      last 12 months, a calendar year, all time) or custom from/to. All the
+      receipts in that range become one document to open, print, save as
+      PDF or email. The same range filters the receipts list below.
+   2. The tax statement — one document per financial year (July to June) with
       every gift and its receipt number, which is what an accountant or the
       ATO asks for. Open it to print or save as PDF, or email it to yourself.
-   2. Every individual receipt, each re-sendable in one press.
+   3. Every individual receipt, each re-sendable in one press.
 
    Only gifts that have arrived have receipts, so this list asks the server
    for succeeded gifts only; pledges and declined payments are on My giving.
 --------------------------------------------------------------------------- */
 
-const DEFAULTS = { q: '', page: '1' }
+const DEFAULTS = { range: 'last-fy', from: '', to: '', q: '', page: '1' }
 
 export default function Receipts() {
   useTitle('Receipts & tax')
@@ -39,7 +44,12 @@ export default function Receipts() {
   const [open, setOpen] = useState<MyGift | null>(null)
   const qc = useQueryClient()
 
-  const params = { status: 'succeeded', q: s.q, page: s.page, pageSize: 15, sort: '-date' }
+  const dates = resolveRange(s.range, s.from, s.to)
+  const stmt = dates ?? { from: '2000-01-01', to: isoDay(new Date()) }
+  const inRange = { status: 'succeeded', from: dates?.from ?? '', to: dates?.to ?? '' }
+  /* the total for the chosen dates, independent of the search box */
+  const summary = useQuery({ queryKey: keys.gifts({ ...inRange, pageSize: 1 }), queryFn: () => api.get<GiftPage>('/me/gifts', { ...inRange, pageSize: 1 }), placeholderData: keepPreviousData })
+  const params = { ...inRange, q: s.q, page: s.page, pageSize: 15, sort: '-date' }
   const list = useQuery({ queryKey: keys.gifts(params), queryFn: () => api.get<GiftPage>('/me/gifts', params), placeholderData: keepPreviousData })
 
   const resend = useMutation({
@@ -79,6 +89,24 @@ export default function Receipts() {
       <PageHeader title="Receipts & tax" description="Your tax statement for each financial year, and every receipt we have issued you." />
 
       <section className="mb-10">
+        <SectionHeading title="Statement for any dates">Choose the dates, then open, print, save as PDF or email every receipt in them as one statement.</SectionHeading>
+        <Card className="p-5">
+          <DateRangePicker preset={s.range} from={s.from} to={s.to} onChange={(v) => set({ ...v, page: '1' })} />
+          <div className="mt-5 flex flex-col gap-4 border-t border-line-2 pt-4 sm:flex-row sm:items-center sm:justify-between">
+            {summary.data ? (
+              <p className="text-[13px] text-text-2">
+                <Money cents={summary.data.sum} className="text-[22px] font-semibold tracking-[-0.02em] text-text" />
+                <span className="ml-2">{plural(summary.data.sumCount, 'receipt')}</span>
+              </p>
+            ) : (
+              <Skeleton className="h-10 w-48" />
+            )}
+            <RangeStatementActions range={stmt} disabled={!summary.data?.sumCount} />
+          </div>
+        </Card>
+      </section>
+
+      <section className="mb-10">
         <SectionHeading title="Tax statements">One per financial year, 1 July to 30 June — every gift with its receipt number, ready for your tax return.</SectionHeading>
         {statements.isLoading ? (
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
@@ -102,7 +130,7 @@ export default function Receipts() {
       </section>
 
       <section>
-        <SectionHeading title="All receipts" />
+        <SectionHeading title={dates ? 'Receipts in these dates' : 'All receipts'} />
         <Toolbar className="mb-3">
           <SearchInput value={q} onChange={setQ} placeholder="Receipt number or appeal" className="w-full sm:w-80" />
         </Toolbar>
@@ -125,9 +153,9 @@ export default function Receipts() {
               </div>
             )}
             empty={
-              s.q ? (
-                <EmptyState icon={<SearchX />} title="No receipts match" action={<Button onClick={() => setQ('')}>Clear search</Button>}>
-                  Receipt numbers look like AA-2026-001234.
+              s.q || dates ? (
+                <EmptyState icon={<SearchX />} title="No receipts match" action={<Button onClick={() => (setQ(''), set({ q: '', range: 'all', from: '', to: '' }))}>Show all receipts</Button>}>
+                  {s.q ? 'Receipt numbers look like AA-2026-001234.' : 'No gifts were received between these dates.'}
                 </EmptyState>
               ) : (
                 <EmptyState icon={<Receipt />} title="No receipts yet">

@@ -18,12 +18,14 @@ import { newKey, putFile } from '../lib/storage'
 import { startPlan } from '../jobs/recurring'
 import { Appeal, Donor, Enquiry, Fundraiser, Gift, Plan, getSettings, type DonorDoc } from '../models'
 import { afterOnlineGiftPaid, markOnlineGiftPaid } from './webhooks'
+import { getQuickGive } from '../models/QuickGive'
 
 /* ---------------------------------------------------------------------------
    /api/public — everything the public website asks the server for. No
    session, no permissions; what a stranger may see and do is decided here.
 
      GET  /config                 bank details, fee rate, payment mode, nisab
+     GET  /quick-give             the home page's quick-donate list, in order
      GET  /appeals, /appeals/:slug
      GET  /fundraisers, /fundraisers/:slug
      POST /fundraisers            one started on /fundraisers/start → approval queue
@@ -102,6 +104,13 @@ const limit = (max: number) =>
   })
 const checkoutLimit = limit(20)
 const formLimit = limit(8)
+
+/* ---------- the home page's quick-donate list (shared/quickgive.ts) ----------
+   Only the switched-on options, in the order staff set in Admin → Appeals. */
+
+r.get('/quick-give', async (_req, res) => {
+  res.json({ items: (await getQuickGive()).filter((o) => o.enabled) })
+})
 
 /* ---------- config ---------- */
 

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import QuickGive from '../components/QuickGive'
+import { pickPhoto, type QuickPick } from '../services/quickgive'
 import { Words, useHeroDepth } from '../components/Reveal'
 import { ArrowRight } from '../components/icons'
 
@@ -36,6 +37,14 @@ import { ArrowRight } from '../components/icons'
      camps    Hosny Salah    pexels.com/photo/35934248  a flooded tent camp under ruined buildings, Gaza
      yemen    Mohammad Hadi  pexels.com/photo/11097030  a historic mud-brick town, Yemen
      lebanon  Mohamad Mekawi pexels.com/photo/10122911  families at a gathering, Beqaa Governorate, Lebanon
+
+   THE CARD DRIVES THE PICTURE (28 September 2026, client's request). Choosing
+   a cause in the quick give puts that cause's photograph and words where the
+   appeal was, with a link to its page, and holds the rotation there: someone
+   who has just chosen "Water Project" should not have Gaza slide back in under
+   the card six seconds later. Clicking a progress line goes back to the
+   appeals. The photograph and words are staff's (Admin → Appeals, quick-donate
+   list) or, where they left them empty, the fund's own from give-data.ts.
 
    FIGURES — none in the appeal's words (client's request, 15 September 2026).
    The amounts on this screen are the quick give's (components/QuickGive.tsx).
@@ -127,10 +136,14 @@ export default function HomeHero() {
      putting it in state would re-render the hero sixty times a second to move
      four bars. */
   const heldRef = useRef(0)
+  const [picked, setPicked] = useState<QuickPick | null>(null)
+  const pickedRef = useRef(false)
+  pickedRef.current = picked !== null
   const fillRefs = useRef<(HTMLSpanElement | null)[]>([])
 
   const go = useCallback((to: number) => {
     heldRef.current = 0
+    setPicked(null)
     setIndex(wrap(to))
   }, [])
 
@@ -173,7 +186,7 @@ export default function HomeHero() {
     const tick = (now: number) => {
       const dt = now - last
       last = now
-      if (!document.hidden) heldRef.current += dt
+      if (!document.hidden && !pickedRef.current) heldRef.current += dt
 
       const at = Math.min(heldRef.current / hold, 1)
       paint(at)
@@ -208,6 +221,17 @@ export default function HomeHero() {
   const depth = useHeroDepth()
 
   const slide = SLIDES[index]
+  /* what the words say: the appeal, or the cause chosen in the card */
+  const shown = picked
+    ? {
+        key: `pick-${picked.id}`,
+        note: picked.label,
+        title: picked.title || picked.cause.title,
+        body: picked.body || picked.cause.note,
+        link: picked.link ? { label: `About the ${picked.label}`, to: picked.link } : null,
+      }
+    : { key: String(index), note: slide.note, title: slide.title, body: slide.body, link: slide.give }
+  const pickedPhoto = picked ? pickPhoto(picked) : null
   /* Each line of the appeal rises through a blur that clears as it lands. */
   const rise = (delay: number, ms = 1000) => ({
     animation: `hero-soft ${ms}ms var(--ease-reveal) both`,
@@ -251,7 +275,7 @@ export default function HomeHero() {
             decoding="async"
             fetchPriority={i === 0 ? 'high' : 'low'}
             className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-[900ms] ease-brand ${
-              i === index ? 'opacity-100' : 'opacity-0'
+              i === index && !picked ? 'opacity-100' : 'opacity-0'
             }`}
             style={{
               objectPosition: s.position,
@@ -259,6 +283,23 @@ export default function HomeHero() {
             }}
           />
         ))}
+
+        {/* the chosen cause's photograph, over the appeals while it holds */}
+        {pickedPhoto && (
+          <img
+            key={pickedPhoto.src}
+            src={pickedPhoto.src}
+            srcSet={pickedPhoto.srcSet}
+            sizes="100vw"
+            alt=""
+            decoding="async"
+            className="absolute inset-0 h-full w-full object-cover"
+            style={{
+              objectPosition: pickedPhoto.position,
+              animation: reduced ? 'fade-in 600ms var(--ease-brand) both' : 'fade-in 600ms var(--ease-brand) both, hero-zoom 14s linear both',
+            }}
+          />
+        )}
 
         {/* Top for the header, foot for the controls, and from md up a second
             pass from the left where the words sit. rgba of --color-ink, which a
@@ -279,7 +320,7 @@ export default function HomeHero() {
             {/* Only the words lift and fade on scroll (useHeroDepth), not the
                 card: fading a frosted pane re-blurs it on every frame. */}
             <div ref={depth.content} className="min-w-0 max-w-[560px] flex-1">
-              <div key={index}>
+              <div key={shown.key}>
                 {/* The eyebrow and title are set exactly as SectionHead sets every
                   band's head (16 September 2026, user's request), in the pale
                   gold rather than green because they sit on a photograph. */}
@@ -287,33 +328,35 @@ export default function HomeHero() {
                   className="font-script text-[clamp(21px,1.9vw,27px)] leading-none text-gold-pale [text-shadow:0_1px_16px_rgba(0,0,0,0.55)]"
                   style={rise(60)}
                 >
-                  {slide.note}
+                  {shown.note}
                 </p>
                 <h2 className="mt-s2 font-display text-[clamp(31px,4.2vw,54px)] leading-[1.05] font-semibold tracking-[-0.022em] text-paper [text-wrap:balance] [text-shadow:0_2px_30px_rgba(0,0,0,0.5)]">
                   {/* a word at a time, replayed per slide (the block is keyed) */}
-                  <Words text={slide.title} play="load" delay={160} step={70} />
+                  <Words text={shown.title} play="load" delay={160} step={70} />
                 </h2>
 
                 <p
                   className="mt-4 max-w-[46ch] text-[16px] leading-[1.6] text-paper/80 [text-shadow:0_1px_18px_rgba(0,0,0,0.6)]"
                   style={rise(420)}
                 >
-                  {slide.body}
+                  {shown.body}
                 </p>
 
                 {/* --- this appeal's own way in ---
                   A plain link now, not a gold button: the gold on this screen is
                   the quick give beside it, where the gift is actually made
                   (16 September 2026). Two gold buttons would ask twice. */}
+                {shown.link && (
                 <div className="mt-6" style={rise(560)}>
                   <Link
-                    to={slide.give.to}
+                    to={shown.link.to}
                     className="group inline-flex min-h-[44px] items-center gap-2 border-b border-paper/35 text-[15px] font-semibold text-paper transition-colors duration-200 ease-brand hover:border-gold-pale hover:text-gold-pale"
                   >
-                    {slide.give.label}
+                    {shown.link.label}
                     <ArrowRight className="h-3 w-3 transition-transform duration-300 ease-brand group-hover:translate-x-0.5" />
                   </Link>
                 </div>
+                )}
               </div>
             </div>
 
@@ -321,8 +364,8 @@ export default function HomeHero() {
                 Where the field photographs were until 16 September 2026 (they
                 are on /give now), and before that a bar along the foot. The
                 first screen is where someone gives from. Not keyed, so it does
-                not follow the slide: a fund chosen here should not change under
-                the visitor every six seconds. The pointer stops here, so a
+                not follow the slide: a cause chosen here should not change under
+                the visitor every six seconds. It leads instead — see the head. The pointer stops here, so a
                 swipe or a tap on the card never pages the appeal behind it.
                 z-10 so the fund menu paints over everything. */}
             <div
@@ -331,7 +374,7 @@ export default function HomeHero() {
               className="relative z-10 w-full shrink-0 lg:ml-auto lg:w-[clamp(340px,30vw,420px)]"
               style={{ animation: 'hero-lift 1200ms var(--ease-reveal) 200ms both' }}
             >
-              <QuickGive layout="card" />
+              <QuickGive layout="card" onPick={setPicked} />
             </div>
           </div>
 
@@ -364,7 +407,7 @@ export default function HomeHero() {
                   <button
                     type="button"
                     onClick={() => go(i)}
-                    aria-current={i === index}
+                    aria-current={i === index && !picked}
                     aria-label={`${s.place}: ${s.note}`}
                     title={`${s.place}: ${s.note}`}
                     className="group flex h-6 items-center"
@@ -386,6 +429,7 @@ export default function HomeHero() {
               ))}
             </ul>
 
+            {!picked && (
             <Link
               key={slide.file}
               to={slide.more.to}
@@ -398,6 +442,7 @@ export default function HomeHero() {
                 <ArrowRight className="h-3 w-3 transition-transform duration-300 ease-brand group-hover:translate-x-0.5" />
               </span>
             </Link>
+            )}
           </div>
         </div>
       </div>

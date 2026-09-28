@@ -41,7 +41,9 @@ export type GiftPage = { items: MyGift[]; total: number; page: number; pageSize:
 export type DocDonor = { name: string; number: string; email: string; address: Address | null }
 
 export type StatementDoc = {
-  fy: number
+  /** null for a statement over dates the donor chose */
+  fy: number | null
+  range?: { from: string; to: string }
   label: string
   period: { from: string; to: string }
   complete: boolean
@@ -66,6 +68,7 @@ export const keys = {
   gift: (id: string) => ['me', 'gift', id] as const,
   statements: ['me', 'statements'] as const,
   statement: (fy: number) => ['me', 'statement', fy] as const,
+  rangeStatement: (from: string, to: string) => ['me', 'statement', 'range', from, to] as const,
   receipt: (id: string) => ['me', 'receipt', id] as const,
   plans: ['me', 'plans'] as const,
   plan: (id: string) => ['me', 'plan', id] as const,

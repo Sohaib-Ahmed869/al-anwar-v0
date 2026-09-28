@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom'
+import { useParams, useSearchParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { DESIGNATIONS, METHODS, type Designation, type Method } from '../../../shared/domain'
 import { api, errorMessage } from '../../portal/api'
@@ -16,26 +16,40 @@ import { AddressBlock, DgrStatement, DocumentFrame, Letterhead } from '../compon
    year still in progress says so at the top, so nobody files a half-year by
    mistake. Fees a donor chose to cover are shown in their own column and
    included in the total, because that money was given too.
+
+   /account/statement/range?from=YYYY-MM-DD&to=YYYY-MM-DD is the same
+   document for any dates the donor picked on My giving or Receipts & tax
+   (last 12 months, a calendar year, everything): titled "Giving statement"
+   rather than "Annual tax statement", since it need not match a tax year.
 --------------------------------------------------------------------------- */
 
 export default function Statement() {
-  const fy = Number(useParams().fy)
-  const q = useQuery({ queryKey: keys.statement(fy), queryFn: () => api.get<StatementDoc>(`/me/gifts/statement/${fy}`) })
+  const fyParam = useParams().fy
+  const [sp] = useSearchParams()
+  const range = fyParam ? null : { from: sp.get('from') ?? '', to: sp.get('to') ?? '' }
+  const fy = Number(fyParam)
+  const q = useQuery({
+    queryKey: range ? keys.rangeStatement(range.from, range.to) : keys.statement(fy),
+    queryFn: () => (range ? api.get<StatementDoc>('/me/gifts/statement/range', range) : api.get<StatementDoc>(`/me/gifts/statement/${fy}`)),
+    retry: false,
+  })
   const s = q.data
-  useTitle(s ? `Tax statement ${s.label}` : 'Tax statement')
+  const isFy = s?.fy != null
+  const docTitle = range ? 'Giving statement' : 'Tax statement'
+  useTitle(s ? `${docTitle} ${s.label}` : docTitle)
   const fees = (s?.totals.fees ?? 0) > 0
 
   return (
-    <DocumentFrame back="/account/receipts" backLabel="Receipts & tax" title={s ? `Tax statement ${s.label}` : 'Tax statement'} loading={q.isLoading}>
+    <DocumentFrame back="/account/receipts" backLabel="Receipts & tax" title={s ? `${docTitle} ${s.label}` : docTitle} loading={q.isLoading}>
       {q.error ? (
         <Callout tone="red">{errorMessage(q.error)}</Callout>
       ) : s ? (
         <div className="space-y-8">
           <Letterhead
             org={s.org}
-            title="Annual tax statement"
+            title={isFy ? 'Annual tax statement' : 'Giving statement'}
             facts={[
-              ['Financial year', s.label],
+              ...(isFy ? [['Financial year', s.label] as [string, string]] : []),
               ['Period', `${formatDate(s.period.from)} – ${formatDate(s.period.to)}`],
               ['Issued', formatDate(s.issuedAt)],
             ]}
@@ -43,7 +57,15 @@ export default function Statement() {
 
           {!s.complete && (
             <p className="rounded-lg bg-[#fbf1dc] px-4 py-3 text-[12.5px] text-[#6d4700] ring-1 ring-[#ecd6a6]">
-              <strong className="font-semibold">This financial year is still in progress.</strong> The statement shows gifts received up to {formatDateLong(s.issuedAt)}. The final one is ready after 30 June {s.fy}.
+              {isFy ? (
+                <>
+                  <strong className="font-semibold">This financial year is still in progress.</strong> The statement shows gifts received up to {formatDateLong(s.issuedAt)}. The final one is ready after 30 June {s.fy}.
+                </>
+              ) : (
+                <>
+                  <strong className="font-semibold">These dates run past today.</strong> The statement shows gifts received up to {formatDateLong(s.issuedAt)}.
+                </>
+              )}
             </p>
           )}
 
@@ -53,13 +75,13 @@ export default function Statement() {
               <p className="text-[10.5px] font-semibold tracking-[.08em] text-[#6b7371] uppercase">Total tax-deductible gifts</p>
               <p className="nums mt-1 font-serif text-[36px] leading-none text-[#1d4a3e]">{formatMoney(s.totals.total, { exact: true })}</p>
               <p className="mt-1.5 text-[12.5px] text-[#4d5553]">
-                {s.totals.count} {s.totals.count === 1 ? 'gift' : 'gifts'} between 1 July {s.fy - 1} and 30 June {s.fy}
+                {s.totals.count} {s.totals.count === 1 ? 'gift' : 'gifts'} between {formatDateLong(s.period.from)} and {formatDateLong(s.period.to)}
               </p>
             </div>
           </div>
 
           {s.gifts.length === 0 ? (
-            <p className="py-10 text-center text-[13px] text-[#6b7371]">No gifts were received in this financial year.</p>
+            <p className="py-10 text-center text-[13px] text-[#6b7371]">No gifts were received {isFy ? 'in this financial year' : 'between these dates'}.</p>
           ) : (
             <table className="w-full border-collapse text-[12.5px]">
               <thead>
@@ -125,7 +147,7 @@ export default function Statement() {
           <div className="space-y-4 break-inside-avoid">
             <DgrStatement org={s.org} footer={s.receipts.footer.replace(/this gift/, 'these gifts')} />
             <p className="text-[11.5px] leading-relaxed text-[#6b7371]">
-              This statement brings together the individual receipts already issued to you for this financial year; each receipt number above can be matched to its original. Please keep it with your tax records.
+              This statement brings together the individual receipts already issued to you {isFy ? 'for this financial year' : 'between these dates'}; each receipt number above can be matched to its original. Please keep it with your tax records.
               It is a record of your gifts, not tax advice.
             </p>
             <div className="pt-2">

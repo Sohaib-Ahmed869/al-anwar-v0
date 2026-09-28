@@ -244,9 +244,9 @@ export const CAUSES: Cause[] = [
   },
   {
     id: 'education',
-    label: 'Education Fund',
+    label: 'Education Project',
     note: 'Classrooms, and the high school being completed in Tarim.',
-    appeal: 'the education fund',
+    appeal: 'the education project',
     slug: 'tarim-school',
     place: 'the school in Tarim',
     amounts: [{ value: 100 }, { value: 250 }, { value: 500 }],
@@ -257,9 +257,9 @@ export const CAUSES: Cause[] = [
   },
   {
     id: 'water',
-    label: 'Water Fund',
+    label: 'Water Project',
     note: 'Stations sunk in Yemen, and the upkeep that keeps them running.',
-    appeal: 'the water fund',
+    appeal: 'the water project',
     slug: 'water-stations-yemen',
     place: 'Yemen',
     amounts: [
@@ -275,9 +275,9 @@ export const CAUSES: Cause[] = [
   },
   {
     id: 'food',
-    label: 'Food Fund',
+    label: 'Food Project',
     note: 'Food packs in Yemen and hot meals in Gaza, bought and handed over locally.',
-    appeal: 'the food fund',
+    appeal: 'the food project',
     slug: 'yemen-food-relief',
     place: 'Yemen',
     amounts: [
@@ -312,9 +312,9 @@ export const CAUSES: Cause[] = [
   },
   {
     id: 'emergency',
-    label: 'Emergency Fund',
+    label: 'Emergency Project',
     note: 'Held unspent, so the first response does not wait on an appeal.',
-    appeal: 'the emergency fund',
+    appeal: 'the emergency project',
     slug: 'emergency-response',
     place: 'the next emergency',
     amounts: [{ value: 50 }, { value: 150 }, { value: 500 }],

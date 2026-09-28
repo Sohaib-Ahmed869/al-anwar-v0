@@ -6,6 +6,7 @@ import { money, type GiveAmount } from '../components/GiveModule'
 import { MIN_GIFT } from '../components/give-data'
 import { giveHref, type Appeal } from '../components/appeals-data'
 import { ArrowRight, Lock } from '../components/icons'
+import TrustBadges from '../components/TrustBadges'
 
 /* ---------------------------------------------------------------------------
    A single appeal, section 2: the give card, and the bar that follows.
@@ -161,8 +162,12 @@ export default function AppealGiveBox({
 
         <p className="mt-2.5 flex items-center justify-center gap-1.5 text-[12.5px] text-paper/65">
           <Lock className="h-3 w-3 shrink-0" />
-          Secure checkout. Tax deductible from $2.
+          Secure checkout.
         </p>
+
+        {/* The ACNC and DGR badges since 28 September 2026 (client feedback),
+            which carry the tax line that used to end the sentence above. */}
+        <TrustBadges tone="dark" className="mt-s2 flex flex-col items-center text-center" />
       </div>
 
       {/* --- the bar --- */}

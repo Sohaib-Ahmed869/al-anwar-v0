@@ -3,6 +3,8 @@ import { Outlet, useLocation, useNavigationType } from 'react-router-dom'
 import Header from './Header'
 import Footer from './Footer'
 import ScrollBar from './ScrollBar'
+import HelpChat from './HelpChat'
+import RecentGifts from './RecentGifts'
 
 /** Navigation state for a link or setSearchParams that only filters the page
  *  it is on, so Layout does not scroll back to the top for it. */
@@ -111,6 +113,10 @@ export default function Layout() {
       <Footer />
       {/* Over the page, because the document's own bar is hidden. */}
       <ScrollBar />
+      {/* the public site's two floating asides; the portals sit outside
+          Layout, so neither appears there */}
+      <RecentGifts />
+      <HelpChat />
     </div>
   )
 }

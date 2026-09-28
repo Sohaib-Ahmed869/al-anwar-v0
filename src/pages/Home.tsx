@@ -35,7 +35,13 @@ import Divider from '../components/Divider'
                                                  all â€” those are on the
                                                  accountability page.
 
-   4. Work out your zakat ....... HomeZakat    DONE. The one band that is not
+   4. Work out your zakat ....... HomeZakat    SINCE 28 SEP 2026 a slim band
+                                                 that links to the calculator
+                                                 on /zakat; the quick estimate
+                                                 came off at the client's
+                                                 request. What follows is the
+                                                 band's job, unchanged:
+                                                 the one band that is not
                                                  addressed to somebody being
                                                  persuaded: an obligation, the
                                                  two figures that are not ours

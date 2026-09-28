@@ -82,6 +82,9 @@ export type GiftPayload = {
   /** empty unless the gift is made in someone else's name */
   behalfName: string
   updates: boolean
+  /** true keeps the donor's name off the site's recent-gifts feed and the
+   *  fundraiser supporter lists; the server stores it on the gift */
+  anonymous?: boolean
 }
 
 const cents = (v: number) => Math.round(v * 100) / 100

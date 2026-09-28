@@ -1,6 +1,5 @@
-import { ArrowRight } from '../components/icons'
-import { CONTACT, FORM_ID } from '../components/contact-data'
-import { PHONE } from '../components/nav-data'
+import { ArrowRight, Mail, Phone, WhatsApp } from '../components/icons'
+import { CONTACT, FORM_ID, QUICK_CONTACT as Q } from '../components/contact-data'
 
 /* ---------------------------------------------------------------------------
    Contact, section 1 of 3: the hero.
@@ -27,6 +26,14 @@ import { PHONE } from '../components/nav-data'
    Al-Anwaar's own work, and its alt is empty because it is decoration under
    the words.
 
+   WHATSAPP, CALL AND EMAIL (28 September 2026, client feedback) sit under
+   "Write to us" as three pills, and replace the "or call 1300..." line that
+   was there, so the hero does not show two different numbers: WhatsApp solid green, the one a phone-first
+   donor reaches for; call and email outlined. Green, never gold, since gold
+   only means give. The number is a placeholder: see QUICK_CONTACT in
+   contact-data.ts. WhatsApp opens in a new tab on desktop (WhatsApp Web) and
+   in the app on a phone.
+
    Earlier versions the same day, for the record: a light type-led hero with
    a turning subject and a ribbon; then with three contact cards down the
    right. The cards' email, phone and address are all in the panel beside the
@@ -34,6 +41,9 @@ import { PHONE } from '../components/nav-data'
 --------------------------------------------------------------------------- */
 
 const H = CONTACT.hero
+
+const PILL =
+  'inline-flex min-h-[44px] items-center gap-2 rounded-full border px-4 text-[14px] font-semibold transition-colors duration-200 ease-brand'
 
 const rise = (ms: number) => ({ animation: `hero-soft 1000ms var(--ease-reveal) ${ms}ms both` })
 
@@ -122,15 +132,35 @@ export default function ContactHero() {
                 <ArrowRight className="h-3.5 w-3.5 rotate-90 transition-transform duration-300 ease-brand group-hover:translate-y-0.5" />
               </span>
             </button>
-            <p className="text-[14.5px] text-paper/75">
-              {H.call}{' '}
-              <a
-                href={PHONE.href}
-                className="nums font-semibold text-paper underline decoration-paper/35 underline-offset-4 transition-colors duration-200 hover:text-gold-pale hover:decoration-gold-pale"
-              >
-                {PHONE.label}
-              </a>
-            </p>
+            <ul
+              aria-label={Q.label}
+              className="mt-s2 flex flex-wrap gap-2 md:justify-end"
+            >
+              <li>
+                <a
+                  href={Q.whatsapp.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`${PILL} border-green bg-green text-paper hover:border-paper hover:bg-paper hover:text-green`}
+                >
+                  <WhatsApp className="h-4 w-4 shrink-0" />
+                  {Q.whatsapp.label}
+                  <span className="sr-only"> (opens WhatsApp)</span>
+                </a>
+              </li>
+              <li>
+                <a href={Q.call.href} className={`${PILL} nums border-paper/40 text-paper hover:border-paper hover:bg-paper hover:text-teal`}>
+                  <Phone className="h-4 w-4 shrink-0" />
+                  {Q.call.label}
+                </a>
+              </li>
+              <li>
+                <a href={Q.email.href} className={`${PILL} border-paper/40 text-paper hover:border-paper hover:bg-paper hover:text-teal`}>
+                  <Mail className="h-4 w-4 shrink-0" />
+                  {Q.email.label}
+                </a>
+              </li>
+            </ul>
           </div>
         </div>
       </div>

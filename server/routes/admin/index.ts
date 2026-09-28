@@ -15,6 +15,7 @@ import staff from './staff'
 import settings from './settings'
 import activity from './activity'
 import emails from './emails'
+import quickGive from './quickgive'
 
 /* /api/admin — every route below is behind a signed-in staff session, and
    each sub-router asks for the specific permission its action needs. */
@@ -35,4 +36,5 @@ r.use('/staff', staff)
 r.use('/settings', settings)
 r.use('/activity', activity)
 r.use('/emails', emails)
+r.use('/quick-give', quickGive)
 export default r

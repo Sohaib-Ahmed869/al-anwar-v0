@@ -20,6 +20,7 @@ export default function AccountApp() {
     <PortalRoot>
       <Routes>
         <Route path="login" element={<DonorLogin />} />
+        <Route path="statement/range" element={<RequireDonor><Statement /></RequireDonor>} />
         <Route path="statement/:fy" element={<RequireDonor><Statement /></RequireDonor>} />
         <Route path="receipt/:id" element={<RequireDonor><ReceiptView /></RequireDonor>} />
         <Route

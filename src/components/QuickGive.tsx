@@ -1,11 +1,12 @@
-import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react'
+import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { ArrowRight, Check, ChevronDown, HandHeart } from './icons'
-import { CAUSES, MIN_GIFT, money, type Cause } from './give-data'
+import { MIN_GIFT, money } from './give-data'
+import { groupPicks, useQuickGive, type QuickPick } from '../services/quickgive'
 
 /* ---------------------------------------------------------------------------
-   The quick give: a fund, an amount and a Donate button, in one glass bar.
+   The quick give: a cause, an amount and a Donate button, in one glass pane.
 
    It was the bar docked along the foot of HomeAsk, the home page's own give
    band. That band came off at the client's request (16 September 2026) and the
@@ -17,21 +18,36 @@ import { CAUSES, MIN_GIFT, money, type Cause } from './give-data'
    arrival and opens on step 2 (details), so nothing chosen here is asked
    twice. The full form lives there and only there.
 
-   THE FUND PICKER IS OUR OWN LISTBOX, not a native <select> — the browser's
-   menu was a grey system list with a blue highlight dropped onto a designed
-   card (client's request). One line per fund and nothing else. It always
-   opens upward: the hero clips what hangs past its foot, and there is always
-   room above the bar inside it. It follows the listbox pattern: arrows move, Enter or Space
-   picks, Escape and a click outside close, Home and End jump. The funds stay
-   in the charity's own order — see give-data.ts.
+   THE PICKER IS OUR OWN LISTBOX, not a native <select> — the browser's menu
+   was a grey system list with a blue highlight dropped onto a designed card
+   (client's request). It follows the listbox pattern: arrows move, Enter
+   picks, Escape and a click outside close, Home and End jump.
 
-   TWO LAYOUTS. `bar` is the original, one row across a wide screen. `card`
-   stacks fund, amount and Donate, for the right-hand side of the home hero
-   (16 September 2026); its fund menu opens downward over the amounts, inside
-   the card, instead of upward.
+   THE LIST IS STAFF'S (28 September 2026, client's request). The options,
+   their order and their headings come from Admin → Appeals through
+   useQuickGive() (services/quickgive.ts), with the defaults in
+   shared/quickgive.ts until the call lands or if it fails. Each option names
+   the fund it pays into, and the fund still decides the amounts and what
+   /give accepts. The first option is the priority and what the box opens on
+   ("Where needed most").
 
-   THE BAR IS GLASS (client's request): a blurred, darkened pane of whatever is
-   behind it, with white type. So it only belongs on a photograph.
+   IT IS SEARCHABLE once the list is long: a filter box at the top of the menu
+   (a combobox driving the listbox), with the options grouped under "Projects"
+   and "Zakat & obligations". On a touch screen the filter is not focused on
+   open, so the phone's keyboard does not cover the list someone came to tap.
+
+   Choosing an option calls `onPick`, which HomeHero uses to put that
+   project's photograph and words beside the box.
+
+   TWO LAYOUTS. `bar` is the original, one row across a wide screen; its menu
+   opens upward, because the hero clips what hangs past its foot. `card`
+   stacks cause, amount and Donate for the right-hand side of the home hero
+   (16 September 2026), under a "Donate now" heading (client's wording,
+   28 September 2026 — it said "Give to"); its menu opens downward over the
+   amounts, inside the card.
+
+   THE PANE IS GLASS (client's request): a blurred, darkened pane of whatever
+   is behind it, with white type. So it only belongs on a photograph.
 
    DONATE IS NEVER DISABLED. A faded gold button read as broken while someone
    was halfway through typing an amount. Pressed with no amount, it puts the
@@ -41,16 +57,22 @@ import { CAUSES, MIN_GIFT, money, type Cause } from './give-data'
 export default function QuickGive({
   className = '',
   layout = 'bar',
+  onPick,
 }: {
   className?: string
   layout?: 'bar' | 'card'
+  /** told when the visitor chooses an option (not on the first render) */
+  onPick?: (p: QuickPick) => void
 }) {
   const card = layout === 'card'
   const uid = useId()
   const navigate = useNavigate()
   const other = useRef<HTMLInputElement>(null)
 
-  const [cause, setCause] = useState<Cause>(CAUSES[0])
+  const { picks } = useQuickGive()
+  const [pickId, setPickId] = useState<string | null>(null)
+  const pick = picks.find((p) => p.id === pickId) ?? picks[0]
+  const cause = pick.cause
   const [rung, setRung] = useState<number | null>(0)
   const [typed, setTyped] = useState('')
   const [nudge, setNudge] = useState(false)
@@ -60,11 +82,12 @@ export default function QuickGive({
     rung !== null ? cause.amounts[rung].value : Number.isFinite(typedValue) ? typedValue : 0
   const valid = amount >= MIN_GIFT
 
-  const pickCause = (next: Cause) => {
-    setCause(next)
+  const choose = (next: QuickPick) => {
+    setPickId(next.id)
     setRung(0)
     setTyped('')
     setNudge(false)
+    onPick?.(next)
   }
 
   const give = () => {
@@ -80,7 +103,7 @@ export default function QuickGive({
   return (
     <form
       id="give"
-      aria-label="Give now"
+      aria-labelledby={`${uid}-head`}
       noValidate
       onSubmit={(e) => {
         e.preventDefault()
@@ -92,28 +115,33 @@ export default function QuickGive({
           : 'gap-s3 p-s2 sm:p-s3 lg:grid-cols-[minmax(0,17rem)_minmax(0,1fr)_auto] lg:items-end lg:gap-0 lg:p-[clamp(20px,1.8vw,28px)]'
       } ${className}`}
     >
-      {/* The glass is its own layer, not the bar's background. An element with
+      {/* The glass is its own layer, not the pane's background. An element with
           backdrop-filter stops anything inside it from blurring what lies
-          beyond it, and the fund menu hangs outside the bar. */}
+          beyond it, and the menu hangs outside the pane. */}
       <div
         aria-hidden="true"
         className="absolute inset-0 -z-10 rounded-2xl border border-paper/15 bg-ink/50 shadow-[0_24px_60px_-24px_rgba(0,0,0,0.5)] backdrop-blur-md"
       />
 
-      {/* the fund */}
+      {/* the cause, under "Donate now", which also labels the picker */}
       <div className={card ? '' : 'lg:pr-s3'}>
         <p
-          id={`${uid}-fund-label`}
-          className="text-[12px] font-semibold tracking-[0.08em] text-paper/70 uppercase"
+          id={`${uid}-head`}
+          className={
+            card
+              ? 'font-display text-[22px] leading-none font-semibold tracking-[-0.01em] text-paper'
+              : 'text-[12px] font-semibold tracking-[0.08em] text-paper/70 uppercase'
+          }
         >
-          Give to
+          Donate now
         </p>
         <FundPicker
-          labelId={`${uid}-fund-label`}
-          value={cause}
-          onChange={pickCause}
+          labelId={`${uid}-head`}
+          picks={picks}
+          value={pick}
+          onChange={choose}
           down={card}
-          className="mt-2"
+          className={card ? 'mt-3' : 'mt-2'}
         />
       </div>
 
@@ -205,7 +233,7 @@ export default function QuickGive({
             className="pointer-events-none absolute inset-y-0 -left-full w-full bg-[linear-gradient(100deg,transparent_20%,rgba(255,255,255,0.55)_50%,transparent_80%)] transition-transform duration-[750ms] ease-brand group-hover:translate-x-[250%]"
           />
           <HandHeart className="relative h-[18px] w-[18px] shrink-0" />
-          <span className="nums relative">Donate{valid ? ` ${money(amount)}` : ''}</span>
+          <span className="nums relative">Donate now{valid ? ` ${money(amount)}` : ''}</span>
           <ArrowRight className="relative h-3 w-3 transition-transform duration-300 ease-brand group-hover:translate-x-0.5" />
         </button>
       </div>
@@ -214,28 +242,54 @@ export default function QuickGive({
 }
 
 /* ---------------------------------------------------------------------------
-   The fund picker. A button that opens a listbox; see the head of the file.
+   The picker. A button that opens a menu: a filter box (once the list has
+   SEARCH_FROM options or more) above a grouped listbox. The filter is an ARIA
+   combobox that controls the listbox, so arrows, Enter and Escape work from
+   it while typing; without it the listbox takes focus itself and Space picks
+   too.
 --------------------------------------------------------------------------- */
+const SEARCH_FROM = 7
+
 function FundPicker({
   labelId,
+  picks,
   value,
   onChange,
   down = false,
   className = '',
 }: {
   labelId: string
-  value: Cause
-  onChange: (c: Cause) => void
+  picks: QuickPick[]
+  value: QuickPick
+  onChange: (p: QuickPick) => void
   /** open below the button rather than above it */
   down?: boolean
   className?: string
 }) {
   const uid = useId()
   const [open, setOpen] = useState(false)
-  const [active, setActive] = useState(() => CAUSES.indexOf(value))
+  const [query, setQuery] = useState('')
+  const [active, setActive] = useState(0)
   const root = useRef<HTMLDivElement>(null)
   const button = useRef<HTMLButtonElement>(null)
-  const list = useRef<HTMLUListElement>(null)
+  const list = useRef<HTMLDivElement>(null)
+  const search = useRef<HTMLInputElement>(null)
+  const searchable = picks.length >= SEARCH_FROM
+
+  /* what the filter leaves, in groups, and the same options flat for the keys.
+     "zakat" finds the whole obligations group, since that is what people type. */
+  const q = query.trim().toLowerCase()
+  const groups = useMemo(() => {
+    const shown = q
+      ? picks.filter((p) =>
+          `${p.label} ${p.cause.label} ${p.group === 'obligations' ? 'zakat obligation' : p.group}`
+            .toLowerCase()
+            .includes(q),
+        )
+      : picks
+    return groupPicks(shown)
+  }, [picks, q])
+  const flat = useMemo(() => groups.flatMap((g) => g.items), [groups])
 
   /* close on a click anywhere else */
   useEffect(() => {
@@ -247,24 +301,28 @@ function FundPicker({
     return () => document.removeEventListener('pointerdown', away)
   }, [open])
 
-  /* focus moves into the list when it opens, and the chosen fund is in view */
+  /* focus moves into the menu when it opens; the chosen option is in view */
   useEffect(() => {
     if (!open) return
-    list.current?.focus({ preventScroll: true })
+    const fine = window.matchMedia('(pointer: fine)').matches
+    if (searchable && fine) search.current?.focus({ preventScroll: true })
+    else list.current?.focus({ preventScroll: true })
     list.current?.querySelector('[aria-selected="true"]')?.scrollIntoView({ block: 'nearest' })
-  }, [open])
+  }, [open, searchable])
 
   useEffect(() => {
-    if (open) list.current?.children[active]?.scrollIntoView({ block: 'nearest' })
-  }, [active, open])
+    if (open) document.getElementById(`${uid}-opt-${active}`)?.scrollIntoView({ block: 'nearest' })
+  }, [active, open, uid])
 
   const show = () => {
-    setActive(CAUSES.indexOf(value))
+    setQuery('')
+    setActive(Math.max(0, picks.findIndex((p) => p.id === value.id)))
     setOpen(true)
   }
 
-  const choose = (i: number) => {
-    onChange(CAUSES[i])
+  const choose = (p: QuickPick | undefined) => {
+    if (!p) return
+    onChange(p)
     setOpen(false)
     button.current?.focus()
   }
@@ -276,26 +334,30 @@ function FundPicker({
     }
   }
 
-  const onListKey = (e: KeyboardEvent) => {
-    const last = CAUSES.length - 1
+  const onMenuKey = (e: KeyboardEvent, fromSearch: boolean) => {
+    const last = flat.length - 1
     const move: Record<string, () => void> = {
       ArrowDown: () => setActive((i) => Math.min(i + 1, last)),
       ArrowUp: () => setActive((i) => Math.max(i - 1, 0)),
-      Home: () => setActive(0),
-      End: () => setActive(last),
-      Enter: () => choose(active),
-      ' ': () => choose(active),
+      Enter: () => choose(flat[active]),
       Escape: () => {
         setOpen(false)
         button.current?.focus()
       },
       Tab: () => setOpen(false),
     }
+    if (!fromSearch) {
+      move.Home = () => setActive(0)
+      move.End = () => setActive(last)
+      move[' '] = () => choose(flat[active])
+    }
     const fn = move[e.key]
     if (!fn) return
     if (e.key !== 'Tab') e.preventDefault()
     fn()
   }
+
+  const activeId = flat[active] ? `${uid}-opt-${active}` : undefined
 
   return (
     <div ref={root} className={`relative ${className}`}>
@@ -322,36 +384,97 @@ function FundPicker({
       </button>
 
       {open && (
-        <ul
-          ref={list}
-          role="listbox"
-          tabIndex={-1}
-          aria-labelledby={labelId}
-          aria-activedescendant={`${uid}-opt-${active}`}
-          onKeyDown={onListKey}
-          className={`absolute left-0 z-30 max-h-[min(380px,50vh)] w-full overflow-y-auto overscroll-contain rounded-xl border border-paper/15 bg-ink/80 p-1.5 text-paper shadow-[0_16px_40px_-12px_rgba(0,0,0,0.5)] backdrop-blur-xl focus:outline-none ${down ? 'top-[calc(100%+6px)]' : 'bottom-[calc(100%+6px)]'}`}
+        <div
+          className={`absolute left-0 z-30 flex max-h-[min(420px,60vh)] w-full flex-col overflow-hidden rounded-xl border border-paper/15 bg-ink/85 text-paper shadow-[0_16px_40px_-12px_rgba(0,0,0,0.5)] backdrop-blur-xl ${down ? 'top-[calc(100%+6px)]' : 'bottom-[calc(100%+6px)]'}`}
           style={{ animation: 'fade-in 160ms var(--ease-brand) both' }}
         >
-          {CAUSES.map((c, i) => {
-            const selected = c.id === value.id
-            return (
-              <li
-                key={c.id}
-                id={`${uid}-opt-${i}`}
-                role="option"
-                aria-selected={selected}
-                onPointerEnter={() => setActive(i)}
-                onClick={() => choose(i)}
-                className={`flex h-10 cursor-pointer items-center justify-between gap-3 rounded-lg px-3 text-[15px] transition-colors duration-150 ${
-                  i === active ? 'bg-paper/12' : ''
-                } ${selected ? 'font-semibold text-paper' : 'text-paper/80'}`}
+          {searchable && (
+            <div className="border-b border-paper/10 p-1.5">
+              <label className="flex h-11 items-center gap-2 rounded-lg bg-paper/10 px-3 focus-within:shadow-[inset_0_0_0_2px_rgba(255,255,255,0.7)]">
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 16 16"
+                  className="h-4 w-4 shrink-0 text-paper/60"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.6"
+                >
+                  <circle cx="7" cy="7" r="4.5" />
+                  <path d="m10.5 10.5 3.5 3.5" strokeLinecap="round" />
+                </svg>
+                <span className="sr-only">Search causes</span>
+                <input
+                  ref={search}
+                  type="search"
+                  role="combobox"
+                  aria-expanded="true"
+                  aria-controls={`${uid}-list`}
+                  aria-autocomplete="list"
+                  aria-activedescendant={activeId}
+                  placeholder="Search, e.g. water or zakat"
+                  value={query}
+                  onChange={(e) => {
+                    setQuery(e.target.value)
+                    setActive(0)
+                  }}
+                  onKeyDown={(e) => onMenuKey(e, true)}
+                  className="w-full min-w-0 bg-transparent text-[16px] text-paper placeholder:text-[14px] placeholder:text-paper/55 focus:outline-none [&::-webkit-search-cancel-button]:hidden"
+                />
+              </label>
+            </div>
+          )}
+          <div
+            ref={list}
+            id={`${uid}-list`}
+            role="listbox"
+            tabIndex={-1}
+            aria-labelledby={labelId}
+            aria-activedescendant={searchable ? undefined : activeId}
+            onKeyDown={(e) => onMenuKey(e, false)}
+            className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-1.5 focus:outline-none"
+          >
+            {flat.length === 0 && (
+              <p className="px-3 py-3 text-[14px] text-paper/70">Nothing matches “{query.trim()}”.</p>
+            )}
+            {groups.map((g) => (
+              <div
+                key={g.group}
+                role="group"
+                aria-labelledby={g.heading ? `${uid}-g-${g.group}` : undefined}
               >
-                <span className="truncate">{c.label}</span>
-                {selected && <Check className="h-3.5 w-3.5 shrink-0" />}
-              </li>
-            )
-          })}
-        </ul>
+                {g.heading && (
+                  <div
+                    id={`${uid}-g-${g.group}`}
+                    role="presentation"
+                    className="px-3 pt-2.5 pb-1 text-[11px] font-semibold tracking-[0.08em] text-paper/55 uppercase"
+                  >
+                    {g.heading}
+                  </div>
+                )}
+                {g.items.map((p) => {
+                  const i = flat.indexOf(p)
+                  const selected = p.id === value.id
+                  return (
+                    <div
+                      key={p.id}
+                      id={`${uid}-opt-${i}`}
+                      role="option"
+                      aria-selected={selected}
+                      onPointerEnter={() => setActive(i)}
+                      onClick={() => choose(p)}
+                      className={`flex h-11 cursor-pointer items-center justify-between gap-3 rounded-lg px-3 text-[15px] transition-colors duration-150 ${
+                        i === active ? 'bg-paper/12' : ''
+                      } ${selected ? 'font-semibold text-paper' : 'text-paper/80'}`}
+                    >
+                      <span className="truncate">{p.label}</span>
+                      {selected && <Check className="h-3.5 w-3.5 shrink-0" />}
+                    </div>
+                  )
+                })}
+              </div>
+            ))}
+          </div>
+        </div>
       )}
     </div>
   )

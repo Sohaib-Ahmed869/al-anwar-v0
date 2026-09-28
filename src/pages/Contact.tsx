@@ -16,7 +16,7 @@ import Divider from '../components/Divider'
    1. Talk to a person ......... ContactHero    the band, and the two ways in.
                                                 Nothing along its foot but the
                                                 way down — see the note there
-   2. What is it about ......... ContactForm    the form, and beside it the
+   2. Message type ............ ContactForm    the form, and beside it the
                                                 panel holding every other way
                                                 of reaching us
    3. Also find us on .......... ContactSocial  the two accounts

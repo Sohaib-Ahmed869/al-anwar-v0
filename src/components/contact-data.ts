@@ -51,6 +51,28 @@ export const TOPICS = [
 
 export type Topic = (typeof TOPICS)[number]
 
+/* ---------- WhatsApp, call and email in one tap (28 September 2026) ----------
+   Client feedback asked for a WhatsApp button, a click-to-call link and an
+   email link on the contact page; they sit in the hero (ContactHero.tsx).
+
+   PLACEHOLDER NUMBER. +61 400 000 000 stands in until the office gives us the
+   real mobile that answers WhatsApp. Admin → Settings has an org phone field,
+   but it is empty and the public /api/public/config does not send it, so the
+   number lives here for now. Change `number` (spaces allowed, for display)
+   and `digits` (international, no plus or spaces, for wa.me and tel:)
+   together. */
+const MOBILE = { number: '+61 400 000 000', digits: '61400000000' }
+
+export const QUICK_CONTACT = {
+  label: 'Or reach us directly',
+  whatsapp: {
+    label: 'WhatsApp us',
+    href: `https://wa.me/${MOBILE.digits}?text=${encodeURIComponent('Salaam, I have a question for Al-Anwaar.')}`,
+  },
+  call: { label: `Call ${MOBILE.number}`, href: `tel:+${MOBILE.digits}` },
+  email: { label: `Email ${ORG.email}`, href: `mailto:${ORG.email}` },
+}
+
 export const MESSAGE_MAX = 1000
 export const MESSAGE_MIN = 10
 
@@ -114,7 +136,7 @@ export const CONTACT = {
 
   form: {
     eyebrow: 'Send a message',
-    title: 'What is it about?',
+    title: 'Message type',
     intro:
       'Fill this in and it goes to the right team. You will hear back within one working day.',
     /* Narrow screens only. The panel with the number in it is under the form
@@ -126,7 +148,7 @@ export const CONTACT = {
     email: 'Email',
     phone: 'Contact number',
     phoneHint: 'Optional. Only if you would rather we rang.',
-    topic: 'What is it about?',
+    topic: 'Message type',
     topicPlaceholder: 'Choose one',
     message: 'Message',
     /* The only placeholder on the form, and it asks for the thing people leave

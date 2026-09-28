@@ -31,6 +31,22 @@ type ReceiptGift = {
   receipt?: { number?: string | null } | null
 }
 
+/* The ACNC "Registered Charity" and "DGR – Tax deductible" badges above the
+   receipt's legal lines (28 September 2026, client feedback). PNG, not SVG,
+   because Gmail and Outlook do not show SVG. The files are placeholders in
+   public/assets/badges/; see src/components/badges-data.ts for how to swap
+   them. They load from APP_URL, so in development they only show when the
+   outbox is viewed from the same machine. The fine print sits under them as
+   the site's checkout has it. */
+function badges() {
+  const img = (file: string, alt: string) =>
+    `<img src="${url(`/assets/badges/${file}`)}" alt="${esc(alt)}" width="132" height="44" style="display:inline-block;border:0;height:44px;width:132px;margin:0 8px 8px 0;vertical-align:middle;">`
+  return (
+    `<div style="margin:0 0 6px;">${img('acnc-registered.png', 'ACNC Registered Charity')}${img('dgr-tax-deductible.png', 'DGR – Tax deductible')}</div>` +
+    muted('Donations of $2 or more are tax deductible in Australia.')
+  )
+}
+
 export function receiptEmail(g: ReceiptGift, firstName: string, s: Settings, opts: { resend?: boolean } = {}): Email {
   const total = g.amount + (g.fee || 0)
   const rows: [string, string][] = [
@@ -50,6 +66,7 @@ export function receiptEmail(g: ReceiptGift, firstName: string, s: Settings, opt
       body: [
         opts.resend ? '' : p('Your gift has arrived. May Allah accept it from you and put barakah in what remains.'),
         facts(rows, ['Total', formatMoney(total, { exact: true })]),
+        badges(),
         callout(
           `<strong>Tax receipt.</strong> ${esc(s.org.name)}, ABN ${esc(s.org.abn)}. ${esc(s.org.dgrNote)} ${esc(s.receipts.footer)}`,
         ),
@@ -168,6 +185,25 @@ export function taxStatementEmail(firstName: string, fy: number, total: number, 
         facts([['Gifts', String(count)]], ['Tax deductible total', formatMoney(total, { exact: true })]),
         button('Open your statement', url(`/account/statement/${fy}`)),
         muted('The statement lists every gift with its receipt number. Print it or save it as a PDF from the page.'),
+      ].join(''),
+    }),
+  }
+}
+
+/** A statement for dates the donor chose; the link carries the same range. */
+export function rangeStatementEmail(firstName: string, range: { from: string; to: string }, label: string, total: number, count: number): Email {
+  const q = new URLSearchParams(range).toString()
+  return {
+    template: 'tax.statement',
+    subject: `Your giving statement, ${label}`,
+    html: layout({
+      preheader: `${formatMoney(total, { exact: true })} across ${count} ${count === 1 ? 'gift' : 'gifts'}.`,
+      heading: 'Your giving statement',
+      body: [
+        p(`Assalamu alaykum ${esc(firstName)}. Here is everything you gave from ${esc(label)}, in one place, with every receipt number.`),
+        facts([['Gifts', String(count)]], ['Tax deductible total', formatMoney(total, { exact: true })]),
+        button('Open your statement', url(`/account/statement/range?${q}`)),
+        muted('Print it or save it as a PDF from the page.'),
       ].join(''),
     }),
   }

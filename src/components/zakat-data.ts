@@ -82,16 +82,54 @@ export const clean = (raw: string) => raw.replace(/[^0-9.,]/g, '').replace(/(\..
    Liverpool Islamic Centre's calculator): what you own, what you owe, your
    zakat. `key` is the field's name in state and must stay unique. A field with
    `metal` takes a weight in grams OR a dollar value, and the weight wins when
-   both are filled. */
-export type CalcField = { key: string; label: string; hint: string; metal?: 'gold' | 'silver' }
+   both are filled.
+
+   `info` is the text of the small (i) beside each label, added 28 September
+   2026 at the client's request. It is written for somebody who has never
+   worked out zakat before: what counts under this heading, and the one rule
+   that applies to it, in a sentence or two. It is guidance, not a ruling, and
+   the calculator already says to ask a scholar about anything complicated. */
+export type CalcField = { key: string; label: string; hint: string; info: string; metal?: 'gold' | 'silver' }
 
 export const CALC_HOLD: CalcField[] = [
-  { key: 'cash', label: 'Cash and savings', hint: 'Every bank account, savings, and cash at home.' },
-  { key: 'gold', label: 'Gold', hint: 'Coins, bars, and jewellery kept as savings.', metal: 'gold' },
-  { key: 'silver', label: 'Silver', hint: 'Coins, bars, and silver kept as savings.', metal: 'silver' },
-  { key: 'shares', label: 'Shares and investments', hint: 'Their market value on the day your zakat is due.' },
-  { key: 'business', label: 'Business stock', hint: 'Goods held for sale, and the business’s cash.' },
-  { key: 'owed', label: 'Money owed to you', hint: 'Loans you have made and expect to be repaid.' },
+  {
+    key: 'cash',
+    label: 'Cash and savings',
+    hint: 'Every bank account, savings, and cash at home.',
+    info: 'All the money you have: cash at home, everyday and savings accounts, term deposits and money in apps like PayPal. Zakat is 2.5% of it once your total wealth has stayed above the nisab for a full lunar year.',
+  },
+  {
+    key: 'gold',
+    label: 'Gold',
+    hint: 'Coins, bars, and jewellery kept as savings.',
+    info: 'Gold coins, bars and gold jewellery you keep as savings. Enter the weight in grams or what it would sell for today. Many scholars say jewellery worn regularly is exempt, while others count it, so follow the view you trust.',
+    metal: 'gold',
+  },
+  {
+    key: 'silver',
+    label: 'Silver',
+    hint: 'Coins, bars, and silver kept as savings.',
+    info: 'Silver coins, bars and silver items kept as savings. Enter the weight in grams or its value today. Silver is also one of the two measures for the nisab, which is 612.36g of silver.',
+    metal: 'silver',
+  },
+  {
+    key: 'shares',
+    label: 'Shares and investments',
+    hint: 'Their market value on the day your zakat is due.',
+    info: 'Shares, managed funds, ETFs and crypto you hold. Count what they would sell for on the day your zakat falls due. Shares you bought to trade count in full, and scholars differ on long-term holdings, so ask if unsure.',
+  },
+  {
+    key: 'business',
+    label: 'Business stock',
+    hint: 'Goods held for sale, and the business’s cash.',
+    info: 'If you run a business: the goods you have for sale, valued at what they would sell for, plus the business’s cash. Buildings, machines and equipment the business uses are not counted.',
+  },
+  {
+    key: 'owed',
+    label: 'Money owed to you',
+    hint: 'Loans you have made and expect to be repaid.',
+    info: 'Money you have lent to someone and expect to get back. Count it if you are confident it will be repaid. A debt you doubt you will ever see is not counted until you actually receive it.',
+  },
 ]
 
 export const CALC_LEAVE_OUT =
@@ -102,6 +140,7 @@ export const CALC_OWE: CalcField[] = [
     key: 'debts',
     label: 'Short-term debts',
     hint: 'Bills due now, credit card balances, and this year’s loan repayments.',
+    info: 'Debts you have to pay now are taken off your wealth before zakat is worked out: bills that are due, credit card balances, and the repayments due this year. The rest of a mortgage or long-term loan is not taken off.',
   },
 ]
 
@@ -234,3 +273,15 @@ export const FAQ = [
     a: 'Yes. Al-Anwaar is a deductible gift recipient, so gifts of $2 and over are tax deductible, and your receipt comes by email.',
   },
 ]
+
+/* ---------- the home page's zakat band ----------
+   Since 28 September 2026 (client feedback) the home page no longer carries a
+   calculator of its own, only this one line and a link to the full one on
+   /zakat. See the head of sections/HomeZakat.tsx. */
+export const HOME_ZAKAT_BAND = {
+  eyebrow: 'Zakat',
+  title: 'Work out your zakat in a few minutes.',
+  body: 'Our step-by-step calculator explains each kind of wealth as you go, and nothing you type leaves the page.',
+  cta: 'Open the zakat calculator',
+  to: '/zakat#calculator',
+}

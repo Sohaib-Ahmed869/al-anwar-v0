@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom'
 
 import { CRISIS, PLACES, appealBySlug } from './appeals-data'
 import MobileDrawer from './MobileDrawer'
-import { NAV, activeSection, type NavSection } from './nav-data'
+import { NAV, activeSection, type NavFeature, type NavSection } from './nav-data'
 import { ArrowRight, ChevronDown, HandHeart, Menu, User } from './icons'
 
 /* The emergency strip is dismissible for a week, the way the prototype's
@@ -15,6 +15,11 @@ const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000
    without flashing a panel open; once one is showing, the rest swap instantly. */
 const OPEN_DELAY = 90
 const CLOSE_DELAY = 220
+/* Hover intent inside the Appeals panel. The feature photograph only follows a
+   link the pointer has rested on this long, so sweeping across the columns on
+   the way to the Donate now button does not change what it shows. Keyboard
+   focus is deliberate, and swaps it at once. */
+const FEATURE_DELAY = 200
 
 /* A box measured against the header's inner wrap, and a horizontal span
    measured against the nav list. These are what the three shared indicators —
@@ -684,6 +689,26 @@ function NavItem({
 
   const mega = section.layout === 'mega'
 
+  /* The feature the panel is showing. It starts on the section's own, follows
+     links in a `drivesFeature` column after FEATURE_DELAY, and stays on the
+     last one when the pointer leaves the columns, so it is still there when
+     the pointer reaches its button. Closing the panel puts it back. */
+  const [shown, setShown] = useState<NavFeature | undefined>(section.feature)
+  const featureTimer = useRef<number | undefined>(undefined)
+  useEffect(() => {
+    if (!open) {
+      window.clearTimeout(featureTimer.current)
+      setShown(section.feature)
+    }
+  }, [open, section.feature])
+  useEffect(() => () => window.clearTimeout(featureTimer.current), [])
+  const intend = (f: NavFeature | undefined) => {
+    window.clearTimeout(featureTimer.current)
+    if (f) featureTimer.current = window.setTimeout(() => setShown(f), FEATURE_DELAY)
+  }
+  const cancelIntent = () => window.clearTimeout(featureTimer.current)
+  const feature = shown ?? section.feature
+
   return (
     <li
       /* the mega panel measures itself against the header, not the button, so
@@ -731,7 +756,9 @@ function NavItem({
           onDark ? 'text-text-on-ink' : ''
         } ${open ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'} ${
           mega
-            ? 'right-[var(--gutter)] left-[var(--gutter)] grid grid-cols-[1fr_1fr_1fr_1.35fr] gap-[34px] px-[34px] py-[30px]'
+            ? /* four columns and the feature, spaced tighter than the old
+                 three so the panel still fits the content column at 1024px */
+              'right-[var(--gutter)] left-[var(--gutter)] grid grid-cols-[repeat(4,minmax(0,1fr))_minmax(0,1.3fr)] gap-5 px-6 py-[28px] xl:gap-[28px] xl:px-[30px]'
             : `px-[30px] py-[26px] ${alignRight ? 'right-0' : 'left-0'} ${
                 section.layout !== 'two'
                   ? 'min-w-[290px]'
@@ -768,8 +795,25 @@ function NavItem({
             )}
 
             <ul className="m-0 list-none p-0">
-              {col.links.map((link) => (
-                <li key={link.label}>
+              {col.links.map((link) => {
+                const drives = col.drivesFeature && link.feature
+                /* the link the photograph is currently about, once it is not
+                   the default any more */
+                const showing = drives && link.feature === feature && feature !== section.feature
+                return (
+                <li
+                  key={link.label}
+                  onMouseEnter={drives ? () => intend(link.feature) : undefined}
+                  onMouseLeave={drives ? cancelIntent : undefined}
+                  onFocus={
+                    drives
+                      ? () => {
+                          cancelIntent()
+                          setShown(link.feature)
+                        }
+                      : undefined
+                  }
+                >
                   {/* A link that leaves the site is a plain <a>: react-router
                       reads an absolute URL as a path and would route to
                       /https://…. The arrow tips over to point out of the page
@@ -792,7 +836,7 @@ function NavItem({
                       to={link.to}
                       className={`group/link -mx-2.5 flex items-center justify-between gap-3 rounded-[8px] px-2.5 py-[7px] text-[15.5px] transition-[background-color,color,transform] duration-150 ease-brand hover:translate-x-[3px] ${toneClass(
                         link.tone
-                      , onDark)}`}
+                      , onDark)} ${showing ? (onDark ? 'bg-paper/10 text-paper' : 'bg-green/[0.06] text-green') : ''}`}
                     >
                       <span>
                         {link.label}
@@ -810,47 +854,62 @@ function NavItem({
                     </Link>
                   )}
                 </li>
-              ))}
+                )
+              })}
             </ul>
           </div>
         ))}
 
-        {section.feature && (
+        {feature && (
           <div
             style={{
               transitionDelay: open ? `${70 + section.columns.length * 45}ms` : '0ms',
               transitionDuration: open ? '300ms' : '110ms',
             }}
-            className={`group flex flex-col border-l pl-[26px] transition-[opacity,transform] ease-brand ${
+            className={`group flex min-w-0 flex-col border-l pl-5 transition-[opacity,transform] ease-brand xl:pl-[26px] ${
               onDark ? 'border-paper/15' : 'border-line-2'
             } ${open ? 'translate-y-0 opacity-100' : 'translate-y-1.5 opacity-0'}`}
           >
             <div className="relative h-[170px] overflow-hidden rounded-[10px] bg-sand">
+              {/* keyed on the photograph, so a swap is a new image fading in
+                  rather than the old one lingering under the new caption */}
               <img
-                src={section.feature.src}
-                alt={section.feature.alt}
-                loading="lazy"
-                className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 ease-brand group-hover:scale-[1.045]"
+                key={feature.src}
+                src={feature.src}
+                alt={feature.alt}
+                className="absolute inset-0 h-full w-full animate-[fade-in_240ms_ease-out] object-cover transition-transform duration-500 ease-brand group-hover:scale-[1.045]"
               />
               <span
                 aria-hidden="true"
                 className="absolute inset-0 bg-[linear-gradient(180deg,transparent_45%,rgba(20,26,24,0.28))] opacity-0 transition-opacity duration-500 ease-brand group-hover:opacity-100"
               />
             </div>
-            <p className="mt-3 mb-2 font-display text-[19px] leading-[1.22] tracking-[-0.016em]">
-              {section.feature.caption}
+            <p className="mt-3 mb-3 font-display text-[18px] leading-[1.22] tracking-[-0.016em] xl:text-[19px]">
+              {feature.caption}
             </p>
-            <Link
-              to={section.feature.cta.to}
-              className={`group/cta inline-flex items-center gap-1.5 self-start text-[14.5px] font-semibold ${
-                onDark ? 'text-green-pale' : 'text-green'
-              }`}
-            >
-              <span className="bg-[linear-gradient(currentColor,currentColor)] bg-[length:0%_1px] bg-[position:0_1.15em] bg-no-repeat transition-[background-size] duration-300 ease-brand group-hover/cta:bg-[length:100%_1px]">
-                {section.feature.cta.label}
-              </span>
-              <ArrowRight className="h-3 w-3 transition-transform duration-300 ease-brand group-hover/cta:translate-x-1" />
-            </Link>
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2.5">
+              {/* Gold, because this is the give action. See CLAUDE.md. */}
+              {feature.donate && (
+                <Link
+                  to={feature.donate.to}
+                  className="inline-flex min-h-[40px] items-center gap-2 rounded-[10px] bg-gold px-4 text-[14.5px] font-semibold text-ink shadow-gold transition-[transform,background-color,color] duration-200 ease-brand hover:-translate-y-px hover:bg-gold-dark hover:text-paper"
+                >
+                  <HandHeart className="h-4 w-4 shrink-0" />
+                  {feature.donate.label}
+                </Link>
+              )}
+              <Link
+                to={feature.cta.to}
+                className={`group/cta inline-flex items-center gap-1.5 text-[14.5px] font-semibold ${
+                  onDark ? 'text-green-pale' : 'text-green'
+                }`}
+              >
+                <span className="bg-[linear-gradient(currentColor,currentColor)] bg-[length:0%_1px] bg-[position:0_1.15em] bg-no-repeat transition-[background-size] duration-300 ease-brand group-hover/cta:bg-[length:100%_1px]">
+                  {feature.cta.label}
+                </span>
+                <ArrowRight className="h-3 w-3 transition-transform duration-300 ease-brand group-hover/cta:translate-x-1" />
+              </Link>
+            </div>
           </div>
         )}
       </div>

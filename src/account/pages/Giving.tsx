@@ -1,22 +1,26 @@
 import { useEffect, useState } from 'react'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { HandHeart, Repeat, SearchX } from 'lucide-react'
-import { DESIGNATIONS, DESIGNATION_KEYS, METHODS, METHOD_KEYS, fyLabel, type Designation, type Method } from '../../../shared/domain'
+import { DESIGNATIONS, DESIGNATION_KEYS, METHODS, METHOD_KEYS, fyLabel, fyRange, type Designation, type Method } from '../../../shared/domain'
 import { api } from '../../portal/api'
 import { formatDay, plural } from '../../portal/format'
 import {
-  Card, ClearFilters, DataTable, EmptyState, FilterChip, Money, PageHeader, Pagination, SearchInput, Segmented, Skeleton, StatusBadge,
+  Card, ClearFilters, DataTable, EmptyState, FilterChip, Money, PageHeader, Pagination, SearchInput, Skeleton, StatusBadge,
   Toolbar, buttonClass, cn, useDebounced, useUrlState, type Column,
 } from '../../portal/ui'
-import { keys, useStatements, useTitle, type GiftPage, type MyGift } from '../components/data'
+import { keys, useTitle, type GiftPage, type MyGift } from '../components/data'
+import { DateRangePicker, RangeStatementActions, isoDay, presetLabel, rangeLabel, resolveRange } from '../components/DateRange'
 import { GiftSheet } from '../components/GiftSheet'
 
 /* ---------------------------------------------------------------------------
    My giving — every gift, however it was made, in one list.
 
-   The financial year is the first filter because it is the question donors
-   actually ask ("what did I give last year?"), so it is a segmented control
-   rather than a date picker. Designation and payment method are chips.
+   Dates are the first filter because they are the question donors actually
+   ask ("what did I give last year?"): presets for this and last financial
+   year, the last 12 months, calendar years, or custom dates. Whatever range
+   is showing can be opened, printed, saved as PDF or emailed as one
+   statement from the total line. Designation and payment method are chips.
+   An old link with ?fy=2026 still works and reads as that financial year.
    Everything lives in the URL, so a filtered view survives a refresh and the
    back button.
 
@@ -25,7 +29,7 @@ import { GiftSheet } from '../components/GiftSheet'
    hidden, and the running total above the list counts only what arrived.
 --------------------------------------------------------------------------- */
 
-const DEFAULTS = { fy: '', designation: '', method: '', q: '', sort: '-date', page: '1' }
+const DEFAULTS = { range: '', from: '', to: '', fy: '', designation: '', method: '', q: '', sort: '-date', page: '1' }
 
 export default function Giving() {
   useTitle('My giving')
@@ -36,9 +40,11 @@ export default function Giving() {
     if (dq !== s.q) set({ q: dq })
   }, [dq])
   const [open, setOpen] = useState<MyGift | null>(null)
-  const statements = useStatements()
 
-  const params = { fy: s.fy, designation: s.designation, method: s.method, q: s.q, sort: s.sort, page: s.page, pageSize: 20 }
+  /* ?fy= from an older link becomes that year's dates */
+  const legacy = !s.range && Number(s.fy) > 2000 ? fyRange(Number(s.fy)) : null
+  const dates = legacy ? { from: isoDay(legacy.from), to: isoDay(new Date(legacy.to.getTime() - 1)) } : resolveRange(s.range, s.from, s.to)
+  const params = { from: dates?.from ?? '', to: dates?.to ?? '', designation: s.designation, method: s.method, q: s.q, sort: s.sort, page: s.page, pageSize: 20 }
   const list = useQuery({
     queryKey: keys.gifts(params),
     queryFn: () => api.get<GiftPage>('/me/gifts', params),
@@ -46,10 +52,11 @@ export default function Giving() {
   })
   const des = s.designation ? (s.designation.split(',') as Designation[]) : []
   const methods = s.method ? (s.method.split(',') as Method[]) : []
-  const filtered = Boolean(s.fy || s.designation || s.method || s.q)
-
-  const years = statements.data?.items ?? []
-  const fyOptions = [{ value: '', label: 'All years' }, ...years.map((y) => ({ value: String(y.fy), label: fyLabel(y.fy) }))]
+  const filtered = Boolean(dates || s.designation || s.method || s.q)
+  const clear = { range: '', from: '', to: '', fy: '', designation: '', method: '', q: '' }
+  const rangeText = legacy ? fyLabel(Number(s.fy)) : dates ? (s.range === 'custom' ? rangeLabel(dates) : presetLabel(s.range).toLowerCase()) : ''
+  /* the statement always has dates; "all time" runs from the first gift */
+  const stmt = dates ?? { from: '2000-01-01', to: isoDay(new Date()) }
 
   const columns: Column<MyGift>[] = [
     { key: 'date', header: 'Date', sort: 'date', cell: (g) => <span className="whitespace-nowrap text-text-2">{formatDay(g.date)}</span>, width: 110 },
@@ -97,11 +104,12 @@ export default function Giving() {
       />
 
       <div className="mb-4 space-y-3">
-        {statements.isLoading ? (
-          <Skeleton className="h-10 w-80 max-w-full rounded-[10px]" />
-        ) : (
-          years.length > 1 && <Segmented aria-label="Financial year" value={s.fy} onChange={(fy) => set({ fy })} options={fyOptions} />
-        )}
+        <DateRangePicker
+          preset={legacy ? 'custom' : s.range}
+          from={legacy ? (dates?.from ?? '') : s.from}
+          to={legacy ? (dates?.to ?? '') : s.to}
+          onChange={(v) => set({ ...v, fy: '', page: '1' })}
+        />
         <Toolbar>
           <SearchInput value={q} onChange={setQ} placeholder="Appeal or receipt number" className="w-full sm:w-72" />
           <FilterChip
@@ -120,23 +128,26 @@ export default function Giving() {
             show={filtered}
             onClear={() => {
               setQ('')
-              set({ fy: '', designation: '', method: '', q: '' })
+              set(clear)
             }}
           />
         </Toolbar>
       </div>
 
       <Card className="overflow-hidden">
-        <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b border-line-2 px-5 py-3.5">
+        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3 border-b border-line-2 px-5 py-3.5">
           {data ? (
             <p className="text-[13.5px] text-text-2">
               <Money cents={data.sum} className="text-[15px] font-semibold text-text" /> given
-              {s.fy ? ` in ${fyLabel(Number(s.fy))}` : filtered ? ' in this view' : ' in total'} · {plural(data.sumCount, 'gift')}
+              {rangeText ? ` · ${rangeText}` : filtered ? ' in this view' : ' in total'} · {plural(data.sumCount, 'gift')}
               {data.total > data.sumCount && <span className="text-text-3"> (plus {data.total - data.sumCount} not completed)</span>}
             </p>
           ) : (
             <Skeleton className="h-5 w-56" />
           )}
+          {/* the statement covers every received gift in these dates; the
+              designation and method chips narrow the list, not the statement */}
+          <RangeStatementActions range={stmt} size="sm" disabled={!data?.sumCount && !(s.designation || s.method || s.q)} className="w-full sm:w-auto" />
         </div>
         <DataTable
           columns={columns}
@@ -166,7 +177,7 @@ export default function Giving() {
           )}
           empty={
             filtered ? (
-              <EmptyState icon={<SearchX />} title="No gifts match" action={<button type="button" className={buttonClass('secondary')} onClick={() => (setQ(''), set({ fy: '', designation: '', method: '', q: '' }))}>Show all my gifts</button>}>
+              <EmptyState icon={<SearchX />} title="No gifts match" action={<button type="button" className={buttonClass('secondary')} onClick={() => (setQ(''), set(clear))}>Show all my gifts</button>}>
                 Try another year, or clear the filters.
               </EmptyState>
             ) : (

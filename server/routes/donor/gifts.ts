@@ -2,7 +2,7 @@ import { Router } from 'express'
 import { z } from 'zod'
 import { DESIGNATION_KEYS, DESIGNATIONS, fyLabel, fyOf, fyRange, METHOD_KEYS, type Designation } from '../../../shared/domain'
 import { formatMoney } from '../../../shared/money'
-import { taxStatementEmail } from '../../emails/templates'
+import { rangeStatementEmail, taxStatementEmail } from '../../emails/templates'
 import { audit } from '../../lib/audit'
 import { sendEmail } from '../../lib/email'
 import { issueReceipt } from '../../lib/giving'
@@ -21,8 +21,15 @@ import { donorName, giftOut, me, statementYears, withAppealLinks } from './util'
 
    Receipts and tax statements only ever count succeeded gifts.
 
-   Route order matters: the fixed paths (/statements, /statement/:fy,
-   /receipt/:id) sit above /:id.
+   Route order matters: the fixed paths (/statements, /statement/range,
+   /statement/:fy, /receipt/:id) sit above /:id.
+
+   Besides the financial-year statement a donor can ask for one covering any
+   dates they choose (last 12 months, a calendar year, everything). Dates
+   arrive as plain YYYY-MM-DD days, inclusive at both ends, and are read as
+   local midnight so they agree with fyRange() about where a day starts. The
+   span is capped at 30 years (and never before 2000) so a typo cannot ask
+   the database for a century of gifts.
 --------------------------------------------------------------------------- */
 
 const r = Router()
@@ -37,6 +44,38 @@ async function ownGift(req: Parameters<typeof me>[0], id: string): Promise<GiftD
   return g
 }
 
+const DAY = /^(\d{4})-(\d{2})-(\d{2})$/
+const MAX_SPAN_YEARS = 30
+
+/** "2026-07-01" to local midnight on that day, or null if it is not a real date. */
+function dayOf(v: string): Date | null {
+  const m = DAY.exec(v)
+  if (!m) return null
+  const d = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]))
+  return d.getMonth() === Number(m[2]) - 1 && d.getDate() === Number(m[3]) ? d : null
+}
+
+const day = z.string().trim().refine((v) => dayOf(v) !== null, 'Enter a date like 2026-07-01.')
+  .refine((v) => { const d = dayOf(v); return !d || (d.getFullYear() >= 2000 && d.getFullYear() < 2100) }, 'Choose a date from 2000 onwards.')
+
+const rangeSchema = z
+  .object({ from: day, to: day })
+  /* zod still runs these when a field above failed, so a bad day is let through here to keep its own message */
+  .refine((r) => { const f = dayOf(r.from), t = dayOf(r.to); return !f || !t || f <= t }, { path: ['to'], message: 'The end date is before the start date.' })
+  .refine((r) => { const f = dayOf(r.from), t = dayOf(r.to); return !f || !t || t.getFullYear() - f.getFullYear() <= MAX_SPAN_YEARS }, {
+    path: ['from'],
+    message: `A statement can cover up to ${MAX_SPAN_YEARS} years.`,
+  })
+
+/** The validated range as [from, to) — "to" is the midnight after the last day. */
+function rangeOf(input: unknown) {
+  const r = parse(rangeSchema, input)
+  const from = dayOf(r.from)!
+  const last = dayOf(r.to)!
+  const to = new Date(last.getFullYear(), last.getMonth(), last.getDate() + 1)
+  return { from, to, fromDay: r.from, toDay: r.to }
+}
+
 const list = (v: unknown) => String(v ?? '').split(',').map((s) => s.trim()).filter(Boolean)
 
 r.get('/', async (req, res) => {
@@ -44,7 +83,10 @@ r.get('/', async (req, res) => {
   const { page, pageSize, skip } = paging(req.query, { pageSize: 20, max: 100 })
   const q: Record<string, unknown> = { donor: donor._id }
   const fy = Number(req.query.fy)
-  if (fy > 2000 && fy < 2100) {
+  if (req.query.from || req.query.to) {
+    const { from, to } = rangeOf({ from: req.query.from, to: req.query.to })
+    q.date = { $gte: from, $lt: to }
+  } else if (fy > 2000 && fy < 2100) {
     const { from, to } = fyRange(fy)
     q.date = { $gte: from, $lt: to }
   }
@@ -86,8 +128,22 @@ r.get('/statements', async (req, res) => {
 /** Everything a printable tax statement for one financial year needs. */
 async function statementFor(req: Parameters<typeof me>[0], fy: number) {
   if (!(fy > 2000 && fy < 2100)) throw notFound('That statement')
-  const donor = me(req)
   const { from, to } = fyRange(fy)
+  return { ...(await statementBetween(req, from, to, fyLabel(fy), fy < fyOf(new Date()))), fy }
+}
+
+const fmtDay = (d: Date) => d.toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })
+
+/** A statement for any dates the donor picks. Complete once the last day has passed. */
+async function statementForRange(req: Parameters<typeof me>[0], input: unknown) {
+  const { from, to, fromDay, toDay } = rangeOf(input)
+  const label = `${fmtDay(from)} – ${fmtDay(new Date(to.getTime() - 1))}`
+  return { ...(await statementBetween(req, from, to, label, to.getTime() <= Date.now())), fy: null, range: { from: fromDay, to: toDay } }
+}
+
+/** The gifts, totals and letterhead for [from, to). */
+async function statementBetween(req: Parameters<typeof me>[0], from: Date, to: Date, label: string, complete: boolean) {
+  const donor = me(req)
   const [gifts, settings] = await Promise.all([
     Gift.find({ donor: donor._id, status: 'succeeded', date: { $gte: from, $lt: to } }).sort({ date: 1 }).lean(),
     getSettings(),
@@ -116,10 +172,9 @@ async function statementFor(req: Parameters<typeof me>[0], fy: number) {
     fees += g.fee ?? 0
   }
   return {
-    fy,
-    label: fyLabel(fy),
+    label,
     period: { from: from.toISOString(), to: new Date(to.getTime() - 1).toISOString() },
-    complete: fy < fyOf(new Date()),
+    complete,
     issuedAt: new Date().toISOString(),
     org: settings.org,
     receipts: settings.receipts,
@@ -135,6 +190,22 @@ async function statementFor(req: Parameters<typeof me>[0], fy: number) {
     totals: { amount, fees, total: amount + fees, count: gifts.length },
   }
 }
+
+r.get('/statement/range', async (req, res) => {
+  res.json(await statementForRange(req, { from: req.query.from, to: req.query.to }))
+})
+
+r.post('/statement/range/email', async (req, res) => {
+  const donor = me(req)
+  const s = await statementForRange(req, req.body ?? {})
+  if (!s.totals.count) throw new HttpError(400, `There are no gifts from ${s.label} to put on a statement.`)
+  const sent = await sendEmail(donor.email, rangeStatementEmail(donor.firstName, s.range, s.label, s.totals.total, s.totals.count), { donor: donor._id })
+  if (!sent.ok) throw new HttpError(502, 'The email could not be sent just now. Please try again in a few minutes.')
+  await audit(req, 'donor.statement', `${donorName(donor)} emailed themselves a giving statement for ${s.label} (${formatMoney(s.totals.total)})`, {
+    type: 'donor', id: donor._id, label: donor.number,
+  })
+  res.json({ ok: true, to: donor.email })
+})
 
 r.get('/statement/:fy', async (req, res) => {
   res.json(await statementFor(req, Number(req.params.fy)))

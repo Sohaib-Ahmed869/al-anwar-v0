@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { ArrowLeft, Printer } from 'lucide-react'
 import type { Address, Settings } from '../../../shared/types'
 import { Button, Skeleton, cn } from '../../portal/ui'
+import { BADGES, BADGE_FINE_PRINT } from '../../components/badges-data'
 
 /* ---------------------------------------------------------------------------
    The frame for the printable tax statement and receipt.
@@ -101,10 +102,17 @@ export function AddressBlock({ label, name, address, extra }: { label: string; n
   )
 }
 
-/** The DGR and "nothing in return" wording every receipt must carry. */
+/** The DGR and "nothing in return" wording every receipt must carry, under the
+    ACNC and DGR badges the site shows at checkout, so the paper matches. */
 export function DgrStatement({ org, footer }: { org: Settings['org']; footer: string }) {
   return (
     <div className="rounded-lg bg-[#f1f6f3] px-4 py-3.5 text-[12px] leading-relaxed text-[#2c3432] ring-1 ring-[#d7e5de] print:bg-transparent">
+      <div className="mb-2.5 flex flex-wrap gap-2">
+        {BADGES.map((b) => (
+          <img key={b.src} src={b.src} alt={b.alt} width={120} height={40} className="block h-10 w-auto" />
+        ))}
+      </div>
+      <p className="mb-1">{BADGE_FINE_PRINT}</p>
       <p>
         <strong className="font-semibold">{org.name}</strong> (ABN {org.abn}). {org.dgr ? org.dgrNote : ''}
       </p>

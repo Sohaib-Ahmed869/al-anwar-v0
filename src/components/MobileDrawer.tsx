@@ -118,12 +118,32 @@ export default function MobileDrawer({ open, onClose }: Props) {
               </span>
             </summary>
 
+            {/* Appeals has four titled columns and some thirty links, which as
+                one run is a wall; a panel with titled columns gets its titles
+                here as small headings, and the rest stay a single list. */}
             <ul className="m-0 list-none p-0 pb-s2">
               {[
-                ...section.columns.flatMap((col) => col.links),
-                ...(section.feature?.inDrawer ? [section.feature.cta] : []),
-              ].map((link) => (
-                  <li key={`${section.id}-${link.label}`}>
+                ...section.columns.flatMap((col, ci) =>
+                  col.links.map((link, li) => ({
+                    link,
+                    heading: section.layout === 'mega' && li === 0 ? col.title : undefined,
+                    first: ci === 0,
+                  })),
+                ),
+                ...(section.feature?.inDrawer
+                  ? [{ link: section.feature.cta, heading: undefined, first: false }]
+                  : []),
+              ].map(({ link, heading, first }) => (
+                  <li key={`${section.id}-${link.label}-${link.to}`}>
+                    {heading && (
+                      <p
+                        className={`mb-1 text-[12px] font-semibold tracking-[0.09em] text-text-3 uppercase ${
+                          first ? 'mt-0' : 'mt-4'
+                        }`}
+                      >
+                        {heading}
+                      </p>
+                    )}
                     {/* Same split as the desktop panel: an absolute URL has to
                         be a plain <a> or react-router treats it as a path. It
                         still closes the drawer on the way out, so coming back

@@ -192,6 +192,9 @@ export type Donor = {
   behalf: boolean
   behalfName: string
   updates: boolean
+  /** leave the first name out of the site's recent-gifts feed. Optional so
+   *  a donor handed over in router state from an older link still works. */
+  anonymous?: boolean
 }
 
 export const EMPTY_DONOR: Donor = {
@@ -201,6 +204,7 @@ export const EMPTY_DONOR: Donor = {
   behalf: false,
   behalfName: '',
   updates: false,
+  anonymous: false,
 }
 
 export type DonorErrors = Partial<Record<'first' | 'last' | 'email' | 'behalfName', string>>

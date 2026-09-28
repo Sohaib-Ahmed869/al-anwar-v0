@@ -9,6 +9,7 @@ import { errorHandler, HttpError } from './lib/http'
 
 import authRoutes from './routes/auth'
 import publicRoutes from './routes/public'
+import recentGiftRoutes from './routes/recent-gifts'
 import webhookRoutes from './routes/webhooks'
 import fileRoutes from './routes/files'
 import donorRoutes from './routes/donor'
@@ -52,6 +53,7 @@ export function createApp() {
     res.json({ ok: true })
   })
   api.use('/auth', authRoutes)
+  api.use('/public', recentGiftRoutes)
   api.use('/public', publicRoutes)
   api.use('/files', fileRoutes)
   api.use('/me', donorRoutes)

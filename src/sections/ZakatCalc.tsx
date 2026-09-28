@@ -1,6 +1,7 @@
 import { useEffect, useId, useMemo, useRef, useState, type ReactNode, type RefObject } from 'react'
 import { Link } from 'react-router-dom'
 
+import InfoTip from '../components/InfoTip'
 import Reveal from '../components/Reveal'
 import SectionHead, { BREAKOUT, SECTION_Y } from '../components/SectionHead'
 import { ArrowRight, Check, HandHeart } from '../components/icons'
@@ -49,6 +50,11 @@ import {
    THE PRICES ARE ESTIMATES AND SAY SO: zakat-data.ts, with the date they were
    set, editable in the panel. TODO: placeholders until somebody owns keeping
    them current.
+
+   THE (i) BESIDE EACH LABEL (28 September 2026, client feedback) opens a
+   sentence or two on what counts under that heading and the rule for it, for
+   a reader new to zakat. The words are `info` on each field in zakat-data.ts;
+   the behaviour (hover, tap and focus alike) is components/InfoTip.tsx.
 
    Nothing typed here is stored or sent anywhere. The only thing that leaves is
    the rounded figure, on the pay link, and only if the reader presses it.
@@ -551,9 +557,12 @@ function Money({
   const id = `${uid}-${field.key}`
   return (
     <div>
-      <label htmlFor={id} className="block text-[14.5px] font-semibold text-text">
-        {field.label}
-      </label>
+      <span className="flex items-center gap-1.5">
+        <label htmlFor={id} className="block text-[14.5px] font-semibold text-text">
+          {field.label}
+        </label>
+        <InfoTip label={field.label} text={field.info} />
+      </span>
       <div className="relative mt-0.5 flex items-baseline">
         <span aria-hidden="true" className="nums shrink-0 pr-1.5 text-[16px] whitespace-nowrap text-text-3">
           {minus ? '−$' : '$'}
@@ -601,7 +610,10 @@ function Metal({
     <fieldset className="rounded-xl border border-line bg-paper-2/50 p-s2 sm:p-s3" aria-describedby={`${id}-hint`}>
       <legend className="float-left w-full">
         <span className="flex items-baseline justify-between gap-s2">
-          <span className="text-[14.5px] font-semibold text-text">{field.label}</span>
+          <span className="flex items-center gap-1.5 text-[14.5px] font-semibold text-text">
+            {field.label}
+            <InfoTip label={field.label} text={field.info} />
+          </span>
           <span className="nums text-[12.5px] text-text-3">at {aud.format(perGram)}/g</span>
         </span>
       </legend>

@@ -26,6 +26,9 @@ import {
   rungsFor,
   takesMonthly,
 } from '../components/give-data'
+import TrustBadges from '../components/TrustBadges'
+import { BADGE_REPLACES } from '../components/badges-data'
+import { GIVE_ANON_LABEL } from '../components/recent-gifts-data'
 import { PLACES, appealBySlug } from '../components/appeals-data'
 import { useFundraiser } from '../services/fundraisers'
 import type { Fundraiser } from '../components/fundraiser-data'
@@ -359,6 +362,7 @@ function GiveFormReady({ fundraiser }: { fundraiser: Fundraiser | undefined }) {
       email: donor.email,
       behalfName: donor.behalf ? donor.behalfName : '',
       updates: donor.updates,
+      anonymous: Boolean(donor.anonymous),
     })
     if (result.kind === 'redirect') window.location.assign(result.url)
     else setStatus(result)
@@ -735,6 +739,14 @@ function GiveFormReady({ fundraiser }: { fundraiser: Fundraiser | undefined }) {
                       Send me word of what this fund did. A few times a year.
                     </Tick>
 
+                    <Tick
+                      checked={Boolean(donor.anonymous)}
+                      onChange={(v) => setField('anonymous', v)}
+                      className="mt-s2"
+                    >
+                      {GIVE_ANON_LABEL}
+                    </Tick>
+
                     <div className="mt-s4 flex gap-2">
                       <button type="button" onClick={() => go(0)} className={BACK_BUTTON}>
                         Back
@@ -1043,8 +1055,12 @@ function GiveFormReady({ fundraiser }: { fundraiser: Fundraiser | undefined }) {
                   their own below the form (removed 16 September 2026): this is
                   where a donor who hesitates is looking. Plain ruled lines, the
                   way the summary above them is set. */}
-              <ul className="mt-s3 border-t border-paper/15 text-[13px] leading-[1.45]">
-                {TRUST.map((t) => (
+              {/* The first two facts are badges since 28 September 2026
+                  (client feedback): components/TrustBadges.tsx. The list
+                  under them leaves out the two titles they replace. */}
+              <TrustBadges tone="dark" className="mt-s3" />
+              <ul className="mt-s2 border-t border-paper/15 text-[13px] leading-[1.45]">
+                {TRUST.filter((t) => !BADGE_REPLACES.includes(t.title)).map((t) => (
                   <li key={t.title} className="border-b border-paper/15 py-2.5">
                     {t.to ? (
                       <Link

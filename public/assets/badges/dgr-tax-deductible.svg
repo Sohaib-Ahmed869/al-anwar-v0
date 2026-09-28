@@ -1,0 +1,10 @@
+<!-- PLACEHOLDER (28 September 2026). A plain "DGR – Tax deductible" badge until
+     official or designed artwork exists. Replace this file, keeping the same
+     name and roughly the same 3:1 shape, and every page and email picks it up. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 80" width="240" height="80" role="img" aria-label="DGR – Tax deductible">
+  <rect x="1" y="1" width="238" height="78" rx="12" fill="#ffffff" stroke="#d7dde3" stroke-width="2"/>
+  <path d="M40 13l22 8v16c0 15-10 25-22 30-12-5-22-15-22-30V21z" fill="#2f6b5a"/>
+  <text x="40" y="47" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#ffffff">$</text>
+  <text x="76" y="35" font-family="Helvetica, Arial, sans-serif" font-size="24" font-weight="700" fill="#2f6b5a" letter-spacing="1">DGR</text>
+  <text x="76" y="58" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="600" fill="#1f2a33">Tax deductible</text>
+</svg>

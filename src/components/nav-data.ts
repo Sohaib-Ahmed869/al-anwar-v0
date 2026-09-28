@@ -6,6 +6,7 @@
    ever has to be added in one place.
 --------------------------------------------------------------------------- */
 
+import { appealBySlug, giveHref } from './appeals-data'
 import { FACEBOOK, INSTAGRAM } from './social-data'
 
 /** `index` is the "All appeals" style link that closes a column; `alert` is the
@@ -24,11 +25,33 @@ export type NavItem = {
   /** A short second line under the label, in the desktop panel only. The
    *  Where it goes panel uses it to say what the work is in each place. */
   note?: string
+  /** In a column that drives the feature panel, what the panel shows while
+   *  this link is hovered or focused. See `drivesFeature`. */
+  feature?: NavFeature
+}
+
+/** What the photograph beside the Appeals columns shows: one appeal, and the
+ *  two ways into it. `donate` is the gold "Donate now" under the caption and
+ *  goes straight to the form; `cta` is the quieter link to the appeal's page. */
+export type NavFeature = {
+  src: string
+  alt: string
+  caption: string
+  cta: NavItem
+  donate?: NavItem
+  /** The phone drawer has no room for the photograph, so a feature whose
+   *  link is a page in its own right lists that link there instead. */
+  inDrawer?: boolean
 }
 
 export type NavColumn = {
   title?: string
   links: NavItem[]
+  /** Whether hovering or focusing a link in this column swaps the feature
+   *  panel to that link's `feature`. Only Projects and Countries do: they sit
+   *  furthest from the panel, and the pointer crossing the other two columns on
+   *  its way there must not change what it is heading for. */
+  drivesFeature?: boolean
 }
 
 export type NavSection = {
@@ -41,17 +64,32 @@ export type NavSection = {
   /** Paths that light this item up as the current section. */
   match: string[]
   columns: NavColumn[]
-  /** Appeals closes with a field photograph and one appeal to give to. */
-  feature?: {
-    src: string
-    alt: string
-    caption: string
-    cta: NavItem
-    /** The phone drawer has no room for the photograph, so a feature whose
-     *  link is a page in its own right lists that link there instead. */
-    inDrawer?: boolean
+  /** Appeals closes with a field photograph and one appeal to give to. It is
+   *  the one shown before anything is hovered. */
+  feature?: NavFeature
+}
+
+/* A feature built from an appeal in appeals-data.ts, so the photograph, its alt
+   text and the give link cannot drift from the appeal page itself. Only the
+   caption is written here, because the panel has room for one line. */
+function fromAppeal(slug: string, caption: string): NavFeature | undefined {
+  const a = appealBySlug(slug)
+  if (!a) return undefined
+  return {
+    src: a.image,
+    alt: a.alt,
+    caption,
+    cta: { label: 'About this appeal', to: `/appeals/${a.slug}` },
+    donate: { label: 'Donate now', to: giveHref(a) },
   }
 }
+
+const FOOD = fromAppeal('yemen-food-relief', 'Yemen: a $50 food pack feeds a family for a month')
+const WATER = fromAppeal('water-stations-yemen', 'Yemen: a water station close enough to carry home from')
+const SCHOOL = fromAppeal('tarim-school', 'Tarim: completing a high school for the students it already has')
+const MASJID = fromAppeal('gambia-masjid', 'The Gambia: a masjid that outlives the giver')
+const GAZA = fromAppeal('gaza-emergency', 'Gaza: food and water for families living in tents')
+const LEBANON = fromAppeal('food-pack-lebanon', 'Tripoli: food packs, bought in-country and handed out this week')
 
 export const NAV: NavSection[] = [
   {
@@ -59,46 +97,64 @@ export const NAV: NavSection[] = [
     label: 'Appeals',
     layout: 'mega',
     match: ['/appeals', '/ramadan', '/dhul-hijjah'],
+    /* 28 Sep 2026, client feedback: "By need" became Projects and "By place"
+       Countries, the live emergencies got a column of their own, and Seasonal
+       became Duties & obligations — the gifts a donor owes rather than chooses.
+       Orphans & family, Medical and Syria have no appeal behind them yet, so
+       they have no feature and leave the panel on whatever it last showed. */
     columns: [
       {
-        title: 'By need',
+        title: 'Projects',
+        drivesFeature: true,
         links: [
-          { label: 'Food & nutrition', to: '/appeals?cause=food' },
-          { label: 'Clean water', to: '/appeals?cause=water' },
-          { label: 'Education', to: '/appeals?cause=education' },
+          { label: 'Food & nutrition', to: '/appeals?cause=food', feature: FOOD },
+          { label: 'Clean water', to: '/appeals?cause=water', feature: WATER },
+          { label: 'Education', to: '/appeals?cause=education', feature: SCHOOL },
           { label: 'Orphans & family', to: '/appeals?cause=orphans' },
           { label: 'Medical', to: '/appeals?cause=medical' },
-          { label: 'Sadaqah jariyah', to: '/appeals?cause=jariyah' },
+          { label: 'Sadaqah jariyah', to: '/appeals?cause=jariyah', feature: MASJID },
           { label: 'All appeals', to: '/appeals', tone: 'index' },
         ],
       },
       {
-        title: 'By place',
+        title: 'Countries',
+        drivesFeature: true,
         links: [
-          { label: 'Gaza', to: '/appeals?country=gaza' },
-          { label: 'Yemen', to: '/appeals?country=yemen' },
-          { label: 'Lebanon', to: '/appeals?country=lebanon' },
+          { label: 'Gaza', to: '/appeals?country=gaza', feature: GAZA },
+          { label: 'Yemen', to: '/appeals?country=yemen', feature: FOOD },
+          { label: 'Lebanon', to: '/appeals?country=lebanon', feature: LEBANON },
           { label: 'Syria', to: '/appeals?country=syria' },
-          { label: 'The Gambia', to: '/appeals?country=gambia' },
+          { label: 'The Gambia', to: '/appeals?country=gambia', feature: MASJID },
           { label: 'All countries', to: '/where-it-goes', tone: 'index' },
         ],
       },
       {
-        title: 'Seasonal',
+        title: 'Crisis response',
         links: [
-          { label: 'Ramadan', to: '/ramadan' },
-          { label: 'Dhul Hijjah & Qurbani', to: '/dhul-hijjah' },
+          { label: 'Lebanon response', to: '/appeals/food-pack-lebanon', tone: 'alert' },
+          { label: 'Gaza emergency', to: '/appeals/gaza-emergency' },
+          { label: 'Hot meals in Gaza', to: '/appeals/gaza-hot-meals' },
+          { label: 'Yemen food relief', to: '/appeals/yemen-food-relief' },
+          { label: 'Emergency fund', to: '/give?designation=emergency' },
+          { label: 'All emergencies', to: '/appeals?cause=emergency', tone: 'index' },
+        ],
+      },
+      {
+        title: 'Duties & obligations',
+        links: [
+          { label: 'Zakat', to: '/zakat' },
           { label: 'Zakat al-Fitr', to: '/zakat#fitr' },
-          { label: 'Lebanon crisis response', to: '/appeals/food-pack-lebanon', tone: 'alert' },
+          { label: 'Kaffarah', to: '/give?designation=kaffarah' },
+          { label: 'Fidya', to: '/give?designation=fidyah' },
+          /* There is no Aqiqah fund in give-data.ts yet, so it goes to the
+             office rather than booking to a fund it is not. */
+          { label: 'Aqiqah', to: '/contact?topic=A+gift+or+a+receipt' },
+          { label: 'Qurbani', to: '/dhul-hijjah' },
+          { label: 'Ramadan', to: '/ramadan' },
         ],
       },
     ],
-    feature: {
-      src: '/assets/images/PHOTO-2021-12-23-22-48-18.webp',
-      alt: 'A food distribution in Yemen',
-      caption: 'Yemen: a $50 food pack feeds a family for a month',
-      cta: { label: 'Give to this appeal', to: '/appeals/yemen-food-relief' },
-    },
+    feature: FOOD,
   },
   {
     id: 'about',
@@ -205,7 +261,7 @@ export const NAV: NavSection[] = [
 ]
 
 /** How to reach a person. Shown in the mobile drawer and the footer. */
-export const PHONE = { label: '1300 000 000', href: 'tel:1300000000', hours: 'Mon to Fri, 9 to 5 AEST' }
+export const PHONE = { label: '+61 400 000 000', href: 'tel:+61400000000', hours: 'Mon to Fri, 9 to 5 AEST' } // placeholder until the charity's number is confirmed
 
 /** Which section owns the current URL, so one nav item can show as current. */
 export function activeSection(pathname: string): string | null {
