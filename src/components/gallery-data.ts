@@ -176,7 +176,7 @@ export const GALLERY_HERO = {
   eyebrow: 'Gallery',
   titleLead: 'From the field.',
   titleMark: 'In our own photographs.',
-  intro: `The work your gifts paid for, photographed where it happened: ${PLACES.length} places, from ${FIRST_YEAR} to ${LAST_YEAR}.`,
+  intro: `The work your donations paid for, photographed where it happened: ${PLACES.length} places, from ${FIRST_YEAR} to ${LAST_YEAR}.`,
   more: 'See the photographs',
 }
 

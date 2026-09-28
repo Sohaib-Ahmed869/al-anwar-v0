@@ -123,7 +123,7 @@ export default function AboutHero() {
         >
           <p className="max-w-[56ch] text-[clamp(15.5px,1.2vw,17.5px)] leading-[1.6] text-text-2">
             A registered Australian charity since 2020, delivering food, water and lasting builds
-            through partners we can name, and publishing where every gift goes.
+            through partners we can name, and publishing where every donation goes.
           </p>
 
           <div className="flex shrink-0 flex-wrap items-center gap-x-s3 gap-y-s2">

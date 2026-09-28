@@ -40,8 +40,8 @@ export const FORM_ID = 'send-a-message'
  *  these strings, which is why they are exported and why ContactForm checks
  *  what arrives against this list rather than trusting it. */
 export const TOPICS = [
-  'A gift or a receipt',
-  'A monthly gift',
+  'A donation or a receipt',
+  'A monthly donation',
   'Zakat',
   'Volunteering',
   'Fundraising or an event',
@@ -94,7 +94,7 @@ export const CONTACT = {
     titleLead: 'Talk to',
     titleMark: 'our team.',
     intro:
-      'Questions about a gift, zakat or volunteering? Write to us and someone from our Silverwater office replies within one working day.',
+      'Questions about a donation, zakat or volunteering? Write to us and someone from our Silverwater office replies within one working day.',
     /* Bottom right: scrolls to the form. */
     more: 'Write to us',
     call: 'or call',

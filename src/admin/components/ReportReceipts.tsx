@@ -131,7 +131,7 @@ export function ReportReceipts({ range, canExport }: { range: DateRange; canExpo
               )}
               empty={
                 <EmptyState icon={<Receipt />} title="No receipts in these dates">
-                  Receipts are issued the moment a gift is paid. Try a wider date range.
+                  Receipts are issued the moment a donation is paid. Try a wider date range.
                 </EmptyState>
               }
             />

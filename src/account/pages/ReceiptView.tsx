@@ -59,9 +59,9 @@ export default function ReceiptView() {
                   g.country ? ['Country', COUNTRIES[g.country] ?? g.country] : null,
                   ['Given as', DESIGNATIONS[g.designation as Designation]?.label],
                   ['Paid by', METHODS[g.method as Method]?.label],
-                  ['Gift', formatMoney(g.amount, { exact: true })],
-                  g.fee ? ['Card fees you covered', formatMoney(g.fee, { exact: true })] : null,
-                  ['Gift reference', g.number],
+                  ['Donation', formatMoney(g.amount, { exact: true })],
+                  g.fee ? ['Operating costs contribution', formatMoney(g.fee, { exact: true })] : null,
+                  ['Donation reference', g.number],
                 ] as ([string, string] | null)[]
               )
                 .filter((x): x is [string, string] => Boolean(x))
@@ -75,7 +75,7 @@ export default function ReceiptView() {
                 ))}
               <tr>
                 <th scope="row" className="pt-3 pr-4 text-left text-[14px] font-semibold">
-                  Total tax-deductible gift
+                  Total tax-deductible donation
                 </th>
                 <td className="nums border-t-2 border-[#1b1f1e] pt-3 text-right text-[15px] font-semibold">{formatMoney(total, { exact: true })}</td>
               </tr>

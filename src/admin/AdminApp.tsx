@@ -46,7 +46,7 @@ export const ADMIN_NAV: NavGroup[] = [
     label: 'Supporters',
     items: [
       { label: 'Donors', to: '/admin/donors', icon: Users, perm: 'donors.read', primary: true, badge: 'duplicates' },
-      { label: 'Gifts', to: '/admin/gifts', icon: HandCoins, perm: ['gifts.read', 'gifts.create'], primary: true },
+      { label: 'Donations', to: '/admin/gifts', icon: HandCoins, perm: ['gifts.read', 'gifts.create'], primary: true },
       { label: 'Regular giving', to: '/admin/plans', icon: Repeat, perm: 'plans.manage', badge: 'failedPlans' },
       { label: 'Enquiries', to: '/admin/enquiries', icon: Inbox, perm: 'enquiries.manage', primary: true, badge: 'enquiries' },
     ],
@@ -78,7 +78,7 @@ export const ADMIN_NAV: NavGroup[] = [
 ]
 
 const ACTIONS: PaletteAction[] = [
-  { label: 'Record a cash, cheque or event gift', to: '/admin/gifts?new=1', icon: Plus, perm: 'gifts.create', keywords: 'offline cash cheque event add' },
+  { label: 'Record a cash, cheque or event donation', to: '/admin/gifts?new=1', icon: Plus, perm: 'gifts.create', keywords: 'offline cash cheque event add' },
   { label: 'Import a bank statement', to: '/admin/bank?upload=1', icon: Upload, perm: 'bank.import', keywords: 'csv transfer match' },
   { label: 'Add a donor', to: '/admin/donors?new=1', icon: UserPlus, perm: 'donors.write' },
   { label: 'New appeal', to: '/admin/appeals/new', icon: Megaphone, perm: 'appeals.manage' },

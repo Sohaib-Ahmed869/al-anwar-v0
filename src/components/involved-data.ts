@@ -135,7 +135,7 @@ export const PARTNERS = {
     title: 'Something to show your community',
     items: [
       'The appeal written up for your noticeboard or newsletter.',
-      'Tax receipts for anyone who wants one, for gifts of $2 and over.',
+      'Tax receipts for anyone who wants one, for donations of $2 and over.',
       'A report back on where the money went, including what we do not know yet.',
     ],
   },

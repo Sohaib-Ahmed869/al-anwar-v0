@@ -148,7 +148,7 @@ export async function recordGift(input: RecordGiftInput, req?: Request | null): 
   await audit(
     req ?? null,
     `gift.${gift.source === 'offline' ? 'offline' : gift.source}`,
-    `${verb} ${formatMoney(gift.amount)} ${gift.method} gift ${gift.number} from ${gift.donorName}${gift.appealTitle ? ` to ${gift.appealTitle}` : ''}`,
+    `${verb} ${formatMoney(gift.amount)} ${gift.method} donation ${gift.number} from ${gift.donorName}${gift.appealTitle ? ` to ${gift.appealTitle}` : ''}`,
     { type: 'gift', id: gift._id, label: gift.number },
   )
   return gift
@@ -179,6 +179,7 @@ export async function issueReceipt(gift: GiftDoc, opts: { email: boolean; resend
         date: gift.date,
         appealTitle: gift.appealTitle,
         fundraiserTitle: gift.fundraiserTitle,
+        donorName: gift.donorName,
         receipt: gift.receipt,
       },
       donor.firstName,

@@ -94,7 +94,7 @@ function Gift({ gift: g, waiting }: { gift: GiftStatus; waiting: boolean }) {
       <>
         <Head
           tick={g.status === 'succeeded'}
-          eyebrow={g.status === 'refunded' ? 'Refunded' : 'Gift received'}
+          eyebrow={g.status === 'refunded' ? 'Refunded' : 'Donation received'}
           title={g.firstName ? `Thank you, ${g.firstName}` : 'Thank you'}
         >
           Your <span className="nums font-semibold text-text">{formatMoney(g.amount)}</span>
@@ -106,15 +106,15 @@ function Gift({ gift: g, waiting }: { gift: GiftStatus; waiting: boolean }) {
         {g.simulated && (
           <Note tone="amber" title="This was a simulated payment">
             Online payments are not connected to a card processor yet, so no card was charged and no money moved.
-            The gift, the receipt and the email are real records, made to show how giving will work.
+            The donation, the receipt and the email are real records, made to show how giving will work.
           </Note>
         )}
 
         <Card>
           <Facts
             rows={[
-              ['Gift', formatMoney(g.amount, { exact: true })],
-              ...(g.fee ? ([['Fees you covered', formatMoney(g.fee, { exact: true })]] as [string, string][]) : []),
+              ['Donation', formatMoney(g.amount, { exact: true })],
+              ...(g.fee ? ([['Operating costs contribution', formatMoney(g.fee, { exact: true })]] as [string, string][]) : []),
               ['Given as', as],
               ['Paid by', g.method === 'paypal' ? 'PayPal' : 'Card'],
               ...(g.receiptNumber ? ([['Receipt number', g.receiptNumber]] as [string, string][]) : []),
@@ -124,14 +124,14 @@ function Gift({ gift: g, waiting }: { gift: GiftStatus; waiting: boolean }) {
           <p className="mt-s2 flex items-start gap-2 text-[14px] leading-relaxed text-text-2">
             <Mail className="mt-[3px] h-4 w-4 shrink-0 text-teal" />
             {g.receiptEmailed
-              ? 'Your tax receipt is in your inbox now. Keep it for your return — gifts of $2 or more are tax deductible.'
+              ? 'Your tax receipt is in your inbox now. Keep it for your return — donations of $2 or more are tax deductible.'
               : 'Your tax receipt is on its way to your inbox.'}
           </p>
           {regular && g.nextChargeAt && (
             <p className="mt-s1 text-[14px] leading-relaxed text-text-2">
               {g.instalments
                 ? `Payment 1 of ${g.instalments}. The next is taken on ${day(g.nextChargeAt)}`
-                : `Your ${FREQUENCIES[g.frequency as keyof typeof FREQUENCIES].label.toLowerCase()} gift carries on from here. The next payment is on ${day(g.nextChargeAt)}`}
+                : `Your ${FREQUENCIES[g.frequency as keyof typeof FREQUENCIES].label.toLowerCase()} donation carries on from here. The next payment is on ${day(g.nextChargeAt)}`}
               , and we email you a few days before each one. You can change, pause or stop it yourself, any time.
             </p>
           )}
@@ -146,7 +146,7 @@ function Gift({ gift: g, waiting }: { gift: GiftStatus; waiting: boolean }) {
     return (
       <>
         <Head eyebrow="One step left" title={g.firstName ? `Nearly there, ${g.firstName}` : 'Nearly there'}>
-          Your <span className="nums font-semibold text-text">{formatMoney(g.amount)}</span> gift to{' '}
+          Your <span className="nums font-semibold text-text">{formatMoney(g.amount)}</span> donation to{' '}
           <span className="text-text">{to}</span> is waiting for your transfer. Nothing has arrived yet —
           send it from your banking app with the reference below.
         </Head>
@@ -209,7 +209,7 @@ function Gift({ gift: g, waiting }: { gift: GiftStatus; waiting: boolean }) {
           Try again
         </Link>
         <a
-          href={`mailto:${ORG.email}?subject=${encodeURIComponent('A gift that did not go through')}`}
+          href={`mailto:${ORG.email}?subject=${encodeURIComponent('A donation that did not go through')}`}
           className="inline-flex min-h-[52px] items-center text-[15px] text-teal underline decoration-teal/30 underline-offset-4 hover:decoration-teal"
         >
           Or write to us
@@ -223,7 +223,7 @@ function Plain() {
   return (
     <>
       <Head eyebrow="Thank you" title="Thank you for thinking of us">
-        If a gift has just gone through, your tax receipt is on its way to your inbox, and every gift you give is kept
+        If a donation has just gone through, your tax receipt is on its way to your inbox, and every donation you give is kept
         together in your account.
       </Head>
       <Next />
@@ -234,9 +234,9 @@ function Plain() {
 function Missing() {
   return (
     <>
-      <Head eyebrow="Thank you" title="We could not look this gift up just now">
+      <Head eyebrow="Thank you" title="We could not look this donation up just now">
         That does not mean anything went wrong. If the payment went through, your tax receipt arrives by email, and the
-        gift is in your account. If you are unsure, write to us at{' '}
+        donation is in your account. If you are unsure, write to us at{' '}
         <a href={`mailto:${ORG.email}`} className="text-teal underline decoration-teal/30 underline-offset-4">
           {ORG.email}
         </a>{' '}
@@ -249,7 +249,7 @@ function Missing() {
 
 function Loading() {
   return (
-    <div aria-busy="true" aria-label="Looking up your gift">
+    <div aria-busy="true" aria-label="Looking up your donation">
       <div className="h-3 w-28 animate-pulse rounded bg-line-2" />
       <div className="mt-s2 h-10 w-3/4 animate-pulse rounded bg-line-2" />
       <div className="mt-s2 h-4 w-full animate-pulse rounded bg-line-2" />
@@ -343,7 +343,7 @@ function Next() {
       >
         <span>
           <span className="block font-semibold text-ink">See it in your account</span>
-          <span className="mt-0.5 block text-[14px] text-text-2">Every gift and receipt, and your tax statement</span>
+          <span className="mt-0.5 block text-[14px] text-text-2">Every donation and receipt, and your tax statement</span>
         </span>
         <ArrowRight className="h-4 w-4 shrink-0 text-teal transition-transform duration-200 group-hover:translate-x-0.5" />
       </Link>
@@ -353,7 +353,7 @@ function Next() {
       >
         <span>
           <span className="block font-semibold text-ink">Where it goes</span>
-          <span className="mt-0.5 block text-[14px] text-text-2">The appeals your gifts are working in</span>
+          <span className="mt-0.5 block text-[14px] text-text-2">The appeals your donations are working in</span>
         </span>
         <ArrowRight className="h-4 w-4 shrink-0 text-teal transition-transform duration-200 group-hover:translate-x-0.5" />
       </Link>

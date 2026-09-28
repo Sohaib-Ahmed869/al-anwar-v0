@@ -152,7 +152,7 @@ r.get('/export', requireStaff('donors.export'), async (req, res) => {
   const rows = await Donor.find(filter).select(PRIVATE).sort(sort).lean()
   const header = [
     'Donor number', 'First name', 'Last name', 'Email', 'Other emails', 'Phone', 'Address', 'Suburb', 'State', 'Postcode', 'Country',
-    'Lifetime giving', 'Gifts', 'First gift', 'Last gift', 'Regular giver', 'Email opt-in', 'Anonymous', 'Tags', 'Created',
+    'Lifetime giving', 'Donations', 'First donation', 'Last donation', 'Regular giver', 'Email opt-in', 'Anonymous', 'Tags', 'Created',
   ]
   const lines = [header.join(',')]
   for (const d of rows) {
@@ -449,7 +449,7 @@ r.post('/merge', requireStaff('donors.merge'), async (req, res) => {
   await audit(
     req,
     'donor.merge',
-    `Merged ${sName} (${s.number}) into ${pName} (${p.number}) — ${gifts.modifiedCount} gift${gifts.modifiedCount === 1 ? '' : 's'}, ${plans.modifiedCount} regular gift${plans.modifiedCount === 1 ? '' : 's'} moved`,
+    `Merged ${sName} (${s.number}) into ${pName} (${p.number}) — ${gifts.modifiedCount} donation${gifts.modifiedCount === 1 ? '' : 's'}, ${plans.modifiedCount} regular donation${plans.modifiedCount === 1 ? '' : 's'} moved`,
     { type: 'donor', id: p._id, label: p.number },
     { secondary: s._id, secondaryNumber: s.number, moved: { gifts: gifts.modifiedCount, plans: plans.modifiedCount, enquiries: enquiries.modifiedCount, fundraisers: fundraisers.modifiedCount, emails: emails.modifiedCount } },
   )

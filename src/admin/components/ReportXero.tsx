@@ -26,7 +26,7 @@ type Preview = {
 }
 
 const METHOD_SETS = [
-  { value: 'all', label: 'All gifts', methods: '' },
+  { value: 'all', label: 'All donations', methods: '' },
   { value: 'bank', label: 'Bank transfers', methods: 'bank' },
   { value: 'online', label: 'Card and PayPal', methods: 'card,paypal' },
   { value: 'offline', label: 'Cash, cheques, events', methods: 'cash,cheque,event' },
@@ -75,7 +75,7 @@ export function ReportXero({ range, methods, onMethods }: { range: DateRange; me
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div className="min-w-0">
           <p className="mb-1.5 text-[12.5px] font-medium text-text-2">Which money</p>
-          <Segmented aria-label="Which gifts to export" value={methods} onChange={onMethods} options={METHOD_SETS.map((m) => ({ value: m.value, label: m.label }))} />
+          <Segmented aria-label="Which donations to export" value={methods} onChange={onMethods} options={METHOD_SETS.map((m) => ({ value: m.value, label: m.label }))} />
         </div>
         <Button variant="primary" icon={<Download />} loading={downloading} disabled={!p?.totals.gifts || dirty} onClick={get}>
           Download for Xero
@@ -84,9 +84,9 @@ export function ReportXero({ range, methods, onMethods }: { range: DateRange; me
       {dirty && <p className="-mt-2 text-right text-[12.5px] text-amber">Save the account codes first, so the file uses them.</p>}
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <Stat icon={<FileSpreadsheet />} label="Gifts in the file" value={p ? formatNumber(p.totals.gifts) : '—'} loading={!p} hint={p && p.totals.lines > p.totals.gifts ? `${formatNumber(p.totals.lines)} lines with covered fees` : undefined} />
+        <Stat icon={<FileSpreadsheet />} label="Donations in the file" value={p ? formatNumber(p.totals.gifts) : '—'} loading={!p} hint={p && p.totals.lines > p.totals.gifts ? `${formatNumber(p.totals.lines)} lines with operating costs` : undefined} />
         <Stat label="Income" value={p ? <Money cents={p.totals.amount} /> : '—'} loading={!p} />
-        <Stat label="Fees covered by donors" value={p ? <Money cents={p.totals.fees} /> : '—'} loading={!p} hint="coded to the fees account" />
+        <Stat label="Operating costs contributions" value={p ? <Money cents={p.totals.fees} /> : '—'} loading={!p} hint="coded to the operating costs account" />
       </div>
 
       <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.35fr)]">
@@ -131,11 +131,11 @@ export function ReportXero({ range, methods, onMethods }: { range: DateRange; me
                   })}
                   <li className="flex items-center gap-3 py-2">
                     <div className="min-w-0 flex-1">
-                      <p className="text-[13.5px] font-medium text-text">Fees covered by donors</p>
+                      <p className="text-[13.5px] font-medium text-text">Operating costs contributions</p>
                       <p className="text-[12px] text-text-3">Offsets what the card processor charged</p>
                     </div>
                     <div className="w-24 shrink-0">
-                      <Input aria-label="Account code for fees" value={draft.feesAccount} invalid={Boolean(fieldErr('feesAccount'))} onChange={(e) => setDraft({ ...draft, feesAccount: e.target.value })} className="nums h-9 text-center" />
+                      <Input aria-label="Account code for operating costs contributions" value={draft.feesAccount} invalid={Boolean(fieldErr('feesAccount'))} onChange={(e) => setDraft({ ...draft, feesAccount: e.target.value })} className="nums h-9 text-center" />
                     </div>
                   </li>
                 </ul>
@@ -172,7 +172,7 @@ export function ReportXero({ range, methods, onMethods }: { range: DateRange; me
                 ))}
               </div>
             ) : !p.rows.length ? (
-              <EmptyState compact icon={<FileSpreadsheet />} title="No paid gifts in these dates">
+              <EmptyState compact icon={<FileSpreadsheet />} title="No paid donations in these dates">
                 Choose other dates above, such as last month.
               </EmptyState>
             ) : (
@@ -218,7 +218,7 @@ export function ReportXero({ range, methods, onMethods }: { range: DateRange; me
                 <li>Reconcile as usual — each line already carries its account code, tax type and appeal.</li>
               </ol>
               <p className="mt-3 text-[12.5px] leading-relaxed text-text-3">
-                Export one bank account at a time: card and PayPal gifts arrive through your payment provider's payouts, bank transfers straight into your account. Each gift appears once, with its receipt number as the reference.
+                Export one bank account at a time: card and PayPal donations arrive through your payment provider's payouts, bank transfers straight into your account. Each donation appears once, with its receipt number as the reference.
               </p>
             </CardBody>
           </Card>

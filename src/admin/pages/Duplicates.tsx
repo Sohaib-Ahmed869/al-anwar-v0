@@ -49,7 +49,7 @@ export default function Duplicates() {
       <PageHeader
         crumbs={[{ label: 'Donors', to: '/admin/donors' }, { label: 'Possible duplicates' }]}
         title="Possible duplicates"
-        description="People who may be on file twice. Compare the two records, choose what to keep, and merge — every gift, receipt and email moves across."
+        description="People who may be on file twice. Compare the two records, choose what to keep, and merge — every donation, receipt and email moves across."
       />
 
       {s.donor && q.data && (
@@ -142,7 +142,7 @@ function PairRow({ pair, onOpen }: { pair: DuplicatePair; onOpen: () => void }) 
         </p>
         <p className="truncate text-[12.5px] text-text-3">{d.email}</p>
         <p className="nums truncate text-[12.5px] text-text-3">
-          {d.giftCount ? `${plural(d.giftCount, 'gift')} · ${formatMoney(d.totalGiven, { whole: true })}` : 'No gifts'}
+          {d.giftCount ? `${plural(d.giftCount, 'donation')} · ${formatMoney(d.totalGiven, { whole: true })}` : 'No donations'}
           {d.lastGiftAt && ` · last ${formatDay(d.lastGiftAt)}`}
         </p>
       </div>
@@ -219,7 +219,7 @@ function CompareSheet({ a, b, onClose }: { a?: string; b?: string; onClose: () =
     mutationFn: (body: object) => api.post<{ id: string; moved: Record<string, number> }>('/admin/donors/merge', body),
     onSuccess: (r) => {
       const who = q.data ? donorName((survivor === 'a' ? q.data.a : q.data.b).donor) : 'the record'
-      toast.success(`Merged. ${who} now has ${plural(r.moved.gifts, 'more gift')} on one record.`, {
+      toast.success(`Merged. ${who} now has ${plural(r.moved.gifts, 'more donation')} on one record.`, {
         action: { label: 'Open', onClick: () => nav(`/admin/donors/${r.id}`) },
       })
       done()
@@ -246,8 +246,8 @@ function CompareSheet({ a, b, onClose }: { a?: string; b?: string; onClose: () =
     const sName = donorName(S.donor)
     const c = S.counts
     const moving = [
-      c.gifts && plural(c.gifts, 'gift'),
-      c.plans && plural(c.plans, 'regular gift'),
+      c.gifts && plural(c.gifts, 'donation'),
+      c.plans && plural(c.plans, 'regular donation'),
       c.enquiries && plural(c.enquiries, 'enquiry', 'enquiries'),
       c.fundraisers && plural(c.fundraisers, 'supporter page'),
       c.emails && plural(c.emails, 'email'),
@@ -354,7 +354,7 @@ function CompareSheet({ a, b, onClose }: { a?: string; b?: string; onClose: () =
 
           {/* what comes across */}
           <Callout tone="teal" icon={<Copy />} title="Kept from both records">
-            Every gift and receipt, regular gifts, enquiries, supporter pages, emails sent, tags and bank payer names.
+            Every donation and receipt, regular donations, enquiries, supporter pages, emails sent, tags and bank payer names.
             {(data.a.donor.preferences.emailOptIn === false || data.b.donor.preferences.emailOptIn === false) &&
               ' One record had opted out of appeal emails, so the merged record stays opted out.'}
           </Callout>
@@ -402,7 +402,7 @@ function SideCard({ side, selected, onSelect }: { side: CompareSide; selected: b
       </div>
       <dl className="mt-3 grid grid-cols-3 gap-2 border-t border-line-2 pt-3">
         {stat('Lifetime', formatMoney(c.lifetime, { whole: true }))}
-        {stat('Gifts', formatNumber(c.gifts))}
+        {stat('Donations', formatNumber(c.gifts))}
         {stat('Regular', c.activePlans ? `${c.activePlans} active` : c.plans ? `${c.plans} ended` : 'None')}
       </dl>
       {side.recentGifts.length > 0 && (

@@ -91,7 +91,7 @@ export function PlanSheet({ id, onClose }: { id: string | null; onClose: () => v
               {formatMoney(p.amount)} {freq?.per} <span className="font-normal text-text-2">from</span> {p.donorName}
             </span>
           ) : (
-            'Regular gift'
+            'Regular donation'
           )
         }
         description={p ? `${p.number} · since ${formatDate(p.startDate)}` : undefined}
@@ -107,7 +107,7 @@ export function PlanSheet({ id, onClose }: { id: string | null; onClose: () => v
           p && live ? (
             <div className="flex w-full flex-wrap justify-end gap-2">
               <Button variant="ghost" icon={<XCircle />} onClick={() => setDialog('cancel')} className="mr-auto text-red hover:bg-red-pale hover:text-red">
-                Cancel gift
+                Cancel donation
               </Button>
               {p.status === 'paused' ? (
                 <Button variant="secondary" icon={<Play />} loading={resume.isPending} onClick={() => resume.mutate()}>
@@ -186,7 +186,9 @@ export function PlanSheet({ id, onClose }: { id: string | null; onClose: () => v
               <DescriptionList
                 items={[
                   { label: 'Amount', value: `${formatMoney(p.amount, { exact: true })} ${freq?.per}` },
-                  { label: 'Donor covers the fee', value: p.coverFee ? 'Yes' : 'No' },
+                  p.operatingCosts != null
+                    ? { label: 'Operating costs, each payment', value: p.operatingCosts ? <Money cents={p.operatingCosts} exact /> : 'None' }
+                    : { label: 'Donor covers the card fee', value: p.coverFee ? 'Yes' : 'No' },
                   { label: 'For', value: DESIGNATIONS[p.designation]?.label },
                   { label: 'Appeal', value: p.appealTitle ?? 'Where most needed' },
                   {
@@ -291,7 +293,7 @@ function PlanChangeDialog({ open, onOpenChange, plan, onDone }: { open: boolean;
     <Dialog
       open={open}
       onOpenChange={onOpenChange}
-      title="Change this regular gift"
+      title="Change this regular donation"
       description={`For ${plan.donorName}, at their request. It is logged as done on their behalf; they are not emailed.`}
       footer={
         <>
@@ -347,7 +349,7 @@ function PlanPauseDialog({ open, onOpenChange, plan, onDone }: { open: boolean; 
       open={open}
       onOpenChange={onOpenChange}
       size="sm"
-      title="Pause this regular gift?"
+      title="Pause this regular donation?"
       description={`No payments are taken from ${plan.donorName} while it is paused.`}
       footer={
         <>
@@ -402,14 +404,14 @@ function PlanCancelDialog({ open, onOpenChange, plan, onDone }: { open: boolean;
       open={open}
       onOpenChange={onOpenChange}
       size="sm"
-      title="Cancel this regular gift?"
+      title="Cancel this regular donation?"
       footer={
         <>
           <Button variant="secondary" onClick={() => onOpenChange(false)}>
             Keep it
           </Button>
           <Button variant="danger" loading={save.isPending} disabled={reason.trim().length < 3} onClick={() => save.mutate()}>
-            Cancel regular gift
+            Cancel regular donation
           </Button>
         </>
       }

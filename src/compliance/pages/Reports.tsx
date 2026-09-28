@@ -144,7 +144,7 @@ function ReceiptsReport({ fy }: { fy: number }) {
     <div className="space-y-6">
       <div className="grid gap-4 sm:grid-cols-3">
         <Stat icon={<Receipt />} label="Receipts issued" value={formatNumber(d.total.count)} hint={`in ${fyLabel(fy)}`} />
-        <Stat icon={<Wallet />} label="Receipted value" value={<Money cents={d.total.amount} />} hint="gifts plus fees donors covered" />
+        <Stat icon={<Wallet />} label="Receipted value" value={<Money cents={d.total.amount} />} hint="donations plus fees donors covered" />
         <Stat label="Busiest month" value={busiest && busiest.count ? monthLong(busiest.month).split(' ')[0] : '—'} hint={busiest?.count ? `${formatNumber(busiest.count)} receipts` : undefined} />
       </div>
       <Card>
@@ -210,14 +210,14 @@ function IncomeReport({ fy }: { fy: number }) {
     { key: 't', header: 'Appeal', cell: (a) => <span className="font-medium">{a.title}</span> },
     { key: 'c', header: 'Country', hideBelow: 'lg', className: 'text-text-2', cell: (a) => (a.country ? (COUNTRIES[a.country] ?? a.country) : '—') },
     { key: 'd', header: 'Donors', align: 'right', hideBelow: 'lg', cell: (a) => <span className="nums text-text-2">{formatNumber(a.donors)}</span> },
-    { key: 'n', header: 'Gifts', align: 'right', cell: (a) => <span className="nums text-text-2">{formatNumber(a.count)}</span> },
+    { key: 'n', header: 'Donations', align: 'right', cell: (a) => <span className="nums text-text-2">{formatNumber(a.count)}</span> },
     { key: 'a', header: 'Amount', align: 'right', cell: (a) => <Money cents={a.amount} className="font-medium" /> },
   ]
   return (
     <div className="space-y-6">
       <div className="grid gap-4 sm:grid-cols-3">
         <Stat icon={<Wallet />} label="Given in the year" value={<Money cents={d.total.amount} />} hint={fyLabel(fy)} />
-        <Stat label="Gifts" value={formatNumber(d.total.count)} hint={`average ${formatMoney(Math.round(d.total.amount / d.total.count))}`} />
+        <Stat label="Donations" value={formatNumber(d.total.count)} hint={`average ${formatMoney(Math.round(d.total.amount / d.total.count))}`} />
         <Stat
           label="Zakat received"
           value={<Money cents={d.byDesignation.filter((x) => x.designation.startsWith('zakat')).reduce((s, x) => s + x.amount, 0)} />}
@@ -234,7 +234,7 @@ function IncomeReport({ fy }: { fy: number }) {
                 label="CSV"
                 onClick={() =>
                   saveCsv(`income-by-designation-${fyLabel(fy)}.csv`, [
-                    ['Designation', 'Gifts', 'Amount (AUD)'],
+                    ['Designation', 'Donations', 'Amount (AUD)'],
                     ...d.byDesignation.map((x) => [x.label, x.count, dollars(x.amount)]),
                     ['Total', d.total.count, dollars(d.total.amount)],
                   ])
@@ -247,7 +247,7 @@ function IncomeReport({ fy }: { fy: number }) {
           </div>
         </Card>
         <Card className="lg:col-span-3">
-          <CardHeader title="By month" description="Gifts received, by the month they arrived." />
+          <CardHeader title="By month" description="Donations received, by the month they arrived." />
           <div className="px-3 pb-5 sm:px-5">
             <MoneyColumnChart data={d.byMonth} xKey="month" series={[{ key: 'amount', label: 'Given' }]} formatX={monthLabel} />
           </div>
@@ -256,12 +256,12 @@ function IncomeReport({ fy }: { fy: number }) {
       <Card className="overflow-hidden">
         <CardHeader
           title="By appeal"
-          description="Gifts with no appeal are shown as “Where most needed”."
+          description="Donations with no appeal are shown as “Where most needed”."
           action={
             <CsvButton
               onClick={() =>
                 saveCsv(`income-by-appeal-${fyLabel(fy)}.csv`, [
-                  ['Appeal', 'Country', 'Donors', 'Gifts', 'Amount (AUD)'],
+                  ['Appeal', 'Country', 'Donors', 'Donations', 'Amount (AUD)'],
                   ...d.byAppeal.map((a) => [a.title, a.country ? (COUNTRIES[a.country] ?? a.country) : '', a.donors, a.count, dollars(a.amount)]),
                 ])
               }
@@ -278,7 +278,7 @@ function IncomeReport({ fy }: { fy: number }) {
               <span className="min-w-0">
                 <span className="block truncate font-medium">{a.title}</span>
                 <span className="nums text-[12.5px] text-text-3">
-                  {formatNumber(a.count)} gifts · {formatNumber(a.donors)} donors
+                  {formatNumber(a.count)} donations · {formatNumber(a.donors)} donors
                 </span>
               </span>
               <Money cents={a.amount} className="shrink-0 font-medium" />
@@ -293,7 +293,7 @@ function IncomeReport({ fy }: { fy: number }) {
 function NoGifts({ fy }: { fy: number }) {
   return (
     <Card>
-      <EmptyState icon={<FileBarChart2 />} title={`No gifts in ${fyLabel(fy)}`}>
+      <EmptyState icon={<FileBarChart2 />} title={`No donations in ${fyLabel(fy)}`}>
         Choose another financial year from the list above.
       </EmptyState>
     </Card>
@@ -328,7 +328,7 @@ function CountriesReport({ fy }: { fy: number }) {
         <Card className="lg:col-span-2">
           <CardHeader title="Given by country" description={`${formatMoney(d.total.amount)} across ${plural(d.countries.filter((c) => c.amount).length, 'country', 'countries')}.`} />
           <div className="px-5 pb-6 sm:px-6">
-            <BarList rows={d.countries.filter((c) => c.amount).map((c) => ({ key: c.country, label: c.label, value: c.amount, sub: `${formatNumber(c.count)} gifts` }))} />
+            <BarList rows={d.countries.filter((c) => c.amount).map((c) => ({ key: c.country, label: c.label, value: c.amount, sub: `${formatNumber(c.count)} donations` }))} />
           </div>
         </Card>
         <Card className="p-5 sm:p-6 lg:col-span-3">
@@ -355,7 +355,7 @@ function CountriesReport({ fy }: { fy: number }) {
             <CsvButton
               onClick={() =>
                 saveCsv(`activity-by-country-${fyLabel(fy)}.csv`, [
-                  ['Country', 'Gifts', 'Amount (AUD)', 'Appeals', 'Partners', 'Partner last report dates'],
+                  ['Country', 'Donations', 'Amount (AUD)', 'Appeals', 'Partners', 'Partner last report dates'],
                   ...d.countries.map((c) => [
                     c.label,
                     c.count,
@@ -378,7 +378,7 @@ function CountriesReport({ fy }: { fy: number }) {
                   {c.label}
                 </p>
                 <p className="mt-1 text-[13px] text-text-2">
-                  <Money cents={c.amount} className="font-medium text-text" /> · <span className="nums">{formatNumber(c.count)}</span> gifts
+                  <Money cents={c.amount} className="font-medium text-text" /> · <span className="nums">{formatNumber(c.count)}</span> donations
                 </p>
               </div>
               <div>
@@ -671,21 +671,21 @@ function YearEndPack({ fy }: { fy: number }) {
           />
         </PackSection>
 
-        <PackSection n={5} title="Income and receipts" lead="Gifts received in the year (the gift, before any fee the donor covered) and the tax receipts issued.">
+        <PackSection n={5} title="Income and receipts" lead="Donations received in the year (the donation, before any fee the donor covered) and the tax receipts issued.">
           <div className="mb-5 grid gap-3 sm:grid-cols-3">
-            <PackFigure label="Given" value={formatMoney(d.income.total.amount)} sub={`${formatNumber(d.income.total.count)} gifts`} />
+            <PackFigure label="Given" value={formatMoney(d.income.total.amount)} sub={`${formatNumber(d.income.total.count)} donations`} />
             <PackFigure label="Receipts issued" value={formatNumber(d.receipts.count)} sub={`${formatMoney(d.receipts.amount)} receipted`} />
             <PackFigure label="Receipts re-sent" value={formatNumber(d.receipts.resent)} sub="at the donor's request" />
           </div>
           <h3 className="mb-2 text-[14px] font-semibold">By designation</h3>
-          <PackTable head={['Designation', 'Gifts', 'Amount']} align={['left', 'right', 'right']} rows={d.income.byDesignation.map((x) => [x.label, formatNumber(x.count), formatMoney(x.amount)])} total={['Total', formatNumber(d.income.total.count), formatMoney(d.income.total.amount)]} />
+          <PackTable head={['Designation', 'Donations', 'Amount']} align={['left', 'right', 'right']} rows={d.income.byDesignation.map((x) => [x.label, formatNumber(x.count), formatMoney(x.amount)])} total={['Total', formatNumber(d.income.total.count), formatMoney(d.income.total.amount)]} />
           <h3 className="mt-6 mb-2 text-[14px] font-semibold">By appeal</h3>
-          <PackTable head={['Appeal', 'Gifts', 'Amount']} align={['left', 'right', 'right']} rows={d.income.byAppeal.map((a) => [a.title, formatNumber(a.count), formatMoney(a.amount)])} />
+          <PackTable head={['Appeal', 'Donations', 'Amount']} align={['left', 'right', 'right']} rows={d.income.byAppeal.map((a) => [a.title, formatNumber(a.count), formatMoney(a.amount)])} />
         </PackSection>
 
         <PackSection n={6} title="Activity by country" lead="Where the money went, and the overseas partners registered in each country.">
           <PackTable
-            head={['Country', 'Gifts', 'Amount', 'Partners']}
+            head={['Country', 'Donations', 'Amount', 'Partners']}
             align={['left', 'right', 'right', 'left']}
             rows={d.countries.map((c) => [c.label, formatNumber(c.count), formatMoney(c.amount), c.partners.join('; ') || '—'])}
           />

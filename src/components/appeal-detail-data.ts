@@ -199,7 +199,7 @@ export const APPEAL_DETAIL: Record<string, AppealDetail> = {
     bandPosition: '58% 50%',
     need: [
       'A high school in Tarim, Hadhramaut, needs finishing: a new level, new classrooms, and the essential facilities its students should already have.',
-      'It is the town where Al-Anwaar made its first distribution, and a school is the kind of gift that keeps teaching long after it is built.',
+      'It is the town where Al-Anwaar made its first distribution, and a school is the kind of donation that keeps teaching long after it is built.',
     ],
     delivery: [
       'The project upgrades and completes an existing school: a new level, new classrooms, essential facilities and better infrastructure.',

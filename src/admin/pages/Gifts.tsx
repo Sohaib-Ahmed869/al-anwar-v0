@@ -62,7 +62,7 @@ export default function Gifts() {
   const all = can('gifts.read')
   const canCreate = can('gifts.create')
   const canExport = all && can('reports.export')
-  useDocumentTitle(all ? 'Gifts' : 'Gifts you’ve entered', 'Al-Anwaar admin')
+  useDocumentTitle(all ? 'Donations' : 'Donations you’ve entered', 'Al-Anwaar admin')
 
   const [s, set] = useUrlState(DEFAULTS)
   const [search, setSearch] = useState(s.q)
@@ -125,7 +125,7 @@ export default function Gifts() {
     try {
       const { gift: _g, new: _n, page: _p, sort: _s, ...f } = s
       await download('/admin/gifts/export', f, 'gifts.csv')
-      toast.success(`Downloaded ${plural(q.data?.total ?? 0, 'gift')} as CSV`)
+      toast.success(`Downloaded ${plural(q.data?.total ?? 0, 'donation')} as CSV`)
     } catch (e) {
       toast.error(errorMessage(e))
     } finally {
@@ -180,11 +180,11 @@ export default function Gifts() {
   return (
     <div>
       <PageHeader
-        title={all ? 'Gifts' : 'Gifts you’ve entered'}
+        title={all ? 'Donations' : 'Donations you’ve entered'}
         description={
           all
-            ? 'Every gift, online and offline, with its receipt. Filter, open one to resend a receipt or correct it.'
-            : 'Cash, cheques and event gifts you have recorded in the last 30 days. Record each one as it is handed to you and the donor gets their receipt straight away.'
+            ? 'Every donation, online and offline, with its receipt. Filter, open one to resend a receipt or correct it.'
+            : 'Cash, cheques and event donations you have recorded in the last 30 days. Record each one as it is handed to you and the donor gets their receipt straight away.'
         }
         actions={
           <>
@@ -195,7 +195,7 @@ export default function Gifts() {
             )}
             {canCreate && (
               <Button variant="primary" size={all ? 'md' : 'lg'} icon={<Plus />} onClick={openNew} className={cn(!all && 'w-full sm:w-auto')}>
-                Record a gift
+                Record a donation
               </Button>
             )}
           </>
@@ -206,7 +206,7 @@ export default function Gifts() {
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-green-50 px-4 py-3 ring-1 ring-green/15">
           <p className="text-[13.5px] text-green">
             <span className="nums font-semibold">
-              {plural(tally.count, 'gift')} · {formatMoney(tally.total)}
+              {plural(tally.count, 'donation')} · {formatMoney(tally.total)}
             </span>{' '}
             recorded this session — check it against the tin before you hand it in.
           </p>
@@ -220,7 +220,7 @@ export default function Gifts() {
         <SearchInput
           value={search}
           onChange={setSearch}
-          placeholder={all ? 'Donor, gift, receipt or bank reference' : 'Donor, gift or receipt number'}
+          placeholder={all ? 'Donor, donation, receipt or bank reference' : 'Donor, donation or receipt number'}
           className="w-full sm:w-80"
         />
         {all && <DateRangePicker value={s.from ? { from: s.from, to: s.to } : null} onChange={(r) => set({ from: r?.from ?? '', to: r?.to ?? '' })} />}
@@ -260,7 +260,7 @@ export default function Gifts() {
         <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b border-line-2 px-5 py-3.5">
           {totals ? (
             <p className="nums text-[14px] text-text-2">
-              <span className="font-semibold text-text">{formatNumber(totals.count)}</span> {totals.count === 1 ? 'gift' : 'gifts'}
+              <span className="font-semibold text-text">{formatNumber(totals.count)}</span> {totals.count === 1 ? 'donation' : 'donations'}
               <span className="mx-2 text-text-3">·</span>
               <span className="font-semibold text-text">{formatMoney(totals.amount)}</span> received
             </p>
@@ -268,7 +268,7 @@ export default function Gifts() {
             <span className="skeleton h-4 w-48 rounded" />
           )}
           {data && data.totals.count > 0 && s.status !== 'succeeded' && (
-            <p className="text-[12.5px] text-text-3">Refunded, failed and awaiting gifts are not in the total.</p>
+            <p className="text-[12.5px] text-text-3">Refunded, failed and awaiting donations are not in the total.</p>
           )}
         </div>
         <DataTable
@@ -301,27 +301,27 @@ export default function Gifts() {
           )}
           empty={
             q.isError ? (
-              <EmptyState title="The gifts could not be loaded" action={<Button onClick={() => q.refetch()}>Try again</Button>}>
+              <EmptyState title="The donations could not be loaded" action={<Button onClick={() => q.refetch()}>Try again</Button>}>
                 {errorMessage(q.error)}
               </EmptyState>
             ) : filtered ? (
-              <EmptyState icon={<SearchX />} title="No gifts match" action={<Button onClick={clear}>Clear filters</Button>}>
+              <EmptyState icon={<SearchX />} title="No donations match" action={<Button onClick={clear}>Clear filters</Button>}>
                 Try a wider date range or fewer filters.
               </EmptyState>
             ) : (
               <EmptyState
                 icon={<HandCoins />}
-                title={all ? 'No gifts yet' : 'You have not recorded a gift in the last 30 days'}
+                title={all ? 'No donations yet' : 'You have not recorded a donation in the last 30 days'}
                 action={
                   canCreate && (
                     <Button variant="primary" icon={<Plus />} onClick={openNew}>
-                      Record a gift
+                      Record a donation
                     </Button>
                   )
                 }
               >
                 {all
-                  ? 'Gifts from the website, bank imports and regular giving will appear here as they arrive.'
+                  ? 'Donations from the website, bank imports and regular giving will appear here as they arrive.'
                   : 'When someone hands you cash or a cheque, record it here. It takes about ten seconds.'}
               </EmptyState>
             )

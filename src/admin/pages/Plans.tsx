@@ -198,7 +198,7 @@ export default function Plans() {
     <div>
       <PageHeader
         title="Regular giving"
-        description="Monthly, fortnightly and weekly gifts, and larger gifts paid in instalments. A declined card is retried and the donor is sent a link to fix it."
+        description="Monthly, fortnightly and weekly donations, and larger donations paid in instalments. A declined card is retried and the donor is sent a link to fix it."
       />
 
       <div className="mb-6 grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
@@ -325,11 +325,11 @@ export default function Plans() {
           )}
           empty={
             q.isError ? (
-              <EmptyState title="Regular gifts could not be loaded" action={<Button onClick={() => q.refetch()}>Try again</Button>}>
+              <EmptyState title="Regular donations could not be loaded" action={<Button onClick={() => q.refetch()}>Try again</Button>}>
                 {errorMessage(q.error)}
               </EmptyState>
             ) : filtered ? (
-              <EmptyState icon={<SearchX />} title="No regular gifts match" action={<Button onClick={clear}>Clear filters</Button>}>
+              <EmptyState icon={<SearchX />} title="No regular donations match" action={<Button onClick={clear}>Clear filters</Button>}>
                 Try another name or fewer filters.
               </EmptyState>
             ) : (
@@ -349,12 +349,12 @@ export default function Plans() {
 
 const EMPTY: Record<PlanStatus, { title: string; body: ReactNode }> = {
   active: {
-    title: 'No active regular gifts',
+    title: 'No active regular donations',
     body: 'When a donor chooses to give every week, fortnight or month on the website, it appears here.',
   },
   past_due: {
     title: 'Every card went through',
-    body: 'No regular gift has a failed payment right now. Declines appear here the moment they happen.',
+    body: 'No regular donation has a failed payment right now. Declines appear here the moment they happen.',
   },
   paused: {
     title: 'Nothing is paused',
@@ -362,11 +362,11 @@ const EMPTY: Record<PlanStatus, { title: string; body: ReactNode }> = {
   },
   cancelled: {
     title: 'Nothing has been cancelled',
-    body: 'Cancelled plans stay here with the reason, and their gifts stay on the donor’s record.',
+    body: 'Cancelled plans stay here with the reason, and their donations stay on the donor’s record.',
   },
   completed: {
     title: 'No completed instalment plans yet',
-    body: 'A gift paid in instalments moves here once its last payment is taken.',
+    body: 'A donation paid in instalments moves here once its last payment is taken.',
   },
 }
 

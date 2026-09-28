@@ -6,6 +6,7 @@ import {
   Badge, Callout, ChoiceCards, Field, Input, MoneyInput, PageHeader, Skeleton, Switch, Textarea, useDebounced, useDocumentTitle,
 } from '../../portal/ui'
 import { SettingsCard, useSettingsSection, type SettingsView } from '../components/SettingsSection'
+import { OPERATING_COSTS_CENTS } from '../../../shared/operating-costs'
 
 /* ---------------------------------------------------------------------------
    Settings — the organisation's details, in the cards they are edited in.
@@ -15,7 +16,10 @@ import { SettingsCard, useSettingsSection, type SettingsView } from '../componen
    card's unsaved wording a moment after typing stops, because the receipt
    is the one email with legal requirements and nobody should have to save
    to see what it will say. Payments shows what the server is actually
-   connected to; only the fee rate is a setting.
+   connected to, and nothing in it is a setting any more: the percentage fee
+   donors could cover was retired on 28 September 2026 (client feedback) for
+   a fixed, optional contribution to operating costs, whose amounts live in
+   shared/operating-costs.ts rather than here.
 --------------------------------------------------------------------------- */
 
 const SECTIONS = [
@@ -41,15 +45,6 @@ export default function Settings() {
   const org = useSettingsSection('org', s, (x) => ({ ...x.org }), (d) => d)
   const receipts = useSettingsSection('receipts', s, (x) => ({ ...x.receipts }), (d) => ({ ...d, prefix: d.prefix.toUpperCase() }))
   const bank = useSettingsSection('bank', s, (x) => ({ ...x.bank }), (d) => d)
-  const payments = useSettingsSection(
-    'payments',
-    s,
-    (x) => ({ fee: String(+(x.payments.feeRate * 100).toFixed(2)) }),
-    (d) => {
-      const n = Number(d.fee)
-      return Number.isFinite(n) && d.fee.trim() !== '' ? { feeRate: +(n / 100).toFixed(4) } : 'Enter the fee as a percentage, like 2.6'
-    },
-  )
   const email = useSettingsSection('email', s, (x) => ({ ...x.email }), (d) => d)
   const zakat = useSettingsSection(
     'zakat',
@@ -72,7 +67,7 @@ export default function Settings() {
     placeholderData: keepPreviousData,
   })
 
-  if (q.isLoading || !s || !org.draft || !receipts.draft || !bank.draft || !payments.draft || !email.draft || !zakat.draft) {
+  if (q.isLoading || !s || !org.draft || !receipts.draft || !bank.draft || !email.draft || !zakat.draft) {
     return (
       <>
         <PageHeader title="Settings" />
@@ -140,14 +135,14 @@ export default function Settings() {
               <Input value={o.address} onChange={(ev) => org.set('address', ev.target.value)} />
             </Field>
             <div className="rounded-xl bg-paper-2 p-4">
-              <Switch checked={o.dgr} onChange={(v) => org.set('dgr', v)} label="Deductible Gift Recipient" description="Endorsed by the ATO, so gifts of $2 or more are tax deductible." />
+              <Switch checked={o.dgr} onChange={(v) => org.set('dgr', v)} label="Deductible Gift Recipient" description="Endorsed by the ATO, so donations of $2 or more are tax deductible." />
               <Field label="What receipts say about it" error={org.errors.dgrNote} className="mt-4">
                 <Textarea rows={2} value={o.dgrNote} onChange={(ev) => org.set('dgrNote', ev.target.value)} />
               </Field>
             </div>
           </SettingsCard>
 
-          <SettingsCard id="receipts" title="Receipts" description="The tax receipt emailed for every paid gift. The preview updates as you type." icon={<ReceiptText />} section={receipts}>
+          <SettingsCard id="receipts" title="Receipts" description="The tax receipt emailed for every paid donation. The preview updates as you type." icon={<ReceiptText />} section={receipts}>
             <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
               <div className="space-y-4">
                 <Field label="Receipt number prefix" error={receipts.errors.prefix} help={`Numbers look like ${r.prefix.toUpperCase() || 'AA'}-2027-000123. Changing it only affects new receipts.`}>
@@ -208,33 +203,24 @@ export default function Settings() {
           <SettingsCard
             id="payments"
             title="Payments"
-            description="Card and PayPal payments, and the processing fee donors can choose to cover."
+            description="Card and PayPal payments, and what donors can add at checkout."
             icon={<CreditCard />}
             action={<Badge tone={mode.tone} dot>{mode.label}</Badge>}
-            section={payments}
           >
             <Callout tone={s.runtime.paymentsMode === 'live' ? 'green' : 'amber'}>
               {mode.text} {s.runtime.paypal ? 'PayPal is connected.' : 'PayPal is not connected.'} This is set on the server, not here.
             </Callout>
-            <Field
-              label="Processing fee donors can cover"
-              error={payments.errors.feeRate ?? payments.errors.fee}
-              help={
-                Number.isFinite(Number(payments.draft.fee))
-                  ? `On a $100 gift the donor is offered to add ${formatMoney(Math.round(10000 * (Number(payments.draft.fee) / 100)), { exact: true })}.`
-                  : 'A percentage, like 2.6'
-              }
-            >
-              <div className="w-32">
-              <Input
-                value={payments.draft.fee}
-                onChange={(ev) => payments.set('fee', ev.target.value)}
-                inputMode="decimal"
-                trailing={<span className="pr-1 text-[13px]">%</span>}
-                className="nums"
-              />
-              </div>
-            </Field>
+            <div className="rounded-xl bg-paper-2 p-4 text-[13px] text-text-2">
+              <p className="font-medium text-text">Operating costs contribution</p>
+              <p className="mt-1">
+                Checkout says Al-Anwaar takes a 0% admin fee on donations, and offers an optional contribution to operating costs of{' '}
+                {OPERATING_COSTS_CENTS.filter(Boolean).map((c) => formatMoney(c)).join(', ')}, or none (the default). It is recorded
+                apart from the donation, on receipts, reports and the Xero export.
+              </p>
+              <p className="mt-2 text-[12px] text-text-3">
+                The percentage processing fee donors could cover was retired on 28 September 2026. Regular donations started before then keep the fee they were agreed on.
+              </p>
+            </div>
           </SettingsCard>
 
           <SettingsCard

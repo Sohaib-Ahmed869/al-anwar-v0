@@ -64,9 +64,9 @@ export function ReportIncome({ range, group, onGroup, canExport }: { range: Date
       ),
       total: '100%',
     },
-    { key: 'count', header: 'Gifts', align: 'right', cell: (r) => <span className="nums">{formatNumber(r.count)}</span>, total: d && formatNumber(d.totals.count) },
+    { key: 'count', header: 'Donations', align: 'right', cell: (r) => <span className="nums">{formatNumber(r.count)}</span>, total: d && formatNumber(d.totals.count) },
     { key: 'donors', header: 'Donors', align: 'right', cell: (r) => <span className="nums">{formatNumber(r.donors)}</span>, total: d && formatNumber(d.totals.donors) },
-    { key: 'fees', header: 'Fees covered', align: 'right', cell: (r) => <Money cents={r.fees} className="text-text-2" />, total: d && <Money cents={d.totals.fees} /> },
+    { key: 'fees', header: 'Operating costs', align: 'right', cell: (r) => <Money cents={r.fees} className="text-text-2" />, total: d && <Money cents={d.totals.fees} /> },
   ]
 
   const exportCsv = () =>
@@ -93,10 +93,10 @@ export function ReportIncome({ range, group, onGroup, canExport }: { range: Date
       ) : (
         <div className={q.isFetching ? 'opacity-70 transition-opacity' : 'transition-opacity'}>
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            <Stat icon={<Wallet />} label="Income" value={<Money cents={d.totals.amount} />} hint="paid gifts only" />
-            <Stat icon={<HandCoins />} label="Gifts" value={formatNumber(d.totals.count)} hint={d.totals.count ? `average ${formatMoney(Math.round(d.totals.amount / d.totals.count), { whole: true })}` : undefined} />
+            <Stat icon={<Wallet />} label="Income" value={<Money cents={d.totals.amount} />} hint="paid donations only" />
+            <Stat icon={<HandCoins />} label="Donations" value={formatNumber(d.totals.count)} hint={d.totals.count ? `average ${formatMoney(Math.round(d.totals.amount / d.totals.count), { whole: true })}` : undefined} />
             <Stat icon={<Users />} label="Donors" value={formatNumber(d.totals.donors)} hint={d.totals.donors ? `${formatMoney(Math.round(d.totals.amount / d.totals.donors), { whole: true })} each on average` : undefined} />
-            <Stat icon={<Receipt />} label="Fees covered by donors" value={<Money cents={d.totals.fees} />} hint="on top of the gifts" />
+            <Stat icon={<Receipt />} label="Operating costs contributions" value={<Money cents={d.totals.fees} />} hint="on top of the donations" />
           </div>
 
           {d.totals.count === 0 ? (
@@ -109,13 +109,13 @@ export function ReportIncome({ range, group, onGroup, canExport }: { range: Date
             <>
               <div className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
                 <Card>
-                  <CardHeader title="Month by month" description="Paid gifts, by the month they arrived" />
+                  <CardHeader title="Month by month" description="Paid donations, by the month they arrived" />
                   <CardBody>
                     <MoneyColumnChart data={d.series} xKey="label" series={[{ key: 'amount', label: 'Income' }]} height={250} />
                   </CardBody>
                 </Card>
                 <Card>
-                  <CardHeader title={`By ${name}`} description={RING.includes(group) ? 'Share of the total' : d.rows.length > 6 ? 'The six largest, with the number of gifts' : 'With the number of gifts'} />
+                  <CardHeader title={`By ${name}`} description={RING.includes(group) ? 'Share of the total' : d.rows.length > 6 ? 'The six largest, with the number of donations' : 'With the number of donations'} />
                   <CardBody>
                     {RING.includes(group) ? (
                       <Donut rows={d.rows.map((r) => ({ label: r.label, value: r.amount }))} centerLabel="total" />

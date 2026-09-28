@@ -76,7 +76,7 @@ export default function Dashboard() {
             )}
             {can('gifts.create') && (
               <ButtonLink to="/admin/gifts?new=1" variant="primary" icon={<Plus />}>
-                Record a gift
+                Record a donation
               </ButtonLink>
             )}
           </>
@@ -123,12 +123,12 @@ export default function Dashboard() {
           onClick={can('plans.manage') ? () => nav('/admin/plans') : undefined}
         />
         <Stat
-          label="Average gift"
+          label="Average donation"
           icon={<CircleDollarSign />}
           loading={!d}
           value={d && <Money cents={d.kpis.averageGift.value} />}
           delta={d?.kpis.averageGift.delta}
-          deltaLabel={d ? `${formatNumber(d.kpis.raisedThisMonth.gifts)} gifts this month` : undefined}
+          deltaLabel={d ? `${formatNumber(d.kpis.raisedThisMonth.gifts)} donations this month` : undefined}
         />
       </div>
 
@@ -188,7 +188,7 @@ export default function Dashboard() {
                 rows={d.designations.map((x) => ({ label: DESIGNATIONS[x.designation]?.label ?? x.designation, value: x.total }))}
               />
             ) : (
-              <EmptyState compact title="No gifts yet this year">The split appears with the first gift of the financial year.</EmptyState>
+              <EmptyState compact title="No donations yet this year">The split appears with the first donation of the financial year.</EmptyState>
             )}
           </div>
         </Card>
@@ -198,11 +198,11 @@ export default function Dashboard() {
       {can('gifts.read') && (
         <Card className="mt-4 overflow-hidden">
           <CardHeader
-            title="Latest gifts"
-            description="Paid gifts, newest first"
+            title="Latest donations"
+            description="Paid donations, newest first"
             action={
               <ButtonLink to="/admin/gifts" variant="ghost" size="sm" iconRight={<ArrowRight />}>
-                All gifts
+                All donations
               </ButtonLink>
             }
           />
@@ -238,8 +238,8 @@ export default function Dashboard() {
               ))}
             </ul>
           ) : (
-            <EmptyState compact icon={<HandCoins />} title="No gifts yet">
-              Gifts from the website, the bank import and events appear here as they arrive.
+            <EmptyState compact icon={<HandCoins />} title="No donations yet">
+              Donations from the website, the bank import and events appear here as they arrive.
             </EmptyState>
           )}
         </Card>

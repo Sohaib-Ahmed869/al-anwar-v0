@@ -11,7 +11,7 @@ export const DEFAULT_SETTINGS: SettingsShape = {
     name: 'Al-Anwaar Charity Group Ltd',
     abn: '16 643 085 152',
     dgr: true,
-    dgrNote: 'Endorsed as a Deductible Gift Recipient. Gifts of $2 or more are tax deductible in Australia.',
+    dgrNote: 'Endorsed as a Deductible Gift Recipient. Donations of $2 or more are tax deductible in Australia.',
     email: 'info@alanwaar.group',
     phone: '',
     address: '11 Egerton St, Silverwater NSW 2128',
@@ -21,7 +21,7 @@ export const DEFAULT_SETTINGS: SettingsShape = {
     prefix: 'AA',
     signatory: 'Treasurer',
     signatoryTitle: 'For the Board of Al-Anwaar Charity Group Ltd',
-    footer: 'No goods or services were provided in return for this gift.',
+    footer: 'No goods or services were provided in return for this donation.',
   },
   bank: {
     accountName: 'Al-Anwaar Charity Group Ltd',

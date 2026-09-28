@@ -232,7 +232,7 @@ export default function GiveHero() {
                   "Your gift, handed over in Yemen, Gaza and Lebanon.", a list
                   of places; changed 16 September 2026 at the user's request
                   for a line that means something. */}
-                <Words text="One gift, planted like a seed." play="load" delay={140} step={70} />
+                <Words text="One donation, planted like a seed." play="load" delay={140} step={70} />
               </h1>
 
               <figure className="mt-4 max-w-[46ch]" style={rise(3)}>

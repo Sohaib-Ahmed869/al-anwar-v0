@@ -130,7 +130,7 @@ export default function DonorDetail() {
           <>
             {can('gifts.create') && d.status !== 'merged' && (
               <ButtonLink to={`/admin/gifts?new=1&donor=${d.id}`} variant="primary" icon={<Plus />}>
-                Record a gift
+                Record a donation
               </ButtonLink>
             )}
             <a href={`mailto:${d.email}`} className={buttonClass('secondary', 'md')}>
@@ -156,7 +156,7 @@ export default function DonorDetail() {
               </MenuItem>
               {can('gifts.read') && (
                 <MenuItem icon={<HandCoins />} onSelect={() => nav(`/admin/gifts?donor=${d.id}`)}>
-                  Open in the gifts list
+                  Open in the donations list
                 </MenuItem>
               )}
               {can('donors.merge') && (
@@ -179,7 +179,7 @@ export default function DonorDetail() {
           title="This record was merged"
           action={<ButtonLink to={`/admin/donors/${d.mergedInto}`} variant="secondary" size="sm" iconRight={<ArrowRight />}>Open the surviving record</ButtonLink>}
         >
-          Its gifts, regular gifts and emails now live on the surviving record. This page is kept so old links still lead somewhere.
+          Its donations, regular donations and emails now live on the surviving record. This page is kept so old links still lead somewhere.
         </Callout>
       )}
 
@@ -187,10 +187,10 @@ export default function DonorDetail() {
         {/* ---------- the story ---------- */}
         <div className="min-w-0">
           <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
-            <Stat label="Lifetime" value={<Money cents={d.totalGiven} />} hint={d.lastGiftAt ? `last gift ${formatDay(d.lastGiftAt)}` : 'no gifts yet'} />
-            <Stat label={`This year, ${fyLabel(s.thisFy.fy)}`} value={<Money cents={s.thisFy.total} />} hint={plural(s.thisFy.count, 'gift')} />
-            <Stat label="Gifts" value={formatNumber(d.giftCount)} hint={d.giftCount ? `about ${formatMoney(Math.round(d.totalGiven / d.giftCount), { whole: true })} each` : undefined} />
-            <Stat label="First gift" value={d.firstGiftAt ? format(new Date(d.firstGiftAt), 'MMM yyyy') : '—'} hint={d.firstGiftAt ? formatRelative(d.firstGiftAt) : 'not yet'} />
+            <Stat label="Lifetime" value={<Money cents={d.totalGiven} />} hint={d.lastGiftAt ? `last donation ${formatDay(d.lastGiftAt)}` : 'no donations yet'} />
+            <Stat label={`This year, ${fyLabel(s.thisFy.fy)}`} value={<Money cents={s.thisFy.total} />} hint={plural(s.thisFy.count, 'donation')} />
+            <Stat label="Donations" value={formatNumber(d.giftCount)} hint={d.giftCount ? `about ${formatMoney(Math.round(d.totalGiven / d.giftCount), { whole: true })} each` : undefined} />
+            <Stat label="First donation" value={d.firstGiftAt ? format(new Date(d.firstGiftAt), 'MMM yyyy') : '—'} hint={d.firstGiftAt ? formatRelative(d.firstGiftAt) : 'not yet'} />
           </div>
 
           <Tabs
@@ -199,8 +199,8 @@ export default function DonorDetail() {
             onChange={(v) => setUrl({ tab: v })}
             tabs={[
               { value: 'overview', label: 'Overview' },
-              { value: 'gifts', label: 'Gifts', count: d.giftCount },
-              { value: 'plans', label: 'Regular gifts', count: s.plans.length },
+              { value: 'gifts', label: 'Donations', count: d.giftCount },
+              { value: 'plans', label: 'Regular donations', count: s.plans.length },
               { value: 'emails', label: 'Emails', count: s.emailsCount },
               { value: 'enquiries', label: 'Enquiries', count: s.enquiries.length },
               { value: 'activity', label: 'Activity' },
@@ -481,7 +481,7 @@ function Overview({ record, onTab, activePlans }: { record: DonorRecord; onTab: 
     return (
       <Card>
         <EmptyState icon={<HandCoins />} title={`${d.firstName} has not given yet`}>
-          They are on file from {SOURCE[d.source] ?? 'the website'}. Their first gift, from any channel, will appear here.
+          They are on file from {SOURCE[d.source] ?? 'the website'}. Their first donation, from any channel, will appear here.
         </EmptyState>
       </Card>
     )
@@ -516,19 +516,19 @@ function Overview({ record, onTab, activePlans }: { record: DonorRecord; onTab: 
           </div>
         </Card>
         <Card className="min-w-0">
-          <CardHeader title="Given as" description="Every gift, all time" />
+          <CardHeader title="Given as" description="Every donation, all time" />
           <div className="px-5 pb-5 sm:px-6">
             {s.byDesignation.length ? (
               <Donut size={132} centerLabel="lifetime" rows={s.byDesignation.map((x) => ({ label: DESIGNATIONS[x.designation]?.label ?? x.designation, value: x.total }))} />
             ) : (
-              <p className="text-[13px] text-text-3">No paid gifts yet.</p>
+              <p className="text-[13px] text-text-3">No paid donations yet.</p>
             )}
           </div>
         </Card>
       </div>
       <Card className="overflow-hidden">
         <CardHeader
-          title="Recent gifts"
+          title="Recent donations"
           action={
             <Button variant="ghost" size="sm" iconRight={<ArrowRight />} onClick={() => onTab('gifts')}>
               All {formatNumber(d.giftCount)}
@@ -567,7 +567,7 @@ function Overview({ record, onTab, activePlans }: { record: DonorRecord; onTab: 
 }
 
 function GiftList({ gifts }: { gifts: Gift[] }) {
-  if (!gifts.length) return <p className="px-5 pb-5 text-[13px] text-text-3 sm:px-6">No gifts yet.</p>
+  if (!gifts.length) return <p className="px-5 pb-5 text-[13px] text-text-3 sm:px-6">No donations yet.</p>
   return (
     <ul className="divide-y divide-line-2 border-t border-line-2">
       {gifts.map((g) => (
@@ -648,7 +648,7 @@ function GiftsTab({ donorId }: { donorId: string }) {
             </div>
           </div>
         )}
-        empty={<EmptyState compact icon={<HandCoins />} title="No gifts yet">Every gift they make, by any method, is listed here.</EmptyState>}
+        empty={<EmptyState compact icon={<HandCoins />} title="No donations yet">Every donation they make, by any method, is listed here.</EmptyState>}
       />
       {q.data && <Pagination page={page} pageSize={q.data.pageSize} total={q.data.total} onPage={setPage} />}
     </Card>
@@ -663,8 +663,8 @@ function PlansTab({ plans }: { plans: Plan[] }) {
   if (!plans.length) {
     return (
       <Card>
-        <EmptyState compact icon={<Repeat />} title="No regular gifts">
-          When they set up a weekly, fortnightly or monthly gift it appears here.
+        <EmptyState compact icon={<Repeat />} title="No regular donations">
+          When they set up a weekly, fortnightly or monthly donation it appears here.
         </EmptyState>
       </Card>
     )
@@ -724,7 +724,7 @@ const TEMPLATE_LABELS: Record<string, string> = {
   'campaign.test': 'Campaign test',
   'plan.failed': 'Failed payment',
   'plan.notice': 'Upcoming payment',
-  'plan.changed': 'Regular gift updated',
+  'plan.changed': 'Regular donation updated',
   'tax.statement': 'Tax statement',
   'bank.instructions': 'Bank transfer details',
   'enquiry.reply': 'Reply to enquiry',
@@ -882,7 +882,7 @@ function ActivityTab({ donorId }: { donorId: string }) {
         </ol>
       ) : (
         <EmptyState compact icon={<Activity />} title="Nothing logged yet">
-          Every change to this record and their gifts is logged here with who made it and when.
+          Every change to this record and their donations is logged here with who made it and when.
         </EmptyState>
       )}
       {q.data && <Pagination page={page} pageSize={q.data.pageSize} total={q.data.total} onPage={setPage} />}

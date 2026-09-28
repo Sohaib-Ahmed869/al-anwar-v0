@@ -201,8 +201,8 @@ export const RAMADAN: Season = {
       a: 'Fidyah is for a fast you cannot make up, through long illness or old age: one person fed for each day. Kaffarah is for a fast broken on purpose without a valid reason: sixty days fasted in a row, or sixty people fed by someone who cannot fast them. The schools differ on which broken fasts need it.',
     },
     {
-      q: 'Is my Ramadan gift tax deductible?',
-      a: 'Yes. Al-Anwaar is a deductible gift recipient, so gifts of $2 and over can be claimed, whichever fund they go to. Your receipt is emailed as soon as the payment goes through.',
+      q: 'Is my Ramadan donation tax deductible?',
+      a: 'Yes. Al-Anwaar is a deductible gift recipient, so donations of $2 and over can be claimed, whichever fund they go to. Your receipt is emailed as soon as the payment goes through.',
     },
   ],
 }
@@ -284,7 +284,7 @@ export const DHUL_HIJJAH: Season = {
   },
   appeals: {
     eyebrow: 'Open appeals',
-    title: 'Where else your gift can go.',
+    title: 'Where else your donation can go.',
     lede: 'The appeals that stay open through Eid.',
     slugs: ['gaza-emergency', 'yemen-food-relief', 'water-stations-yemen'],
   },

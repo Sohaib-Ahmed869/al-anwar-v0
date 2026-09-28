@@ -34,10 +34,10 @@ export default function Reports() {
   useDocumentTitle(`${tabs.find((t) => t.value === tab)?.label ?? 'Reports'} · Reports`, 'Al-Anwaar Admin')
 
   const descriptions: Record<Tab, string> = {
-    income: 'Paid gifts by appeal, designation, country or month — the figures the board and the auditor ask for.',
+    income: 'Paid donations by appeal, designation, country or month — the figures the board and the auditor ask for.',
     receipts: 'Every tax receipt issued in the period, with whether it was emailed. Numbers are never reused.',
     donors: 'Who is new, who keeps giving, and who has stopped — month by month.',
-    xero: 'A file for your bookkeeper: every paid gift, already coded to the right income account.',
+    xero: 'A file for your bookkeeper: every paid donation, already coded to the right income account.',
   }
 
   return (

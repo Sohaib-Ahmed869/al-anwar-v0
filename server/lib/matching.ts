@@ -92,12 +92,12 @@ const APPEAL_WORDS = new Set(
 
 /** Lines that are money in but not a gift: the office should ignore them. */
 const NOT_A_GIFT: [RegExp, string][] = [
-  [/\bINTEREST\b/, 'Looks like bank interest, not a gift. You can ignore it.'],
-  [/\b(REFUND|REVERSAL|REVERSED|CHARGEBACK)\b/, 'Looks like a refund from a supplier, not a gift. You can ignore it.'],
-  [/\bSTRIPE\b/, 'Looks like a Stripe payout. Card gifts are already recorded one by one, so ignore this.'],
-  [/\bPAYPAL\b/, 'Looks like a PayPal transfer. PayPal gifts are already recorded, so ignore this.'],
-  [/\b(ATO|AUSTRALIAN TAXATION)\b/, 'Looks like a payment from the ATO, not a gift. You can ignore it.'],
-  [/\bDIVIDEND\b/, 'Looks like a dividend, not a gift. You can ignore it.'],
+  [/\bINTEREST\b/, 'Looks like bank interest, not a donation. You can ignore it.'],
+  [/\b(REFUND|REVERSAL|REVERSED|CHARGEBACK)\b/, 'Looks like a refund from a supplier, not a donation. You can ignore it.'],
+  [/\bSTRIPE\b/, 'Looks like a Stripe payout. Card donations are already recorded one by one, so ignore this.'],
+  [/\bPAYPAL\b/, 'Looks like a PayPal transfer. PayPal donations are already recorded, so ignore this.'],
+  [/\b(ATO|AUSTRALIAN TAXATION)\b/, 'Looks like a payment from the ATO, not a donation. You can ignore it.'],
+  [/\bDIVIDEND\b/, 'Looks like a dividend, not a donation. You can ignore it.'],
 ]
 
 export function findReference(...texts: (string | undefined)[]): string | undefined {
@@ -251,7 +251,7 @@ export async function matchLines(lines: LineIn[]): Promise<MatchOut[]> {
         setDonor(d)
         out.status = 'matched'
         m.confidence = 0.9
-        reasons.push(`Reference ${ref} was used by ${nameOf(d)} before (gift ${g.number} on ${format(g.date, 'd MMM yyyy')})`)
+        reasons.push(`Reference ${ref} was used by ${nameOf(d)} before (donation ${g.number} on ${format(g.date, 'd MMM yyyy')})`)
       }
     }
 

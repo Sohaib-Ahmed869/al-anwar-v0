@@ -37,7 +37,7 @@ const GiftSchema = new Schema(
     bankImport: { type: Schema.Types.ObjectId, ref: 'BankImport' },
     /** what the donor asked for at checkout, kept so the Stripe webhook can
      *  start the regular gift once the first payment lands */
-    checkout: { frequency: String, instalments: Number, coverFee: Boolean },
+    checkout: { frequency: String, instalments: Number, coverFee: Boolean, operatingCosts: Number },
   },
   { timestamps: true },
 )

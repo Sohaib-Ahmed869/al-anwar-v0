@@ -268,7 +268,7 @@ export default function CampaignEdit() {
                       value={form.body}
                       onChange={(e) => set('body', e.target.value)}
                       className={cn('font-[450] leading-relaxed', !frozen && 'rounded-t-none')}
-                      placeholder={'Assalamu alaykum {{firstName}},\n\nStart with the people, then what a gift does.\n\n[Give now](/give)'}
+                      placeholder={'Assalamu alaykum {{firstName}},\n\nStart with the people, then what a donation does.\n\n[Give now](/give)'}
                     />
                   </div>
                 </Field>

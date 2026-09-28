@@ -6,6 +6,7 @@ import {
   DESIGNATION_KEYS, ENQUIRY_TYPES, FREQUENCIES, type Designation, type EnquiryType, type Frequency,
 } from '../../shared/domain'
 import { formatMoney } from '../../shared/money'
+import { OPERATING_COSTS_CENTS, isOperatingCosts } from '../../shared/operating-costs'
 import { bankTransferEmail } from '../emails/templates'
 import { button, esc, layout, muted, p, url } from '../emails/layout'
 import { env, paymentsSimulated } from '../env'
@@ -24,7 +25,7 @@ import { getQuickGive } from '../models/QuickGive'
    /api/public — everything the public website asks the server for. No
    session, no permissions; what a stranger may see and do is decided here.
 
-     GET  /config                 bank details, fee rate, payment mode, nisab
+     GET  /config                 bank details, operating-cost choices, payment mode, nisab
      GET  /quick-give             the home page's quick-donate list, in order
      GET  /appeals, /appeals/:slug
      GET  /fundraisers, /fundraisers/:slug
@@ -61,7 +62,7 @@ type SiteGift = {
   frequency: 'once' | 'monthly'
   appeal?: string
   amount: number
-  coverFee: boolean
+  operatingCosts: number
   provider: 'stripe' | 'paypal'
   first: string
   last: string
@@ -118,7 +119,7 @@ r.get('/config', async (_req, res) => {
   const s = await getSettings()
   res.json({
     bank: { accountName: s.bank.accountName, bsb: s.bank.bsb, accountNumber: s.bank.accountNumber, bankName: s.bank.bankName },
-    feeRate: s.payments.feeRate,
+    operatingCosts: OPERATING_COSTS_CENTS,
     payments: paymentsSimulated ? 'simulated' : 'stripe',
     /* in simulated mode PayPal is simulated along with everything else */
     paypal: Boolean(env.paypal) || paymentsSimulated,
@@ -269,7 +270,7 @@ r.post('/fundraisers', formLimit, async (req, res) => {
   if (b.company?.trim()) return res.status(201).json({ ok: true, slug: '' })
 
   const appeal = await Appeal.findOne({ slug: b.appeal })
-  if (!appeal || appeal.status !== 'open') throw new HttpError(400, 'That appeal is not taking gifts right now. Choose another.', { appeal: 'Not open' })
+  if (!appeal || appeal.status !== 'open') throw new HttpError(400, 'That appeal is not taking donations right now. Choose another.', { appeal: 'Not open' })
 
   const { donor, created } = await findOrCreateDonor({ email: b.email, firstName: b.first, lastName: b.last, source: 'fundraiser' })
 
@@ -336,7 +337,8 @@ const zCheckout = z.object({
   instalments: z.number().int().min(2, 'At least two instalments').max(36, 'At most 36 instalments').optional(),
   /** dollars, as the form asks for them; cents from here on */
   amount: z.number(),
-  coverFee: z.boolean().default(false),
+  /** dollars too: 0, 2, 5 or 10 (shared/operating-costs.ts); cents from here on */
+  operatingCosts: z.number().default(0),
   provider: z.enum(['stripe', 'paypal', 'bank']),
   first: z.string().max(80).default(''),
   last: z.string().max(80).default(''),
@@ -366,7 +368,7 @@ r.post('/checkout', checkoutLimit, async (req, res) => {
     frequency: regular && !b.instalments ? 'monthly' : 'once',
     appeal: b.appeal,
     amount: b.amount,
-    coverFee: b.coverFee,
+    operatingCosts: b.operatingCosts,
     provider: b.provider === 'bank' ? 'stripe' : b.provider,
     first: b.first,
     last: b.last,
@@ -376,8 +378,8 @@ r.post('/checkout', checkoutLimit, async (req, res) => {
   })
   if (b.instalments && !regular) bad.frequency ??= 'Choose how often the instalments are taken.'
   if (regular && b.provider === 'bank')
-    bad.provider ??= 'A regular gift is taken by card. A standing transfer can be set up in your own banking app.'
-  if (regular && b.provider === 'paypal') bad.provider ??= 'Regular gifts are by card. PayPal can only take a one-time gift.'
+    bad.provider ??= 'A regular donation is taken by card. A standing transfer can be set up in your own banking app.'
+  if (regular && b.provider === 'paypal') bad.provider ??= 'Regular donations are by card. PayPal can only take a one-time donation.'
   if (Object.keys(bad).length) throw badRequest('Some details need another look.', bad)
 
   const payLive = b.provider === 'stripe' ? Boolean(env.stripe) : b.provider === 'paypal' ? Boolean(env.paypal) : true
@@ -393,7 +395,7 @@ r.post('/checkout', checkoutLimit, async (req, res) => {
       ? await Appeal.findOne({ slug, status: { $in: ['open', 'closed'] } })
       : null
   if (appeal?.status === 'closed' && !fundraiser)
-    throw badRequest(`${appeal.title} has closed.`, { appeal: `${appeal.title} has closed and is no longer taking gifts. Thank you for thinking of it.` })
+    throw badRequest(`${appeal.title} has closed.`, { appeal: `${appeal.title} has closed and is no longer taking donations. Thank you for thinking of it.` })
 
   const { CAUSES } = await siteFunds()
   const fundLabel = CAUSES.find((c) => c.id === b.fund)?.label ?? 'Al-Anwaar'
@@ -403,7 +405,7 @@ r.post('/checkout', checkoutLimit, async (req, res) => {
   if (created) {
     donor.set('preferences.emailOptIn', b.updates)
     await donor.save()
-    await audit(req, 'donor.create', `Added ${fullName(donor)} (${donor.number}) from a gift on the website`, {
+    await audit(req, 'donor.create', `Added ${fullName(donor)} (${donor.number}) from a donation on the website`, {
       type: 'donor', id: donor._id, label: donor.number,
     })
   } else if (b.updates && !donor.preferences?.emailOptIn) {
@@ -415,9 +417,18 @@ r.post('/checkout', checkoutLimit, async (req, res) => {
 
   const s = await getSettings()
   const amount = Math.round(b.amount * 100)
-  const fee = b.coverFee && b.provider !== 'bank' ? Math.round(amount * s.payments.feeRate) : 0
+  /* The optional operating-costs contribution (28 September 2026), which
+     replaced the percentage card fee. It rides on the gift's `fee` field, in
+     cents, so it stays separate from the donation through recordGift(), the
+     receipt, the reports and the Xero export. validateGift() has already
+     checked the dollars; this checks the cents against the same shared list,
+     so rounding can never let an unlisted figure through. A bank transfer
+     pledge is for the donation alone, as the card fee was. */
+  const ops = Math.round(b.operatingCosts * 100)
+  if (!isOperatingCosts(ops)) throw badRequest('Some details need another look.', { operatingCosts: 'Choose $2, $5, $10 or no contribution to operating costs.' })
+  const fee = b.provider === 'bank' ? 0 : ops
   const frequency = regular ? (b.frequency as Frequency) : null
-  const checkout = { frequency: b.frequency, instalments: b.instalments, coverFee: b.coverFee }
+  const checkout = { frequency: b.frequency, instalments: b.instalments, operatingCosts: fee }
   const label = `${fundLabel}${appeal ? ` — ${appeal.title}` : ''}${frequency ? ` (${FREQUENCIES[frequency].label.toLowerCase()})` : ''}`
   const base = {
     donor,
@@ -462,7 +473,7 @@ r.post('/checkout', checkoutLimit, async (req, res) => {
         {
           donor,
           amount,
-          coverFee: b.coverFee,
+          operatingCosts: fee,
           designation,
           frequency,
           instalments: b.instalments,
@@ -526,7 +537,7 @@ r.get('/paypal/return', async (req, res) => {
     gift.status = 'failed'
     gift.failureReason = cap.error
     await gift.save()
-    await audit(req, 'gift.failed', `PayPal did not complete ${formatMoney(gift.amount)} gift ${gift.number} from ${gift.donorName}: ${cap.error}`, {
+    await audit(req, 'gift.failed', `PayPal did not complete ${formatMoney(gift.amount)} donation ${gift.number} from ${gift.donorName}: ${cap.error}`, {
       type: 'gift', id: gift._id, label: gift.number,
     })
   }
@@ -538,9 +549,9 @@ r.get('/paypal/return', async (req, res) => {
    matter if a gift id were guessed. Only website gifts from the last 30 days
    answer at all; an old or offline gift is simply "not found". */
 r.get('/gifts/:id/status', async (req: Request<{ id: string }>, res) => {
-  if (!isId(req.params.id)) throw notFound('That gift')
+  if (!isId(req.params.id)) throw notFound('That donation')
   const g = await Gift.findById(req.params.id).lean()
-  if (!g || g.source !== 'online' || Date.now() - new Date(g.createdAt).getTime() > 30 * 86_400_000) throw notFound('That gift')
+  if (!g || g.source !== 'online' || Date.now() - new Date(g.createdAt).getTime() > 30 * 86_400_000) throw notFound('That donation')
   const [donor, plan, s] = await Promise.all([
     Donor.findById(g.donor).select('firstName').lean(),
     g.plan ? Plan.findById(g.plan).select('frequency kind instalments nextChargeAt').lean() : null,
@@ -691,7 +702,7 @@ r.get('/unsubscribe', async (req, res) => {
       heading: `You are unsubscribed, ${donor.firstName}`,
       body: [
         p(`We will not send appeals, updates or letters to <strong>${esc(donor.email)}</strong> any more.`),
-        muted('Receipts for any gift you give, and notices about a regular gift you have with us, still come — they are records, not marketing.'),
+        muted('Receipts for any donation you give, and notices about a regular donation you have with us, still come — they are records, not marketing.'),
         p('Changed your mind, or only want to hear about some things? You can choose exactly what arrives.'),
         button('Fine-tune my emails', url('/account/profile')),
       ].join(''),

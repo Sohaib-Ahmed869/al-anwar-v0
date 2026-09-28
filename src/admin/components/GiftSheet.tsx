@@ -34,7 +34,7 @@ const SOURCE: Record<Gift['source'], string> = {
   online: 'Website',
   offline: 'Entered by staff',
   bank: 'Bank statement import',
-  recurring: 'Regular gift',
+  recurring: 'Regular donation',
 }
 
 export function GiftSheet({ id, onClose }: { id: string | null; onClose: () => void }) {
@@ -82,7 +82,7 @@ export function GiftSheet({ id, onClose }: { id: string | null; onClose: () => v
       {formatMoney(g.amount, { exact: g.amount % 100 !== 0 })} <span className="font-normal text-text-2">from</span> {g.donorName}
     </span>
   ) : (
-    'Gift'
+    'Donation'
   )
 
   return (
@@ -146,7 +146,7 @@ export function GiftSheet({ id, onClose }: { id: string | null; onClose: () => v
                       onClick={async () => {
                         const ok = await confirm({
                           title: 'Mark this transfer as received?',
-                          body: `Use this when ${formatMoney(g.amount)} with reference ${g.reference ?? 'shown'} is in the bank but did not come through a statement import. The gift counts from today, and ${
+                          body: `Use this when ${formatMoney(g.amount)} with reference ${g.reference ?? 'shown'} is in the bank but did not come through a statement import. The donation counts from today, and ${
                             d.donor?.hasEmail ? `a receipt is emailed to ${d.donor.email}` : 'a receipt number is issued'
                           }.`,
                           confirmLabel: 'Mark as received',
@@ -173,11 +173,11 @@ export function GiftSheet({ id, onClose }: { id: string | null; onClose: () => v
               </Callout>
             )}
 
-            <SheetSection title="The gift">
+            <SheetSection title="The donation">
               <DescriptionList
                 items={[
                   { label: 'Amount', value: <Money cents={g.amount} exact /> },
-                  { label: 'Fee covered by donor', value: <Money cents={g.fee} exact />, hidden: !g.fee },
+                  { label: 'Operating costs contribution', value: <Money cents={g.fee} exact />, hidden: !g.fee },
                   { label: 'For', value: DESIGNATIONS[g.designation]?.label ?? g.designation },
                   {
                     label: 'Appeal',
@@ -225,7 +225,7 @@ export function GiftSheet({ id, onClose }: { id: string | null; onClose: () => v
                     </p>
                     {canRead && (
                       <p className="nums mt-0.5 text-[12.5px] text-text-2">
-                        {formatMoney(d.donor.totalGiven)} over {d.donor.giftCount} {d.donor.giftCount === 1 ? 'gift' : 'gifts'}
+                        {formatMoney(d.donor.totalGiven)} over {d.donor.giftCount} {d.donor.giftCount === 1 ? 'donation' : 'donations'}
                       </p>
                     )}
                   </div>
@@ -239,7 +239,7 @@ export function GiftSheet({ id, onClose }: { id: string | null; onClose: () => v
             )}
 
             {d.plan && (
-              <SheetSection title="Regular gift">
+              <SheetSection title="Regular donation">
                 <div className="flex items-center gap-3 rounded-xl p-3 ring-1 ring-line-2 ring-inset">
                   <span className="grid size-9 place-items-center rounded-full bg-teal-pale text-teal">
                     <Repeat className="size-4" />
@@ -342,7 +342,7 @@ function GiftCorrectDialog({ open, onOpenChange, gift, onDone }: { open: boolean
       open={open}
       onOpenChange={onOpenChange}
       title={`Correct ${gift.number}`}
-      description="For a gift put against the wrong appeal, designation or day. The amount and donor cannot change here: refund it and record it again."
+      description="For a donation put against the wrong appeal, designation or day. The amount and donor cannot change here: refund it and record it again."
       footer={
         <>
           <Button variant="secondary" onClick={() => onOpenChange(false)}>
@@ -412,7 +412,7 @@ function GiftRefundDialog({
       footer={
         <>
           <Button variant="secondary" onClick={() => onOpenChange(false)}>
-            Keep the gift
+            Keep the donation
           </Button>
           <Button variant="danger" loading={save.isPending} disabled={reason.trim().length < 3} onClick={() => save.mutate()}>
             Record refund
@@ -428,7 +428,7 @@ function GiftRefundDialog({
         <Callout tone="amber" icon={<AlertTriangle />}>
           It does not move any money. Return it {gift.method === 'card' || gift.method === 'paypal' ? `in ${gift.method === 'paypal' ? 'PayPal' : 'Stripe'}` : 'from the bank'} first.
         </Callout>
-        <Field label="Why" error={err?.fields.reason} help="Kept on the gift and in the action log.">
+        <Field label="Why" error={err?.fields.reason} help="Kept on the donation and in the action log.">
           <Textarea rows={3} autoFocus value={reason} onChange={(e) => setReason(e.target.value)} placeholder="e.g. Donor gave twice by mistake" />
         </Field>
         <FormError message={err && !Object.keys(err.fields).length ? err.message : null} />

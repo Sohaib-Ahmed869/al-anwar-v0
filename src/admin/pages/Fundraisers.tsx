@@ -201,7 +201,7 @@ function FundraiserSheet({ id, onClose }: { id: string; onClose: () => void }) {
     mutationFn: () => api.post<Fundraiser>(`/admin/fundraisers/${id}/end`),
     onSuccess: () => {
       done()
-      toast.success('Fundraiser ended. Its page and gifts stay.')
+      toast.success('Fundraiser ended. Its page and donations stay.')
     },
     onError: (e) => toast.error(errorMessage(e)),
   })
@@ -232,7 +232,7 @@ function FundraiserSheet({ id, onClose }: { id: string; onClose: () => void }) {
           icon={<CalendarClock />}
           loading={end.isPending}
           onClick={async () => {
-            if (await confirm({ title: 'End this fundraiser?', body: 'It stops taking gifts. The page stays up with its total, and the gifts stay in the appeal.', confirmLabel: 'End it' }))
+            if (await confirm({ title: 'End this fundraiser?', body: 'It stops taking donations. The page stays up with its total, and the donations stay in the appeal.', confirmLabel: 'End it' }))
               end.mutate()
           }}
         >
@@ -356,14 +356,14 @@ function PublicPreview({ d }: { d: Detail }) {
             </div>
             <div className="shrink-0 text-right text-[12.5px] text-text-2">
               <Money cents={o.totalGiven} className="block text-[14px] font-medium text-text" />
-              {formatNumber(o.giftCount)} gifts · {o.pages} {o.pages === 1 ? 'page' : 'pages'}
+              {formatNumber(o.giftCount)} donations · {o.pages} {o.pages === 1 ? 'page' : 'pages'}
             </div>
           </Link>
         </section>
       )}
 
       <section>
-        <h4 className="mb-2 text-[13px] font-semibold text-text">Gifts through this page</h4>
+        <h4 className="mb-2 text-[13px] font-semibold text-text">Donations through this page</h4>
         {d.gifts.length === 0 ? (
           <p className="text-[13px] text-text-3">None yet{f.status === 'pending' ? ' — it is not public until approved' : ''}.</p>
         ) : (

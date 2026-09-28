@@ -165,11 +165,11 @@ function Actions({ line, a, busy, compact }: { line: BankLine; a: LineActions; b
           <MenuSeparator />
           {line.status !== 'unmatched' || !notAGift ? (
             <MenuItem icon={<CircleSlash />} onSelect={() => a.onIgnore(line)}>
-              Ignore — not a gift
+              Ignore — not a donation
             </MenuItem>
           ) : (
             <MenuItem icon={<UserSearch />} onSelect={() => a.onEdit(line)}>
-              It is a gift — choose donor
+              It is a donation — choose donor
             </MenuItem>
           )}
         </Menu>
@@ -184,7 +184,7 @@ function Saved({ line }: { line: BankLine }) {
     <p className="flex items-center gap-1.5 text-[12.5px] text-teal">
       <CheckCircle2 className="size-3.5 shrink-0" />
       <span className="min-w-0">
-        Gift <span className="nums font-medium">{line.giftInfo.number}</span>
+        Donation <span className="nums font-medium">{line.giftInfo.number}</span>
         {line.giftInfo.receiptNumber && <> · receipt {line.giftInfo.receiptNumber}</>}
         {line.giftInfo.emailed ? ' emailed' : line.giftInfo.receiptNumber ? ' (not emailed)' : ''}
       </span>

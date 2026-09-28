@@ -17,10 +17,10 @@ export const PERMISSIONS = {
   'donors.write': 'Edit donor details',
   'donors.merge': 'Merge duplicate donors',
   'donors.export': 'Export the donor list',
-  'gifts.read': 'See gifts',
-  'gifts.create': 'Enter cash, cheque and event gifts',
-  'gifts.manage': 'Refund, void and edit gifts',
-  'plans.manage': 'Manage regular gifts',
+  'gifts.read': 'See donations',
+  'gifts.create': 'Enter cash, cheque and event donations',
+  'gifts.manage': 'Refund, void and edit donations',
+  'plans.manage': 'Manage regular donations',
   'appeals.manage': 'Create and edit appeals',
   'fundraisers.approve': 'Approve supporter fundraising pages',
   'campaigns.manage': 'Write and send email campaigns',
@@ -52,7 +52,7 @@ export const ROLES = {
   },
   finance: {
     label: 'Finance',
-    blurb: 'Gifts, bank imports, reports and the Xero export.',
+    blurb: 'Donations, bank imports, reports and the Xero export.',
     perms: [
       'dashboard.view', 'donors.read', 'donors.write', 'donors.export',
       'gifts.read', 'gifts.create', 'gifts.manage', 'plans.manage',
@@ -75,7 +75,7 @@ export const ROLES = {
   },
   volunteer: {
     label: 'Volunteer',
-    blurb: 'Enters gifts taken at events. Sees no exports and no compliance.',
+    blurb: 'Enters donations taken at events. Sees no exports and no compliance.',
     perms: ['donors.read', 'gifts.create', 'enquiries.manage'],
   },
 } as const satisfies Record<string, { label: string; blurb: string; perms: readonly Permission[] }>

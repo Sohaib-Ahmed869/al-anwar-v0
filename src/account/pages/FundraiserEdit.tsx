@@ -189,7 +189,7 @@ export default function FundraiserEdit() {
               <>
                 {!isNew ? (
                   <p className="text-[13.5px] text-text-2">
-                    For <strong className="font-medium text-text">{appeal?.title}</strong> — the appeal cannot change once a page exists, because gifts have already been made to it.
+                    For <strong className="font-medium text-text">{appeal?.title}</strong> — the appeal cannot change once a page exists, because donations have already been made to it.
                   </p>
                 ) : (
                 <Field label="Which appeal will your page support?" error={fieldErr('appeal')}>
@@ -308,7 +308,7 @@ export default function FundraiserEdit() {
                   <p className="font-medium text-text">What happens next</p>
                   <ul className="mt-1.5 list-disc space-y-1 pl-5">
                     {(isNew || willResubmit) && <li>The team reads your page — usually within a working day — and emails you when it is live.</li>}
-                    <li>Then share the link. Every gift on it counts towards {appeal?.title ?? 'the appeal'}, and each supporter gets their own tax receipt.</li>
+                    <li>Then share the link. Every donation on it counts towards {appeal?.title ?? 'the appeal'}, and each supporter gets their own tax receipt.</li>
                     <li>You can edit it, or end it, from your account at any time.</li>
                   </ul>
                 </div>

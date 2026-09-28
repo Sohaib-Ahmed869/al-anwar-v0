@@ -14,7 +14,7 @@ import { Badge, Card, CardHeader, Select, cn, useIsMobile } from '../../portal/u
 --------------------------------------------------------------------------- */
 
 const GROUPS: { label: string; perms: Permission[] }[] = [
-  { label: 'Donors and gifts', perms: ['dashboard.view', 'donors.read', 'donors.write', 'donors.merge', 'donors.export', 'gifts.read', 'gifts.create', 'gifts.manage', 'plans.manage'] },
+  { label: 'Donors and donations', perms: ['dashboard.view', 'donors.read', 'donors.write', 'donors.merge', 'donors.export', 'gifts.read', 'gifts.create', 'gifts.manage', 'plans.manage'] },
   { label: 'Fundraising', perms: ['appeals.manage', 'fundraisers.approve', 'campaigns.manage', 'enquiries.manage'] },
   { label: 'Finance', perms: ['bank.import', 'reports.read', 'reports.export'] },
   { label: 'Organisation and compliance', perms: ['staff.manage', 'settings.manage', 'audit.read', 'compliance.read', 'compliance.write'] },

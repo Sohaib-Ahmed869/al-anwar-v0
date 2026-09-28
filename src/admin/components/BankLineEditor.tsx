@@ -83,7 +83,7 @@ export function BankLineEditor({
 
   const ignore = useMutation({
     mutationFn: () => api.patch<BankImport>(`/admin/bank/imports/${importId}/lines/${line!.id}`, { status: 'ignored' }),
-    onSuccess: (imp) => onSaved(imp, 'Line ignored — it will not be saved as a gift'),
+    onSuccess: (imp) => onSaved(imp, 'Line ignored — it will not be saved as a donation'),
     onError: (e) => toast.error((e as Error).message),
   })
 
@@ -96,11 +96,11 @@ export function BankLineEditor({
       onOpenChange={(v) => !v && onClose()}
       size="lg"
       title="Check this line"
-      description="Choose who sent it and what it is for. Saving accepts the line; it becomes a gift only when you save the statement."
+      description="Choose who sent it and what it is for. Saving accepts the line; it becomes a donation only when you save the statement."
       footer={
         <>
           <Button variant="ghost" className="sm:mr-auto" onClick={() => ignore.mutate()} loading={ignore.isPending} disabled={save.isPending}>
-            Not a gift — ignore it
+            Not a donation — ignore it
           </Button>
           <Button variant="secondary" onClick={onClose}>
             Cancel
@@ -186,7 +186,7 @@ export function BankLineEditor({
                     label="Email"
                     optional
                     error={error?.fields.email}
-                    help="Without one, the gift is saved and receipted but the receipt cannot be emailed. If the address belongs to an existing donor, the line goes to them instead."
+                    help="Without one, the donation is saved and receipted but the receipt cannot be emailed. If the address belongs to an existing donor, the line goes to them instead."
                   >
                     <Input type="email" inputMode="email" autoComplete="off" value={creating.email} onChange={(e) => setCreating({ ...creating, email: e.target.value })} />
                   </Field>

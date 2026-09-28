@@ -241,7 +241,7 @@ export default function HomeHero() {
   return (
     <section
       aria-roledescription="carousel"
-      aria-label="Where your gift goes"
+      aria-label="Where your donation goes"
       onPointerDown={onPointerDown}
       onPointerUp={onPointerUp}
       data-overlay-hero=""

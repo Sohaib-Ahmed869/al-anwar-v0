@@ -222,7 +222,7 @@ async function attention(req: Request, now: Date): Promise<AttentionItem[]> {
         if (!count) return null
         return {
           key: 'failedPlans', tone: 'red', count,
-          title: count === 1 ? 'A regular gift has a failed payment' : `${count} regular gifts have failed payments`,
+          title: count === 1 ? 'A regular donation has a failed payment' : `${count} regular donations have failed payments`,
           detail: names(some.map((p) => p.donorName), count),
           to: '/admin/plans?status=past_due', action: 'Review',
         }

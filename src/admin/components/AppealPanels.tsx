@@ -46,8 +46,8 @@ function useAppealAction(id: string) {
 /* ---------- status ---------- */
 const STATUS_COPY: Record<AppealStatus, string> = {
   draft: 'Only the team can see it. Nobody can give to it yet.',
-  open: 'On the website and taking gifts.',
-  closed: 'No new gifts. The page stays up with its total and updates, and every gift stays in the reports.',
+  open: 'On the website and taking donations.',
+  closed: 'No new donations. The page stays up with its total and updates, and every donation stays in the reports.',
 }
 
 export function AppealStatusCard({ appeal, dirty }: { appeal: Appeal; dirty: boolean }) {
@@ -57,7 +57,7 @@ export function AppealStatusCard({ appeal, dirty }: { appeal: Appeal; dirty: boo
     mutationFn: (status: AppealStatus) => api.post<Appeal>(`/admin/appeals/${appeal.id}/status`, { status }),
     onSuccess: (a) => {
       apply(a)
-      toast.success(a.status === 'open' ? 'The appeal is open for gifts' : a.status === 'closed' ? 'Appeal closed. Its page and history stay.' : 'Back to draft')
+      toast.success(a.status === 'open' ? 'The appeal is open for donations' : a.status === 'closed' ? 'Appeal closed. Its page and history stay.' : 'Back to draft')
     },
     onError: (e) => toast.error(errorMessage(e)),
   })
@@ -65,7 +65,7 @@ export function AppealStatusCard({ appeal, dirty }: { appeal: Appeal; dirty: boo
     if (status === 'closed') {
       const ok = await confirm({
         title: `Close “${appeal.title}”?`,
-        body: 'No new gifts can be made to it from the moment you close it. Its page stays on the website with the total raised and its updates, and every gift already given stays against it in the reports. You can reopen it later.',
+        body: 'No new donations can be made to it from the moment you close it. Its page stays on the website with the total raised and its updates, and every donation already given stays against it in the reports. You can reopen it later.',
         confirmLabel: 'Close the appeal',
       })
       if (!ok) return
@@ -73,7 +73,7 @@ export function AppealStatusCard({ appeal, dirty }: { appeal: Appeal; dirty: boo
     if (status === 'open' && appeal.status === 'draft') {
       const ok = await confirm({
         title: 'Open this appeal?',
-        body: `“${appeal.title}” will appear on the website and start taking gifts straight away.${dirty ? ' Your unsaved edits on the left are not included — save them first if they should go live too.' : ''}`,
+        body: `“${appeal.title}” will appear on the website and start taking donations straight away.${dirty ? ' Your unsaved edits on the left are not included — save them first if they should go live too.' : ''}`,
         confirmLabel: 'Open it',
       })
       if (!ok) return
@@ -124,7 +124,7 @@ export function AppealPerformanceCard({ d }: { d: AppealDetail }) {
   const pct = a.target ? Math.round((a.raised / a.target) * 100) : null
   return (
     <Card>
-      <CardHeader title="How it is doing" description="Paid gifts only. Pending transfers count once they arrive." />
+      <CardHeader title="How it is doing" description="Paid donations only. Pending transfers count once they arrive." />
       <CardBody>
         <div className="flex items-baseline justify-between gap-3">
           <Money cents={a.raised} className="text-[26px] font-semibold tracking-[-0.02em] text-text" />
@@ -140,7 +140,7 @@ export function AppealPerformanceCard({ d }: { d: AppealDetail }) {
             <dt className="text-[12px] text-text-2">Last 30 days</dt>
             <dd className="nums mt-0.5 text-[16px] font-semibold text-text">
               {formatMoney(a.raisedLast30, { whole: true })}
-              <span className="ml-1 text-[12px] font-normal text-text-3">· {d.giftsLast30} gifts</span>
+              <span className="ml-1 text-[12px] font-normal text-text-3">· {d.giftsLast30} donations</span>
             </dd>
           </div>
         </dl>
@@ -154,7 +154,7 @@ export function AppealPerformanceCard({ d }: { d: AppealDetail }) {
                 <li key={x.designation} className="flex items-center justify-between gap-3 text-[13px]">
                   <span className="flex items-center gap-2">
                     <StatusBadge kind="designation" value={x.designation} size="sm" />
-                    <span className="nums text-text-3">{formatNumber(x.count)} gifts</span>
+                    <span className="nums text-text-3">{formatNumber(x.count)} donations</span>
                   </span>
                   <Money cents={x.total} className="text-text" />
                 </li>
@@ -164,7 +164,7 @@ export function AppealPerformanceCard({ d }: { d: AppealDetail }) {
         )}
         {d.recentGifts.length > 0 && (
           <>
-            <p className="mt-5 mb-1 text-[12.5px] font-medium text-text-2">Latest gifts</p>
+            <p className="mt-5 mb-1 text-[12.5px] font-medium text-text-2">Latest donations</p>
             <ul className="divide-y divide-line-2">
               {d.recentGifts.slice(0, 5).map((g) => (
                 <li key={g.id} className="flex items-center justify-between gap-3 py-2 text-[13px]">
@@ -180,7 +180,7 @@ export function AppealPerformanceCard({ d }: { d: AppealDetail }) {
               ))}
             </ul>
             <Link to={`/admin/gifts?appeal=${a.id}`} className="mt-2 inline-block text-[13px] font-medium text-green hover:underline">
-              All gifts to this appeal
+              All donations to this appeal
             </Link>
           </>
         )}
@@ -375,7 +375,7 @@ export function AppealFundraisersCard({ rows }: { rows: AppealDetail['fundraiser
   if (!rows.length) return null
   return (
     <Card>
-      <CardHeader title="Supporter pages" description="Raising for this appeal. Their gifts are in the total above." />
+      <CardHeader title="Supporter pages" description="Raising for this appeal. Their donations are in the total above." />
       <CardBody>
         <ul className="divide-y divide-line-2">
           {rows.map((f) => (

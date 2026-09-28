@@ -41,7 +41,7 @@ const JOBS: Job[] = [
         s.errors && `${s.errors} errors`,
         notices && `${notices} notices sent`,
       ].filter(Boolean)
-      return parts.length ? `regular gifts: ${parts.join(', ')}` : undefined
+      return parts.length ? `regular donations: ${parts.join(', ')}` : undefined
     },
   },
   { name: 'campaigns', every: MIN, firstAfter: 30_000, run: processCampaignQueue },

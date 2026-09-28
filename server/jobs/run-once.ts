@@ -33,7 +33,7 @@ async function main() {
     return () => `${label} (${Date.now() - t0}ms)`
   }
 
-  let done = t('regular gifts')
+  let done = t('regular donations')
   const plans = await processDuePlans()
   console.log(`${done()}: ${plans.charged} charged, ${plans.failed} declined, ${plans.resumed} resumed, ${plans.errors} errors`)
 

@@ -96,7 +96,7 @@ export default function BankImports() {
     <>
       <PageHeader
         title="Bank import"
-        description="Match bank transfers to donors and appeals from your statement, check them, and save them as gifts with receipts — in one sitting."
+        description="Match bank transfers to donors and appeals from your statement, check them, and save them as donations with receipts — in one sitting."
       />
 
       <BankUploadZone ref={zone} highlight={highlight} />

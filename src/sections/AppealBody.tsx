@@ -89,7 +89,7 @@ export default function AppealBody({
           <section aria-labelledby="does-head">
             <SectionHead
               id="does-head"
-              eyebrow="What your gift does"
+              eyebrow="What your donation does"
               title="Choose what it pays for."
               lede="Each amount opens the give form with this appeal and that amount already chosen."
             />

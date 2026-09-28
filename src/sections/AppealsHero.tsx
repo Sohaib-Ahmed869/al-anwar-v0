@@ -103,13 +103,13 @@ export default function AppealsHero() {
               id="page-title"
               className="mt-s2 font-display text-[clamp(34px,4.6vw,60px)] leading-[1.04] font-semibold tracking-[-0.022em] text-paper [text-wrap:balance] [text-shadow:0_2px_30px_rgba(0,0,0,0.5)]"
             >
-              <Words text="Where your gift is needed now." play="load" delay={160} step={70} />
+              <Words text="Where your donation is needed now." play="load" delay={160} step={70} />
             </h1>
             <p
               className="mt-4 max-w-[46ch] text-[16px] leading-[1.6] text-paper/80 [text-shadow:0_1px_18px_rgba(0,0,0,0.6)]"
               style={rise(420)}
             >
-              Every appeal we have open, what it pays for, and the smallest gift that helps.
+              Every appeal we have open, what it pays for, and the smallest donation that helps.
             </p>
             <div className="mt-6" style={rise(560)}>
               <a

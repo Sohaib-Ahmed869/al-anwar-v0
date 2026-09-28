@@ -211,7 +211,7 @@ export default function AppealsList() {
           id="list-head"
           eyebrow="Every open appeal"
           title="Choose where it goes."
-          lede="Narrow it down by need or by place. Each one says the smallest gift that helps."
+          lede="Narrow it down by need or by place. Each one says the smallest donation that helps."
         />
       </div>
 

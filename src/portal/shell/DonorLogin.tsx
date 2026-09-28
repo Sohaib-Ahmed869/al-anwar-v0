@@ -72,7 +72,7 @@ export function DonorLogin() {
         <>
           <h1 className="text-[28px] font-semibold tracking-[-0.02em] text-text">Your giving, in one place</h1>
           <p className="mt-2 text-[14.5px] leading-relaxed text-text-2">
-            Every gift, receipt and regular donation — and your tax statement at the end of June. Enter the email you give with.
+            Every donation and receipt, your regular donations — and your tax statement at the end of June. Enter the email you give with.
           </p>
           {params.get('error') === 'oauth' && (
             <Callout tone="amber" className="mt-6">
@@ -116,7 +116,7 @@ export function DonorLogin() {
             </>
           )}
           <p className="mt-8 text-[12.5px] leading-relaxed text-text-3">
-            New here? The same code creates your account, and any gifts you have already made with this email appear in it.
+            New here? The same code creates your account, and any donations you have already made with this email appear in it.
           </p>
           {import.meta.env.DEV && (
             <p className="mt-4 rounded-xl bg-paper-2 px-4 py-3 text-[12.5px] text-text-2 ring-1 ring-line">

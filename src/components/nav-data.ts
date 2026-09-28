@@ -148,7 +148,7 @@ export const NAV: NavSection[] = [
           { label: 'Fidya', to: '/give?designation=fidyah' },
           /* There is no Aqiqah fund in give-data.ts yet, so it goes to the
              office rather than booking to a fund it is not. */
-          { label: 'Aqiqah', to: '/contact?topic=A+gift+or+a+receipt' },
+          { label: 'Aqiqah', to: '/contact?topic=A+donation+or+a+receipt' },
           { label: 'Qurbani', to: '/dhul-hijjah' },
           { label: 'Ramadan', to: '/ramadan' },
         ],

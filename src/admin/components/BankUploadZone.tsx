@@ -150,7 +150,7 @@ export const BankUploadZone = forwardRef<BankUploadHandle, { highlight?: boolean
         <div className="relative border-t border-line-2 bg-gradient-to-br from-green-50 via-paper to-paper px-5 py-6 sm:px-7 sm:py-7 lg:border-t-0 lg:border-r">
           <p className="text-[12px] font-semibold tracking-[0.08em] text-green uppercase">Bank transfers</p>
           <h2 className="mt-1.5 text-[21px] leading-snug font-semibold tracking-[-0.015em] text-text sm:text-[23px]">
-            Turn this week's statement into saved gifts
+            Turn this week's statement into saved donations
           </h2>
           <p className="mt-2 max-w-md text-[14px] leading-relaxed text-text-2">
             Upload the statement and every transfer is matched to its donor and appeal by name and reference. You check it on screen; nothing is saved until you confirm.

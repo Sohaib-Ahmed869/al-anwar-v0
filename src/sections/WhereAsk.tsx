@@ -43,7 +43,7 @@ export default function WhereAsk() {
                 className="group inline-flex min-h-[52px] items-center gap-2 rounded-[10px] bg-gold px-6 text-[15.5px] font-semibold text-ink transition-colors duration-200 ease-brand hover:bg-gold-dark hover:text-paper"
               >
                 <HandHeart className="h-[18px] w-[18px]" />
-                Make a gift
+                Make a donation
               </Link>
               <Link
                 to="/appeals"

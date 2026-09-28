@@ -19,7 +19,12 @@ import { receiptEmail } from '../../emails/templates'
 
    `payments.mode` is not a setting: it is whatever the server is actually
    connected to (no Stripe key = simulated; sk_live = live; else test), and
-   GET reports that, whatever is stored. Only the fee rate is editable.
+   GET reports that, whatever is stored. Nothing in it is editable any more:
+   the percentage fee donors could cover was retired on 28 September 2026 in
+   favour of a fixed, optional operating-costs contribution ($2, $5 or $10,
+   shared/operating-costs.ts). The stored feeRate is still read, but only by
+   regular donations begun before then (lib/plans.ts), so PUT /payments
+   accepts no fields and changes nothing.
 
    The receipt preview renders the real receiptEmail() with a sample gift,
    either with the saved settings (GET) or with a card's unsaved draft
@@ -57,7 +62,7 @@ const SECTIONS = {
     accountNumber: z.string().trim().regex(/^[\d\s]{5,12}$/, 'Account numbers are 5 to 10 digits'),
     bankName: str(80, 'Which bank'),
   }),
-  payments: z.object({ feeRate: z.number().min(0, 'Cannot be negative').max(0.1, 'Over 10% is surely a typo') }),
+  payments: z.object({}),
   email: z.object({
     fromName: str(80, 'The name donors see'),
     fromEmail: z.string().trim().toLowerCase().email('That email address does not look right'),
@@ -97,7 +102,9 @@ r.get('/', async (_req, res) => {
 const sampleGift = (s: Settings) => ({
   number: 'G-104233',
   amount: 15000,
-  fee: 390,
+  /* a $5 operating-costs contribution, so the preview shows that row */
+  fee: 500,
+  donorName: 'Amina Rahman',
   designation: 'zakat' as const,
   method: 'card' as const,
   date: new Date(),

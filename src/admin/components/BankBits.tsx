@@ -17,7 +17,7 @@ export const BANK_STEPS = [
   { key: 'upload', label: 'Upload', hint: 'The CSV from your online banking', icon: FileUp },
   { key: 'match', label: 'Match', hint: 'Each line matched to a donor and appeal', icon: Sparkles },
   { key: 'check', label: 'Check', hint: 'You look over anything we are unsure of', icon: SearchCheck },
-  { key: 'confirm', label: 'Confirm', hint: 'Gifts saved and receipts emailed', icon: ListChecks },
+  { key: 'confirm', label: 'Confirm', hint: 'Donations saved and receipts emailed', icon: ListChecks },
 ] as const
 
 /** Horizontal on wide screens; on a phone it stays one row of compact dots. */

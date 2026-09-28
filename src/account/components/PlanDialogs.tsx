@@ -76,7 +76,7 @@ function AmountDialog({ plan, open, onClose }: { plan: MyPlan | null; open: bool
   const m = usePlanMutation(
     () => api.patch(`/me/plans/${plan!.id}`, { amount: cents, frequency }),
     onClose,
-    'Your regular gift is updated',
+    'Your regular donation is updated',
   )
   const err = m.error instanceof ApiError ? m.error : null
   const unchanged = plan && cents === plan.amount && frequency === plan.frequency
@@ -84,8 +84,8 @@ function AmountDialog({ plan, open, onClose }: { plan: MyPlan | null; open: bool
     <Dialog
       open={open}
       onOpenChange={(v) => !v && onClose()}
-      title="Change your regular gift"
-      description={plan?.appealTitle ? `Your gift to ${plan.appealTitle}.` : undefined}
+      title="Change your regular donation"
+      description={plan?.appealTitle ? `Your donation to ${plan.appealTitle}.` : undefined}
       footer={
         <>
           <Button variant="secondary" onClick={onClose}>
@@ -138,7 +138,7 @@ function AmountDialog({ plan, open, onClose }: { plan: MyPlan | null; open: bool
           <p className="rounded-xl bg-paper-2 px-4 py-3 text-[13.5px] leading-relaxed text-text-2 ring-1 ring-line-2">
             From {plan.nextChargeAt && plan.status === 'active' ? <strong className="text-text">{formatDate(plan.nextChargeAt)}</strong> : 'your next payment'}, you will give{' '}
             <strong className="text-text">{perPeriod({ amount: cents, frequency })}</strong>
-            {plan.coverFee ? ', plus the card fee you chose to cover' : ''}. Nothing else changes.
+            {plan.operatingCosts ? ', plus your operating costs contribution' : plan.coverFee && plan.operatingCosts == null ? ', plus the card fee you chose to cover' : ''}. Nothing else changes.
           </p>
         )}
         <FormError message={err && !Object.keys(err.fields).length ? err.message : undefined} />
@@ -165,14 +165,14 @@ function PauseDialog({ plan, open, onClose }: { plan: MyPlan | null; open: boole
       open={open}
       onOpenChange={(v) => !v && onClose()}
       title="Pause for a while"
-      description="Nothing is taken while it is paused. Your gift stays set up, so starting again is one tap."
+      description="Nothing is taken while it is paused. Your donation stays set up, so starting again is one tap."
       footer={
         <>
           <Button variant="secondary" onClick={onClose}>
             Not now
           </Button>
           <Button variant="primary" loading={m.isPending} onClick={() => m.mutate(undefined)} icon={<PauseCircle />}>
-            Pause my gift
+            Pause my donation
           </Button>
         </>
       }
@@ -190,10 +190,10 @@ function PauseDialog({ plan, open, onClose }: { plan: MyPlan | null; open: boole
         <p className="text-[13.5px] leading-relaxed text-text-2">
           {until ? (
             <>
-              Your {plan ? perPeriod(plan) : ''} gift picks up again on its usual day after <strong className="text-text">{formatDate(until)}</strong>. We will email you a few days before.
+              Your {plan ? perPeriod(plan) : ''} donation picks up again on its usual day after <strong className="text-text">{formatDate(until)}</strong>. We will email you a few days before.
             </>
           ) : (
-            <>Your gift stays paused until you come back here and press Resume.</>
+            <>Your donation stays paused until you come back here and press Resume.</>
           )}
         </p>
         <FormError message={m.error ? errorMessage(m.error) : undefined} />
@@ -242,7 +242,7 @@ function CardDialog({ plan, open, onClose, simulated }: { plan: MyPlan | null; o
         setDeclined(r.charge.error ?? 'The bank declined it.')
         return
       }
-      toast.success(r.charge?.ok ? `Card updated, and your ${formatMoney(plan!.amount)} gift went through` : 'Your card is updated', {
+      toast.success(r.charge?.ok ? `Card updated, and your ${formatMoney(plan!.amount)} donation went through` : 'Your card is updated', {
         description: r.charge?.ok ? 'Thank you. Your receipt is on its way.' : 'Your next payment will use the new card.',
       })
       onClose()
@@ -260,7 +260,7 @@ function CardDialog({ plan, open, onClose, simulated }: { plan: MyPlan | null; o
       description={
         plan ? (
           <>
-            For your {perPeriod(plan)} gift{plan.appealTitle ? ` to ${plan.appealTitle}` : ''}. Now paying with {cardLabel(plan.payment)}.
+            For your {perPeriod(plan)} donation{plan.appealTitle ? ` to ${plan.appealTitle}` : ''}. Now paying with {cardLabel(plan.payment)}.
           </>
         ) : undefined
       }
@@ -358,20 +358,20 @@ function CancelDialog({ plan, open, onClose, onPause }: { plan: MyPlan | null; o
   useEffect(() => {
     if (open) setReason('')
   }, [open])
-  const m = usePlanMutation(() => api.post(`/me/plans/${plan!.id}/cancel`, { reason: reason.trim() || undefined }), onClose, 'Your regular gift is cancelled')
+  const m = usePlanMutation(() => api.post(`/me/plans/${plan!.id}/cancel`, { reason: reason.trim() || undefined }), onClose, 'Your regular donation is cancelled')
   const canPause = plan?.status === 'active' && plan.kind !== 'instalment'
   return (
     <Dialog
       open={open}
       onOpenChange={(v) => !v && onClose()}
-      title="Cancel this regular gift?"
+      title="Cancel this regular donation?"
       footer={
         <>
           <Button variant="secondary" onClick={onClose}>
             Keep giving
           </Button>
           <Button variant="danger" loading={m.isPending} onClick={() => m.mutate(undefined)}>
-            Cancel my gift
+            Cancel my donation
           </Button>
         </>
       }
@@ -380,7 +380,7 @@ function CancelDialog({ plan, open, onClose, onPause }: { plan: MyPlan | null; o
         <p>
           {plan && (
             <>
-              No more payments will be taken for your {perPeriod(plan)} gift{plan.appealTitle ? <> to <strong className="text-text">{plan.appealTitle}</strong></> : ''}.{' '}
+              No more payments will be taken for your {perPeriod(plan)} donation{plan.appealTitle ? <> to <strong className="text-text">{plan.appealTitle}</strong></> : ''}.{' '}
             </>
           )}
           Everything you have given stays in your account, with every receipt.

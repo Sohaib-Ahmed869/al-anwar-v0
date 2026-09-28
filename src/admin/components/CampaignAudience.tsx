@@ -30,7 +30,7 @@ export function describeSegment(s: Segment, appeals?: Appeal[]): string {
   const parts: string[] = []
   if (s.regular) parts.push('regular givers')
   if (s.activeMonths) parts.push(`gave in the last ${s.activeMonths} months`)
-  if (s.lapsedMonths) parts.push(`no gift for ${s.lapsedMonths}+ months`)
+  if (s.lapsedMonths) parts.push(`no donation for ${s.lapsedMonths}+ months`)
   if (s.countries?.length) parts.push(`gave to ${s.countries.map((c) => COUNTRIES[c] ?? c).join(' or ')}`)
   if (s.appeals?.length) {
     const names = s.appeals.map((id) => appeals?.find((a) => a.id === id)?.title).filter(Boolean)
@@ -72,7 +72,7 @@ export function CampaignAudience({ value, onChange, readOnly }: { value: Segment
   return (
     <div className="space-y-5">
       <fieldset disabled={readOnly} className="space-y-5 disabled:opacity-70">
-        <Switch checked={Boolean(value.regular)} onChange={(v) => patch({ regular: v || undefined })} label="Regular givers only" description="Donors with a weekly, fortnightly or monthly gift running." />
+        <Switch checked={Boolean(value.regular)} onChange={(v) => patch({ regular: v || undefined })} label="Regular givers only" description="Donors with a weekly, fortnightly or monthly donation running." />
 
         <Row label="When they last gave">
           <Segmented<Recency>
@@ -86,7 +86,7 @@ export function CampaignAudience({ value, onChange, readOnly }: { value: Segment
           />
           {recency !== 'any' && (
             <div className="mt-2.5 flex items-center gap-2 text-[13.5px] text-text-2">
-              {recency === 'active' ? 'Gave in the last' : 'No gift for more than'}
+              {recency === 'active' ? 'Gave in the last' : 'No donation for more than'}
               <Input
                 type="number"
                 min={1}
@@ -104,7 +104,7 @@ export function CampaignAudience({ value, onChange, readOnly }: { value: Segment
           )}
         </Row>
 
-        <Row label="What they gave to" help="Donors with at least one paid gift matching every choice here.">
+        <Row label="What they gave to" help="Donors with at least one paid donation matching every choice here.">
           <div className="flex flex-wrap gap-2">
             <FilterChip
               label="Country"

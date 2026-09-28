@@ -36,7 +36,7 @@ const VALUES = [
   {
     label: 'Faith',
     title: 'Our values are built on the Islamic faith',
-    body: 'Zakat is held apart from every other gift and reaches only the people zakat is allowed to reach. Qurbani is slaughtered on the day. A sadaqah jariyah is built to last, not to photograph.',
+    body: 'Zakat is held apart from every other donation and reaches only the people zakat is allowed to reach. Qurbani is slaughtered on the day. A sadaqah jariyah is built to last, not to photograph.',
     link: { text: 'How zakat is handled', to: '/zakat' },
   },
   {

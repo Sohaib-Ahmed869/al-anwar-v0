@@ -37,9 +37,9 @@ const EMPTY: Record<TabKey, { title: string; body: string }> = {
   matched: { title: 'Nothing matched yet', body: 'Accept lines in “Needs a look”, or choose donors for unmatched lines, and they will wait here to be saved.' },
   review: { title: 'Nothing needs a look', body: 'Every line we were unsure of has been checked.' },
   unmatched: { title: 'No unmatched lines', body: 'Every line has a donor, or has been ignored.' },
-  ignored: { title: 'Nothing ignored', body: 'Bank interest, refunds and transfers between your own accounts go here, so they are never saved as gifts.' },
+  ignored: { title: 'Nothing ignored', body: 'Bank interest, refunds and transfers between your own accounts go here, so they are never saved as donations.' },
   duplicate: { title: 'No duplicates', body: 'Lines already brought in by an earlier statement show here, so nobody is receipted twice.' },
-  confirmed: { title: 'Nothing saved yet', body: 'When you save the matched lines, the gifts they became are listed here.' },
+  confirmed: { title: 'Nothing saved yet', body: 'When you save the matched lines, the donations they became are listed here.' },
 }
 
 type ConfirmResult = {
@@ -117,7 +117,7 @@ export default function BankImportReview() {
       qc.invalidateQueries({ queryKey: ['admin'] })
       qc.invalidateQueries({ queryKey: ['gifts'] })
       qc.invalidateQueries({ queryKey: ['donors'] })
-      toast.success(`Saved ${plural(r.saved, 'gift')} totalling ${formatMoney(r.total)}`, { description: `${plural(r.emailed, 'receipt')} emailed.` })
+      toast.success(`Saved ${plural(r.saved, 'donation')} totalling ${formatMoney(r.total)}`, { description: `${plural(r.emailed, 'receipt')} emailed.` })
       window.scrollTo({ top: 0, behavior: 'smooth' })
     },
     onError: (e) => toast.error((e as Error).message),
@@ -136,7 +136,7 @@ export default function BankImportReview() {
   const actions: LineActions = {
     onEdit: setEditing,
     onAccept: (line) => patch.mutate({ line, body: { status: 'matched' }, message: `Accepted: ${line.match.donorName}, ${formatMoney(line.amount)}` }),
-    onIgnore: (line) => patch.mutate({ line, body: { status: 'ignored' }, message: 'Ignored — this line will not be saved as a gift' }),
+    onIgnore: (line) => patch.mutate({ line, body: { status: 'ignored' }, message: 'Ignored — this line will not be saved as a donation' }),
     onUndo: (line) => patch.mutate({ line, body: { status: 'review' }, message: line.status === 'ignored' ? 'Line brought back' : 'Moved to “Needs a look”' }),
     onPick: (line, donorId) => {
       const c = line.match.candidates?.find((x) => x.donor === donorId)
@@ -149,18 +149,18 @@ export default function BankImportReview() {
     if (!matched.length) return
     const left = (counts.review ?? 0) + (counts.unmatched ?? 0)
     const ok = await confirm({
-      title: `Save ${plural(matched.length, 'gift')}?`,
+      title: `Save ${plural(matched.length, 'donation')}?`,
       body: (
         <div className="space-y-3">
           <p>
-            Saves {plural(matched.length, 'gift')} totalling <strong className="nums font-semibold text-text">{formatMoney(toSave)}</strong> to donor records and emails{' '}
+            Saves {plural(matched.length, 'donation')} totalling <strong className="nums font-semibold text-text">{formatMoney(toSave)}</strong> to donor records and emails{' '}
             {plural(willEmail, 'receipt')}.
             {matched.length - willEmail > 0 && ` ${plural(matched.length - willEmail, 'donor')} ${matched.length - willEmail === 1 ? 'has' : 'have'} no email address, so ${matched.length - willEmail === 1 ? 'that receipt is' : 'those receipts are'} kept on file instead.`}
           </p>
           <p>Lines in “Needs a look” and “Unmatched” are not saved{left ? ` — ${plural(left, 'line')} will stay here for you to finish later` : ''}.</p>
         </div>
       ),
-      confirmLabel: `Save ${plural(matched.length, 'gift')}`,
+      confirmLabel: `Save ${plural(matched.length, 'donation')}`,
     })
     if (ok) save.mutate()
   }
@@ -168,7 +168,7 @@ export default function BankImportReview() {
   async function onDiscard() {
     const ok = await confirm({
       title: 'Discard this statement?',
-      body: 'The lines and every match you made are removed. No gifts have been saved from it, so no donor record changes. You can upload the file again at any time.',
+      body: 'The lines and every match you made are removed. No donations have been saved from it, so no donor record changes. You can upload the file again at any time.',
       confirmLabel: 'Discard statement',
       tone: 'danger',
     })
@@ -253,7 +253,7 @@ export default function BankImportReview() {
                 </Button>
               )}
               <Button variant="primary" icon={<CheckCircle2 />} className="hidden lg:inline-flex" disabled={!matched.length} loading={save.isPending} onClick={onSave}>
-                {matched.length ? `Save ${plural(matched.length, 'gift')}` : 'Nothing to save yet'}
+                {matched.length ? `Save ${plural(matched.length, 'donation')}` : 'Nothing to save yet'}
               </Button>
             </>
           )
@@ -379,7 +379,7 @@ export default function BankImportReview() {
                   {plural(matched.length, 'matched line')}
                 </div>
                 <Button variant="primary" icon={<CheckCircle2 />} disabled={!matched.length} loading={save.isPending} onClick={onSave}>
-                  {matched.length ? `Save ${plural(matched.length, 'gift')}` : 'Nothing to save'}
+                  {matched.length ? `Save ${plural(matched.length, 'donation')}` : 'Nothing to save'}
                 </Button>
               </div>
             </div>
@@ -435,7 +435,7 @@ function SavedPanel({ result, onClose }: { result: ConfirmResult; onClose: () =>
         </div>
         <div className="min-w-0 flex-1">
           <h2 className="text-[18px] font-semibold tracking-[-0.01em] text-text">
-            Saved {plural(result.saved, 'gift')} totalling <span className="nums">{formatMoney(result.total)}</span>
+            Saved {plural(result.saved, 'donation')} totalling <span className="nums">{formatMoney(result.total)}</span>
           </h2>
           <p className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[13.5px] text-text-2">
             <span className="inline-flex items-center gap-1.5">
@@ -475,7 +475,7 @@ function SavedPanel({ result, onClose }: { result: ConfirmResult; onClose: () =>
           </button>
           <span className="mx-2 text-text-3">·</span>
           <Link to="/admin/gifts?method=bank" className="text-[13px] font-medium text-text-2 hover:text-text hover:underline">
-            See bank gifts
+            See bank donations
           </Link>
         </div>
       )}

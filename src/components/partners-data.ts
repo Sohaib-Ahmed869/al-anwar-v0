@@ -40,7 +40,7 @@ export const OUR_PARTNERS = {
     eyebrow: 'Stronger together',
     title: 'The people who carry it the last mile.',
     intro:
-      'Every gift reaches a family through somebody who lives there. These are the partners we work with, and how we work with them.',
+      'Every donation reaches a family through somebody who lives there. These are the partners we work with, and how we work with them.',
     become: 'Become a partner',
     see: 'Meet our field partners',
   },
@@ -149,7 +149,7 @@ export const BECOME = {
     getTitle: 'What you get back',
     get: [
       'The appeal written up for your newsletter, noticeboard or intranet.',
-      'Tax receipts for gifts of $2 and over. We are a deductible gift recipient.',
+      'Tax receipts for donations of $2 and over. We are a deductible gift recipient.',
       'A report back on where it went, including what we do not know yet.',
     ],
   },
@@ -189,7 +189,7 @@ export const BECOME = {
       title: 'Registered and accountable.',
       points: [
         'Registered with the ACNC as a public benevolent institution.',
-        'A deductible gift recipient, so gifts are tax deductible.',
+        'A deductible gift recipient, so donations are tax deductible.',
         'Nobody draws a wage, and every year we file is public.',
       ],
       records: 'Read our public record',

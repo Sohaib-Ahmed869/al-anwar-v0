@@ -35,11 +35,11 @@ const SEGMENTS: { value: DonorSegment; label: string }[] = [
 ]
 
 const SEGMENT_HELP: Partial<Record<DonorSegment, string>> = {
-  regular: 'Donors with a regular gift running, paused or waiting on a card fix.',
+  regular: 'Donors with a regular donation running, paused or waiting on a card fix.',
   major: 'Tagged “major donor”, or $5,000 or more given in total.',
-  new: 'Their first gift was in the last 90 days.',
+  new: 'Their first donation was in the last 90 days.',
   lapsed: 'Gave before, but nothing in the last 12 months.',
-  never: 'On file — from an enquiry, an event or a sign-up — but no gift yet.',
+  never: 'On file — from an enquiry, an event or a sign-up — but no donation yet.',
 }
 
 const split = (s: string) => (s ? s.split(',') : [])
@@ -142,10 +142,10 @@ export default function Donors() {
       hideBelow: 'lg',
     },
     { key: 'total', header: 'Lifetime', sort: 'totalGiven', align: 'right', cell: (d) => <Money cents={d.totalGiven} className="font-medium text-text" /> },
-    { key: 'count', header: 'Gifts', sort: 'giftCount', align: 'right', cell: (d) => <span className="nums text-text-2">{formatNumber(d.giftCount)}</span>, hideBelow: 'lg' },
+    { key: 'count', header: 'Donations', sort: 'giftCount', align: 'right', cell: (d) => <span className="nums text-text-2">{formatNumber(d.giftCount)}</span>, hideBelow: 'lg' },
     {
       key: 'last',
-      header: 'Last gift',
+      header: 'Last donation',
       sort: 'lastGiftAt',
       align: 'right',
       cell: (d) => <span className="nums text-text-2">{d.lastGiftAt ? formatDay(d.lastGiftAt) : <span className="text-text-3">Not yet</span>}</span>,
@@ -159,7 +159,7 @@ export default function Donors() {
     <>
       <PageHeader
         title="Donors"
-        description="One record per person: every gift, regular gift, email and enquiry in one place."
+        description="One record per person: every donation, regular donation, email and enquiry in one place."
         actions={
           <>
             {can('donors.export') && (
@@ -188,7 +188,7 @@ export default function Donors() {
             </Button>
           }
         >
-          Merging keeps every gift, receipt and email — nothing is lost.
+          Merging keeps every donation, receipt and email — nothing is lost.
         </Callout>
       )}
 
@@ -253,7 +253,7 @@ export default function Donors() {
                 </p>
                 <p className="truncate text-[12.5px] text-text-3">{d.email}</p>
                 <p className="mt-0.5 truncate text-[12.5px] text-text-3">
-                  {d.giftCount ? `${plural(d.giftCount, 'gift')} · last ${formatDay(d.lastGiftAt)}` : 'No gifts yet'}
+                  {d.giftCount ? `${plural(d.giftCount, 'donation')} · last ${formatDay(d.lastGiftAt)}` : 'No donations yet'}
                   {place(d) && ` · ${place(d)}`}
                 </p>
               </div>
@@ -285,7 +285,7 @@ export default function Donors() {
                 title="No donors yet"
                 action={can('donors.write') ? <Button variant="primary" icon={<UserPlus />} onClick={() => set({ new: '1' })}>Add a donor</Button> : undefined}
               >
-                Donors appear here with their first gift, or add someone by hand.
+                Donors appear here with their first donation, or add someone by hand.
               </EmptyState>
             )
           }

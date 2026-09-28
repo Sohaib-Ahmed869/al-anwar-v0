@@ -47,7 +47,7 @@ const METHOD_OPTIONS: { value: Extract<Method, 'cash' | 'cheque' | 'event' | 'ba
 const REFERENCE: Record<string, { label: string; placeholder: string; help?: string }> = {
   cash: { label: 'Reference', placeholder: 'Receipt book number, envelope…' },
   cheque: { label: 'Cheque number', placeholder: 'e.g. 004512', help: 'Printed bottom left of the cheque.' },
-  event: { label: 'Event', placeholder: 'e.g. Community iftar, Auburn', help: 'Kept for the next gift you add tonight.' },
+  event: { label: 'Event', placeholder: 'e.g. Community iftar, Auburn', help: 'Kept for the next donation you add tonight.' },
   bank: { label: 'Bank reference', placeholder: 'As it shows on the statement' },
 }
 
@@ -199,13 +199,13 @@ export function GiftRecordDialog({
       open={open}
       onOpenChange={onOpenChange}
       dismissible={!save.isPending}
-      title="Record a gift"
+      title="Record a donation"
       description={
         tally.count > 0 ? (
           <span className="inline-flex items-center gap-2">
             <span className="size-1.5 rounded-full bg-green" aria-hidden />
             <span className="nums font-medium text-text">
-              {plural(tally.count, 'gift')} · {formatMoney(tally.total)}
+              {plural(tally.count, 'donation')} · {formatMoney(tally.total)}
             </span>{' '}
             this session
           </span>
@@ -220,7 +220,7 @@ export function GiftRecordDialog({
             Save and add another
           </Button>
           <Button variant="primary" onClick={() => submit(false)} loading={save.isPending && save.variables === false} disabled={save.isPending}>
-            Save gift
+            Save donation
           </Button>
         </>
       }
@@ -283,7 +283,7 @@ export function GiftRecordDialog({
                   <Input aria-label="Phone" type="tel" placeholder="Phone (optional)" autoComplete="off" value={newDonor.phone} onChange={(e) => setNewDonor({ ...newDonor, phone: e.target.value })} />
                 </div>
               </div>
-              <p className="mt-2 text-[12.5px] leading-snug text-text-3">If the email is already on a donor’s record, the gift goes on that record instead.</p>
+              <p className="mt-2 text-[12.5px] leading-snug text-text-3">If the email is already on a donor’s record, the donation goes on that record instead.</p>
             </div>
           ) : (
             <div data-gift-donor>
@@ -395,7 +395,7 @@ export function GiftRecordDialog({
                 <div className="text-[13px] leading-snug">
                   <p className="font-medium text-text">No receipt email</p>
                   <p className="mt-0.5 text-text-2">
-                    {hasDonor ? 'There is no email address for this donor.' : 'Choose a donor first.'} A receipt number is still issued, and it can be emailed later from the gift once their address is added.
+                    {hasDonor ? 'There is no email address for this donor.' : 'Choose a donor first.'} A receipt number is still issued, and it can be emailed later from the donation once their address is added.
                   </p>
                 </div>
               </div>
@@ -422,7 +422,7 @@ export function GiftRecordDialog({
               <Field label="Notes" optional help="Only staff see these.">
                 <Textarea rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Anything the office should know" />
               </Field>
-              <Checkbox checked={anonymous} onChange={setAnonymous} label="Keep their name off public lists" description="The gift still appears on their record and receipt." />
+              <Checkbox checked={anonymous} onChange={setAnonymous} label="Keep their name off public lists" description="The donation still appears on their record and receipt." />
             </div>
           )}
         </div>

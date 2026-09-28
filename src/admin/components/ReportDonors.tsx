@@ -35,16 +35,16 @@ export function ReportDonors({ range }: { range: DateRange }) {
     <div className={q.isFetching ? 'space-y-5 opacity-70 transition-opacity' : 'space-y-5 transition-opacity'}>
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
         <Stat icon={<Users />} label="Gave in this period" value={formatNumber(d.active)} hint="different donors" />
-        <Stat icon={<UserPlus />} label="New" value={formatNumber(d.totals.new)} hint="first gift ever" />
+        <Stat icon={<UserPlus />} label="New" value={formatNumber(d.totals.new)} hint="first donation ever" />
         <Stat icon={<Users />} label="Returning" value={formatNumber(d.totals.returning)} hint="donor-months" />
         <Stat icon={<RotateCcw />} label="Came back" value={formatNumber(d.totals.reactivated)} hint="after a year or more" />
-        <Stat icon={<UserMinus />} label="Lapsed" value={formatNumber(d.totals.lapsed)} hint="no gift for 12 months" />
+        <Stat icon={<UserMinus />} label="Lapsed" value={formatNumber(d.totals.lapsed)} hint="no donation for 12 months" />
       </div>
 
       <Card>
         <CardHeader
           title="New, returning and lapsed, month by month"
-          description="Each donor counts once in a month. Lapsed: their last gift was twelve months before and nothing since."
+          description="Each donor counts once in a month. Lapsed: their last donation was twelve months before and nothing since."
         />
         <CardBody>
           <ReportCountChart
@@ -67,7 +67,7 @@ export function ReportDonors({ range }: { range: DateRange }) {
           {d.byState.length ? (
             <BarList rows={d.byState.map((s) => ({ key: s.key, label: s.label, value: s.amount, sub: `· ${formatNumber(s.donors)} ${s.donors === 1 ? 'donor' : 'donors'}` }))} format={(v) => formatMoney(v, { whole: true })} />
           ) : (
-            <p className="text-[13.5px] text-text-2">No gifts in these dates.</p>
+            <p className="text-[13.5px] text-text-2">No donations in these dates.</p>
           )}
         </CardBody>
       </Card>

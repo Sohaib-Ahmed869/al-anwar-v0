@@ -38,9 +38,9 @@ const RESEND_COOLDOWN_MS = 60_000
 
 /** A gift of the signed-in donor's, or a 404 — never "that's someone else's". */
 async function ownGift(req: Parameters<typeof me>[0], id: string): Promise<GiftDoc> {
-  if (!isId(id)) throw notFound('That gift')
+  if (!isId(id)) throw notFound('That donation')
   const g = await Gift.findOne({ _id: id, donor: me(req)._id })
-  if (!g) throw notFound('That gift')
+  if (!g) throw notFound('That donation')
   return g
 }
 
@@ -198,7 +198,7 @@ r.get('/statement/range', async (req, res) => {
 r.post('/statement/range/email', async (req, res) => {
   const donor = me(req)
   const s = await statementForRange(req, req.body ?? {})
-  if (!s.totals.count) throw new HttpError(400, `There are no gifts from ${s.label} to put on a statement.`)
+  if (!s.totals.count) throw new HttpError(400, `There are no donations from ${s.label} to put on a statement.`)
   const sent = await sendEmail(donor.email, rangeStatementEmail(donor.firstName, s.range, s.label, s.totals.total, s.totals.count), { donor: donor._id })
   if (!sent.ok) throw new HttpError(502, 'The email could not be sent just now. Please try again in a few minutes.')
   await audit(req, 'donor.statement', `${donorName(donor)} emailed themselves a giving statement for ${s.label} (${formatMoney(s.totals.total)})`, {
@@ -214,7 +214,7 @@ r.get('/statement/:fy', async (req, res) => {
 r.post('/statement/:fy/email', async (req, res) => {
   const donor = me(req)
   const s = await statementFor(req, Number(req.params.fy))
-  if (!s.totals.count) throw new HttpError(400, `There are no gifts in ${s.label} to put on a statement.`)
+  if (!s.totals.count) throw new HttpError(400, `There are no donations in ${s.label} to put on a statement.`)
   const sent = await sendEmail(donor.email, taxStatementEmail(donor.firstName, s.fy, s.totals.total, s.totals.count), { donor: donor._id })
   if (!sent.ok) throw new HttpError(502, 'The email could not be sent just now. Please try again in a few minutes.')
   await audit(req, 'donor.statement', `${donorName(donor)} emailed themselves their ${s.label} tax statement (${formatMoney(s.totals.total)})`, {
@@ -225,7 +225,7 @@ r.post('/statement/:fy/email', async (req, res) => {
 
 r.get('/receipt/:id', async (req, res) => {
   const g = await ownGift(req, String(req.params.id))
-  if (g.status !== 'succeeded') throw new HttpError(400, 'A receipt is issued once a gift has been received.')
+  if (g.status !== 'succeeded') throw new HttpError(400, 'A receipt is issued once a donation has been received.')
   if (!g.receipt?.number) await issueReceipt(g, { email: false })
   const donor = me(req)
   const settings = await getSettings()
@@ -246,7 +246,7 @@ r.get('/:id', async (req, res) => {
 r.post('/:id/resend', async (req, res) => {
   parse(z.object({}).passthrough(), req.body ?? {})
   const g = await ownGift(req, String(req.params.id))
-  if (g.status !== 'succeeded') throw new HttpError(400, 'Only a gift that has been received has a receipt to send.')
+  if (g.status !== 'succeeded') throw new HttpError(400, 'Only a donation that has been received has a receipt to send.')
   const last = g.receipt?.emailedAt ? new Date(g.receipt.emailedAt).getTime() : 0
   if (Date.now() - last < RESEND_COOLDOWN_MS) {
     throw new HttpError(429, 'We sent that receipt a moment ago. Check your inbox (and junk folder) — you can ask again in a minute.')

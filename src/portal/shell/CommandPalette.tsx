@@ -75,7 +75,7 @@ export function CommandPalette({
                 value={q}
                 onValueChange={setQ}
                 autoFocus
-                placeholder={searchPath ? 'Search donors, gifts, appeals… or jump to a page' : 'Jump to a page'}
+                placeholder={searchPath ? 'Search donors, donations, appeals… or jump to a page' : 'Jump to a page'}
                 className="h-14 flex-1 bg-transparent text-[16px] text-text outline-none placeholder:text-text-3"
               />
               {search.isFetching && <Spinner className="text-text-3" />}

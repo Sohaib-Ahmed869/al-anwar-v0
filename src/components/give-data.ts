@@ -446,7 +446,7 @@ export const TRUST = [
   },
   {
     title: 'Tax deductible',
-    body: 'We are a deductible gift recipient. Gifts of $2 and over can be claimed.',
+    body: 'We are a deductible gift recipient. Donations of $2 and over can be claimed.',
   },
   {
     title: 'Zakat, passed on whole',
@@ -466,8 +466,8 @@ export const TRUST = [
    monthly questions became one. */
 export const GIVE_FAQ = [
   {
-    q: 'Is my gift tax deductible?',
-    a: 'Yes. Al-Anwaar is a deductible gift recipient, so gifts of $2 and over are tax deductible. Your receipt is the record to keep for your return.',
+    q: 'Is my donation tax deductible?',
+    a: 'Yes. Al-Anwaar is a deductible gift recipient, so donations of $2 and over are tax deductible. Your receipt is the record to keep for your return.',
   },
   {
     q: 'When does my receipt arrive?',
@@ -482,7 +482,7 @@ export const GIVE_FAQ = [
     a: 'It goes into a ledger of its own and is spent only on the people zakat is owed to. None of it pays for running the charity.',
   },
   {
-    q: 'I made a mistake with my gift. Can I get a refund?',
+    q: 'I made a mistake with my donation. Can I get a refund?',
     a: 'Tell us within 30 days if you were charged the wrong amount, charged twice, or your card was used without permission, and we will refund it to the same card or account.',
   },
 ]

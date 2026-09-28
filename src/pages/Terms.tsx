@@ -96,11 +96,11 @@ const SECTIONS: LegalSection[] = [
             payment method.
           </li>
           <li>
-            A donation is a gift. You get nothing in return for it, which is what makes it tax
+            A donation is given freely. You get nothing in return for it, which is what makes it tax
             deductible.
           </li>
           <li>
-            The smallest gift that can carry a deductible receipt is{' '}
+            The smallest donation that can carry a deductible receipt is{' '}
             <span className="nums">$2</span>.
           </li>
           <li>
@@ -109,7 +109,7 @@ const SECTIONS: LegalSection[] = [
           </li>
         </ul>
         <p>
-          Your gift goes to the fund or appeal you chose, minus the card or PayPal fee unless you
+          Your donation goes to the fund or appeal you chose, minus the card or PayPal fee unless you
           ticked the box to cover it. What happens after that is set out on{' '}
           <Link to="/where-it-goes">Where it goes</Link>.
         </p>
@@ -129,7 +129,7 @@ const SECTIONS: LegalSection[] = [
         <p>
           You can also give by bank transfer to the account shown on the{' '}
           <Link to="/give">Give</Link> page. Put your name and the fund in the reference so we can
-          match the gift and send your receipt.
+          match the donation and send your receipt.
         </p>
       </>
     ),
@@ -140,9 +140,9 @@ const SECTIONS: LegalSection[] = [
     body: (
       <>
         <p>
-          Monthly gifts are taken by card through Stripe, and only for the voluntary funds:
+          Monthly donations are taken by card through Stripe, and only for the voluntary funds:
           sadaqah, education, water, food and the emergency fund. Zakat, zakat ul fitr, kaffarah and
-          fidyah are given once, because each is owed once. A monthly gift is charged on the same
+          fidyah are given once, because each is owed once. A monthly donation is charged on the same
           date each month until you stop it.
         </p>
         <p>
@@ -151,14 +151,14 @@ const SECTIONS: LegalSection[] = [
         </p>
         <p>
           If a payment fails, Stripe tries again over the following days. If it still fails, the
-          gift stops and we email you rather than keep charging a card that is not working.
+          donation stops and we email you rather than keep charging a card that is not working.
         </p>
       </>
     ),
   },
   {
     id: 'zakat-and-restricted-gifts',
-    title: 'Zakat and restricted gifts',
+    title: 'Zakat and restricted donations',
     body: (
       <>
         <p>
@@ -194,8 +194,8 @@ const SECTIONS: LegalSection[] = [
     body: (
       <>
         <p>
-          Gifts of <span className="nums">$2</span> and over to Al-Anwaar are tax deductible in
-          Australia. Gifts through Stripe or PayPal are receipted by email as soon as the payment
+          Donations of <span className="nums">$2</span> and over to Al-Anwaar are tax deductible in
+          Australia. Donations through Stripe or PayPal are receipted by email as soon as the payment
           goes through. Bank transfers are receipted within five business days of the money reaching
           us and being matched to your reference.
         </p>
@@ -212,17 +212,17 @@ const SECTIONS: LegalSection[] = [
     body: (
       <>
         <p>
-          A gift is normally final, because we commit it to the field quickly. But if something went
+          A donation is normally final, because we commit it to the field quickly. But if something went
           wrong we will fix it. Tell us within 30 days if:
         </p>
         <ul>
           <li>you were charged the wrong amount, or charged twice;</li>
-          <li>you meant to give once and set up a monthly gift by mistake;</li>
+          <li>you meant to give once and set up a monthly donation by mistake;</li>
           <li>your card was used without your permission.</li>
         </ul>
         <p>
           We refund to the card or PayPal account you paid with, usually within ten business days.
-          The tax receipt for a refunded gift is cancelled, so do not claim it. If the money has
+          The tax receipt for a refunded donation is cancelled, so do not claim it. If the money has
           already been sent to the field we may not be able to recover it, and we will tell you so
           plainly.
         </p>
@@ -306,7 +306,7 @@ const SECTIONS: LegalSection[] = [
       <>
         <p>
           We update these terms from time to time, and the date at the top of the page changes with
-          them. The terms that apply to a gift are the ones published on the day you made it.
+          them. The terms that apply to a donation are the ones published on the day you made it.
         </p>
         <p>
           These terms are governed by the law of {ORG.jurisdiction}, Australia, and the courts of{' '}
@@ -320,7 +320,7 @@ const SECTIONS: LegalSection[] = [
     title: 'Talk to us first',
     body: (
       <p>
-        If something here is unclear, or something has gone wrong with a gift, email{' '}
+        If something here is unclear, or something has gone wrong with a donation, email{' '}
         <a href={`mailto:${ORG.email}`}>{ORG.email}</a>, use the form on our{' '}
         <Link to="/contact">contact page</Link>, or write to us at {ORG.street}, {ORG.suburb}.
         Almost everything is quicker to fix than it is to argue about.
@@ -342,7 +342,7 @@ export default function Terms() {
         eyebrow="Terms & conditions"
         title="Plain rules"
         titleMark="for giving with us."
-        summary="The rules for using this site and giving through it: where your gift goes, when we refund it, what a receipt is worth, and what we are responsible for."
+        summary="The rules for using this site and giving through it: where your donation goes, when we refund it, what a receipt is worth, and what we are responsible for."
         image="terms"
         position="55% 52%"
         facts={[

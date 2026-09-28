@@ -122,7 +122,7 @@ export default function FundraiserBody({ fundraiser: f, appeal }: { fundraiser: 
                 <div className="relative isolate overflow-hidden rounded-2xl bg-teal p-s3 text-paper sm:p-s4">
                   <MasjidMark className="pointer-events-none absolute -right-[8%] -bottom-[16%] -z-10 size-[200px] text-paper/[0.07]" />
                   <p className="font-script text-[clamp(22px,2vw,28px)] leading-none text-gold-pale">
-                    Where your gift goes
+                    Where your donation goes
                   </p>
                   <h3 className="mt-2 font-display text-[clamp(22px,2vw,28px)] leading-[1.15] font-semibold tracking-[-0.02em]">
                     {appeal.title}
@@ -170,7 +170,7 @@ export default function FundraiserBody({ fundraiser: f, appeal }: { fundraiser: 
                       ))}
                     </ul>
                   ) : (
-                    <p className="mt-s2 text-[14.5px] text-text-2">No gifts yet. Be the first to give.</p>
+                    <p className="mt-s2 text-[14.5px] text-text-2">No donations yet. Be the first to give.</p>
                   )}
                   <Link
                     to={fundraiserGiveHref(f)}

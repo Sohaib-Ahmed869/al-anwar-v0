@@ -138,7 +138,7 @@ const SUGGESTED: Record<string, { amounts: [number, string?][]; unit?: { name: s
 }
 
 const STORIES: Record<string, string> = {
-  'gaza-emergency': 'Homes have been reduced to rubble and families are living in tents with too little food and clean water.\n\nYour gift is spent through our partner on the ground on what families ask for first: food parcels, drinking water, hygiene kits and blankets. Every delivery is logged and reported back here.',
+  'gaza-emergency': 'Homes have been reduced to rubble and families are living in tents with too little food and clean water.\n\nYour donation is spent through our partner on the ground on what families ask for first: food parcels, drinking water, hygiene kits and blankets. Every delivery is logged and reported back here.',
   'gaza-hot-meals': 'Cooked every day in community kitchens and handed out in the camps by people on the ground, to families who have lost their kitchens.\n\n$10 is one hot meal. The kitchens buy locally wherever markets are open, which keeps money moving in the local economy.',
   'food-pack-lebanon': 'Our partner in Tripoli is distributing this week. Every pack is bought in-country, so the money moves faster than the goods would.',
   'yemen-food-relief': 'A $50 pack is flour, rice, oil, lentils and dates — enough to feed one family for a month. Packs are bought in Yemen and handed out by our partner to families on their list.',
@@ -556,7 +556,7 @@ export async function seedAll() {
     ['event', 'Community iftar — 4 seats', 'Booking four seats for the community iftar.', { event: 'Community iftar', seats: '4' }],
     ['event', 'Charity dinner', 'Two tickets for the annual dinner please.', { event: 'Annual dinner', seats: '2' }],
     ['fundraising', 'Running the Sydney half marathon', 'I would like to set up a fundraising page for the half marathon in May.', {}],
-    ['contact', 'Cancel my monthly gift', 'I cannot log in to cancel my monthly donation. Can you stop it for me?', {}],
+    ['contact', 'Cancel my monthly donation', 'I cannot log in to cancel my monthly donation. Can you stop it for me?', {}],
     ['contact', 'Zakat question', 'Can my zakat go to the water stations appeal?', {}],
   ]
   const enquiries = []
@@ -584,8 +584,8 @@ export async function seedAll() {
   await Campaign.insertMany([
     { name: 'Ramadan 2026 launch', subject: 'Ramadan is ten days away, {{firstName}}', preheader: 'Set up your last ten nights now.', body: 'Assalamu alaykum {{firstName}},\n\nRamadan is almost here. This year you can set your giving across the **last ten nights** in one go, so none of them is missed.\n\n[Set up my ten nights](/ramadan)\n\nJazakAllahu khairan,\nThe Al-Anwaar team', segment: { activeMonths: 24 }, status: 'sent', stats: { recipients: 344, sent: 341, failed: 3 }, sentAt: new Date('2026-02-08T09:00:00'), createdByName: 'Fatima Noor', createdAt: new Date('2026-02-05') },
     { name: 'Where your Qurbani went', subject: 'Your Qurbani, delivered', body: 'Assalamu alaykum {{firstName}},\n\nEvery Qurbani share given this year was carried out on the days of Eid in Yemen and Gaza.\n\n- 212 shares in Yemen\n- 96 shares in Gaza\n\nThank you for trusting us with it.', segment: { appeals: [String(qurbaniAppeal._id)] }, status: 'sent', stats: { recipients: 118, sent: 118, failed: 0 }, sentAt: new Date('2026-06-12T10:00:00'), createdByName: 'Fatima Noor', createdAt: new Date('2026-06-10') },
-    { name: 'EOFY 2026 reminder', subject: 'Two weeks left to give before 30 June', body: 'Gifts of $2 or more are tax deductible. Your tax statement will be in your account on 1 July.', segment: { activeMonths: 18 }, status: 'sent', stats: { recipients: 330, sent: 329, failed: 1 }, sentAt: new Date('2026-06-16T08:30:00'), createdByName: 'Maryam Haddad', createdAt: new Date('2026-06-14') },
-    { name: 'We miss you — lapsed donors', subject: 'It has been a while, {{firstName}}', body: 'Assalamu alaykum {{firstName}},\n\nIt has been over a year since your last gift, and we wanted to show you what it did.\n\n[See where the money goes](/where-it-goes)', segment: { lapsedMonths: 12 }, status: 'draft', stats: { recipients: 0, sent: 0, failed: 0 }, createdByName: 'Fatima Noor', createdAt: daysAgo(3) },
+    { name: 'EOFY 2026 reminder', subject: 'Two weeks left to give before 30 June', body: 'Donations of $2 or more are tax deductible. Your tax statement will be in your account on 1 July.', segment: { activeMonths: 18 }, status: 'sent', stats: { recipients: 330, sent: 329, failed: 1 }, sentAt: new Date('2026-06-16T08:30:00'), createdByName: 'Maryam Haddad', createdAt: new Date('2026-06-14') },
+    { name: 'We miss you — lapsed donors', subject: 'It has been a while, {{firstName}}', body: 'Assalamu alaykum {{firstName}},\n\nIt has been over a year since your last donation, and we wanted to show you what it did.\n\n[See where the money goes](/where-it-goes)', segment: { lapsedMonths: 12 }, status: 'draft', stats: { recipients: 0, sent: 0, failed: 0 }, createdByName: 'Fatima Noor', createdAt: daysAgo(3) },
     { name: 'Winter appeal — Syria', subject: 'Winter is coming to the camps', body: 'Draft copy — waiting on the partner costing.', segment: { countries: ['syria', 'lebanon'] }, status: 'draft', stats: { recipients: 0, sent: 0, failed: 0 }, createdByName: 'Fatima Noor', createdAt: daysAgo(1) },
   ])
 
@@ -677,7 +677,7 @@ async function seedCompliance(staff: InstanceType<typeof Staff>[]) {
     ['Funds diverted by an overseas partner', 'overseas', 3, 5, 'treating', 'Written agreements, staged transfers, monthly reporting with photo evidence, annual due diligence.'],
     ['Transfer blocked or delayed by a bank', 'financial', 4, 3, 'open', 'Two banking relationships; documented purpose for every transfer.'],
     ['Donor data breach', 'cyber', 2, 5, 'treating', 'Role-based access, audit log, MFA on email, no card data held.'],
-    ['Staff or volunteer misappropriation of cash', 'fraud', 2, 3, 'treating', 'Two people count cash at events; gifts entered the same day; reconciled weekly.'],
+    ['Staff or volunteer misappropriation of cash', 'fraud', 2, 3, 'treating', 'Two people count cash at events; donations entered the same day; reconciled weekly.'],
     ['Safeguarding incident at a distribution', 'safeguarding', 2, 5, 'treating', 'Partner safeguarding clause; photography consent rules.'],
     ['Reputational damage from a misleading appeal', 'reputational', 2, 4, 'accepted', 'Appeal copy approved by two people; figures sourced.'],
     ['Late AIS lodgement', 'compliance', 2, 3, 'treating', 'Statutory calendar with reminders; treasurer owns it.'],
@@ -767,7 +767,7 @@ async function seedEmailsAndAudit(staff: InstanceType<typeof Staff>[], donors: S
     const d = pick(donors)
     const summary =
       kind === 'staff.login' ? `${who.name} signed in`
-      : kind === 'gift.offline' ? `Recorded $${between(2, 40) * 5} cash gift from ${d.firstName} ${d.lastName}`
+      : kind === 'gift.offline' ? `Recorded $${between(2, 40) * 5} cash donation from ${d.firstName} ${d.lastName}`
       : kind === 'donor.update' ? `Updated contact details for ${d.firstName} ${d.lastName} (${d.number})`
       : kind === 'enquiry.note' ? `Added a note to an enquiry from ${d.firstName} ${d.lastName}`
       : kind === 'register.update' ? `Updated an entry in the Risks register`

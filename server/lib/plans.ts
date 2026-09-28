@@ -28,13 +28,19 @@ export async function chargePlan(plan: PlanDoc, req?: Request | null) {
   const donor = await Donor.findById(plan.donor)
   if (!donor) return { ok: false as const, error: 'Donor not found' }
   const s = await getSettings()
-  const fee = plan.coverFee ? Math.round(plan.amount * s.payments.feeRate) : 0
+  /* The operating-costs contribution the donor chose, added to every payment
+     exactly as the card fee used to be. A plan started before 28 September
+     2026 has none stored and keeps the percentage fee it was agreed on, so
+     nobody's regular donation changes under them. */
+  const fee = plan.operatingCosts != null
+    ? plan.operatingCosts
+    : plan.coverFee ? Math.round(plan.amount * s.payments.feeRate) : 0
   const due = plan.nextChargeAt ?? new Date()
   const attempt = plan.failure?.count ?? 0
 
   const result = await chargeSavedCard({
     amount: plan.amount + fee,
-    description: `${plan.appealTitle ?? 'Al-Anwaar'} — regular gift ${plan.number}`,
+    description: `${plan.appealTitle ?? 'Al-Anwaar'} — regular donation ${plan.number}`,
     last4: plan.payment?.last4,
     stripeCustomer: plan.payment?.stripeCustomer,
     stripePaymentMethod: plan.payment?.stripePaymentMethod,

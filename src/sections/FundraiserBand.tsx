@@ -178,7 +178,7 @@ export default function FundraiserBand({ fundraiser: f, appeal }: { fundraiser: 
             />
           </div>
           {tooSmall && (
-            <p className="mt-1.5 text-[13px] text-alert-pale">The smallest gift we can take is ${MIN_GIFT}.</p>
+            <p className="mt-1.5 text-[13px] text-alert-pale">The smallest donation we can take is ${MIN_GIFT}.</p>
           )}
 
           <Link

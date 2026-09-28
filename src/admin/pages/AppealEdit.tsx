@@ -288,7 +288,7 @@ export default function AppealEdit() {
                 checked={form.unitOn}
                 onChange={(v) => set('unitOn', v)}
                 label="Count it in units"
-                description="For appeals with a price per thing — “$50 buys one food pack”. The give box then says how many a gift pays for."
+                description="For appeals with a price per thing — “$50 buys one food pack”. The give box then says how many a donation pays for."
               />
               {form.unitOn && (
                 <div className="mt-4 grid gap-3 sm:grid-cols-3">
@@ -370,7 +370,7 @@ export default function AppealEdit() {
             <Card>
               <CardBody className="pt-5 text-[13px] leading-relaxed text-text-2">
                 A new appeal is saved as a <strong className="font-medium text-text">draft</strong>: only the team can see it. Once it is saved you can add the photo, post updates and open it
-                for gifts.
+                for donations.
               </CardBody>
             </Card>
           )}

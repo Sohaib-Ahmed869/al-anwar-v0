@@ -76,7 +76,7 @@ r.get('/', async (req, res) => {
           .select('number donorName amount date receipt.number reference appealTitle')
           .lean()
         return {
-          label: 'Gifts',
+          label: 'Donations',
           items: found.map((g) => ({
             id: String(g._id),
             title: `${g.number} · ${formatMoney(g.amount)} from ${g.donorName}`,

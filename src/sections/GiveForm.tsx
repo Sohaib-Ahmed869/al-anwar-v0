@@ -5,6 +5,7 @@ import {
   BACK_BUTTON,
   EMPTY_DONOR,
   Field,
+  OperatingCostsChoice,
   LABEL,
   NEXT_BUTTON,
   Tick,
@@ -36,7 +37,7 @@ import Reveal, { useInView } from '../components/Reveal'
 import { ArrowRight, Check, HandHeart, Lock } from '../components/icons'
 import { ORG } from '../components/org-data'
 import SectionHead, { BREAKOUT, SECTION_Y } from '../components/SectionHead'
-import { feeOf, startCheckout, type Frequency, type Provider } from '../services/give'
+import { OPERATING_COSTS, startCheckout, type Frequency, type Provider } from '../services/give'
 
 /* ---------------------------------------------------------------------------
    /give, section 2 of 3: the form. Everything else on the page is there to
@@ -96,7 +97,7 @@ import { feeOf, startCheckout, type Frequency, type Provider } from '../services
    every Continue is teal.
 --------------------------------------------------------------------------- */
 
-const STEPS = ['Gift', 'Details', 'Pay']
+const STEPS = ['Donation', 'Details', 'Pay']
 
 /** GiveModule's Continue, in the logo's teal like the rest of this form. */
 const NEXT = NEXT_BUTTON.replace('bg-green', 'bg-teal')
@@ -168,9 +169,10 @@ function useArrival(fundraiser: Fundraiser | undefined) {
       chosen: amount === null ? 0 : rung >= 0 ? rung : null,
       typed: amount !== null && rung < 0 ? String(amount) : '',
       donor,
-      /* The home card only sends fee=1 when its box was ticked; a cold link
-         says nothing, and then the ask starts ticked as it does on the card. */
-      coverFee: handed ? params.get('fee') === '1' : true,
+      /* The operating-costs contribution the home card chose, as ?ops= in
+         dollars. Anything not on the list is ignored rather than trusted, and
+         a cold link starts on "No thanks": the contribution is opt-in. */
+      operatingCosts: OPERATING_COSTS.includes(Number(params.get('ops'))) ? Number(params.get('ops')) : 0,
       step,
       /** the link chose something, so the reader lands on the form */
       prefilled:
@@ -202,7 +204,8 @@ function GiveFormReady({ fundraiser }: { fundraiser: Fundraiser | undefined }) {
   const [amountError, setAmountError] = useState('')
   const [donor, setDonor] = useState<Donor>(start.donor)
   const [errors, setErrors] = useState<DonorErrors>({})
-  const [coverFee, setCoverFee] = useState(start.coverFee)
+  /* dollars, one of OPERATING_COSTS; 0 is "No thanks" */
+  const [operatingCosts, setOperatingCosts] = useState(start.operatingCosts)
   const [provider, setProvider] = useState<Provider>('stripe')
   const [status, setStatus] = useState<Status>({ kind: 'idle' })
 
@@ -216,8 +219,7 @@ function GiveFormReady({ fundraiser }: { fundraiser: Fundraiser | undefined }) {
   const rung = rungs[chosen ?? 0]
   const amount = custom ? typedAmount : (rung?.value ?? 0)
   const rungLabel = custom ? null : (rung?.label ?? null)
-  const fee = feeOf(amount)
-  const total = coverFee ? amount + fee : amount
+  const total = amount + operatingCosts
   const impact = monthly
     ? `${money(amount * 12)} a year to ${cause.appeal}`
     : impactOf({ cause, amount, impact: rungLabel })
@@ -253,7 +255,7 @@ function GiveFormReady({ fundraiser }: { fundraiser: Fundraiser | undefined }) {
 
   const forward = () => {
     if (step === 0 && amount < MIN_GIFT) {
-      setAmountError(`The smallest gift we can take is $${MIN_GIFT}.`)
+      setAmountError(`The smallest donation we can take is $${MIN_GIFT}.`)
       document.getElementById(`${uid}-own`)?.focus()
       return
     }
@@ -355,7 +357,7 @@ function GiveFormReady({ fundraiser }: { fundraiser: Fundraiser | undefined }) {
       fundraiser: appeal ? start.fundraiserSlug : undefined,
       frequency,
       amount,
-      coverFee,
+      operatingCosts,
       provider,
       first: donor.first,
       last: donor.last,
@@ -385,7 +387,7 @@ function GiveFormReady({ fundraiser }: { fundraiser: Fundraiser | undefined }) {
       className={`scroll-mt-[var(--header-h)] ${SECTION_Y}`}
     >
       <div className="gutter mx-auto max-w-page">
-        <SectionHead id="give-form-head" eyebrow="Give today" title="Where should your gift go?" />
+        <SectionHead id="give-form-head" eyebrow="Give today" title="Where should your donation go?" />
         <div
           className={`mt-s4 grid gap-s3 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:items-start lg:gap-s4 ${BREAKOUT}`}
         >
@@ -736,7 +738,7 @@ function GiveFormReady({ fundraiser }: { fundraiser: Fundraiser | undefined }) {
                       onChange={(v) => setField('updates', v)}
                       className="mt-s3"
                     >
-                      Send me word of what this fund did. A few times a year.
+                      Keep me updated on this project
                     </Tick>
 
                     <Tick
@@ -765,7 +767,7 @@ function GiveFormReady({ fundraiser }: { fundraiser: Fundraiser | undefined }) {
                     <h3 className="text-[20px] font-semibold tracking-[-0.012em]">Check and pay</h3>
 
                     <dl className="mt-s3 border-y border-line text-[14px]">
-                      <SummaryRow label="Gift" onChange={() => go(0)}>
+                      <SummaryRow label="Donation" onChange={() => go(0)}>
                         <span className="nums font-semibold text-text">{money(amount)}</span>
                         {each} to {cause.label}
                         {appeal && <span className="text-text-3"> · {appeal}</span>}
@@ -780,20 +782,15 @@ function GiveFormReady({ fundraiser }: { fundraiser: Fundraiser | undefined }) {
                       </SummaryRow>
                     </dl>
 
-                    <Tick
-                      checked={coverFee}
-                      onChange={setCoverFee}
-                      className={`mt-s3 rounded-[14px] border p-3.5 transition-colors duration-200 ease-brand ${
-                        coverFee
-                          ? 'border-teal/35 bg-teal/[0.05]'
-                          : 'border-line-2 bg-paper-2/70 hover:border-line'
-                      }`}
-                    >
-                      Add <b className="nums font-semibold text-text">{money2(fee)}</b> so the full{' '}
-                      <b className="nums font-semibold text-text">{money(amount)}</b> reaches{' '}
-                      {cause.place}
-                      {monthly ? ' every month' : ''}.
-                    </Tick>
+                    {/* 0% admin fee, then the optional operating costs (28
+                        September 2026, replacing the card-fee tick). On a
+                        monthly donation it is added to every payment. */}
+                    <OperatingCostsChoice
+                      value={operatingCosts}
+                      onChange={setOperatingCosts}
+                      tone="teal"
+                      className="mt-s3"
+                    />
 
                     <p id={`${uid}-method`} className={`${LABEL} mt-s3`}>
                       Pay with
@@ -851,7 +848,7 @@ function GiveFormReady({ fundraiser }: { fundraiser: Fundraiser | undefined }) {
                                 {p.title}
                               </span>
                               <span className="block text-[12.5px] text-text-2">
-                                {off ? 'Not available for a monthly gift' : p.note}
+                                {off ? 'Not available for a monthly donation' : p.note}
                               </span>
                             </span>
                           </button>
@@ -863,11 +860,11 @@ function GiveFormReady({ fundraiser }: { fundraiser: Fundraiser | undefined }) {
                       <div className="min-w-0">
                         <p className={LABEL}>{monthly ? 'Charged each month' : 'Charged today'}</p>
                         <p className="mt-1 text-[12.5px] leading-[1.4] text-text-3">
-                          <span className="nums">{money(amount)}</span> gift
-                          {coverFee && (
+                          <span className="nums">{money(amount)}</span> donation
+                          {operatingCosts > 0 && (
                             <>
                               {' + '}
-                              <span className="nums">{money2(fee)}</span> fee
+                              <span className="nums">{money2(operatingCosts)}</span> operating costs
                             </>
                           )}
                         </p>
@@ -986,7 +983,7 @@ function GiveFormReady({ fundraiser }: { fundraiser: Fundraiser | undefined }) {
               sticking, so the aside watches for itself. */}
           <aside
             ref={summaryRef}
-            aria-label="Your gift so far"
+            aria-label="Your donation so far"
             className="overflow-hidden rounded-2xl bg-teal text-paper lg:sticky lg:top-[calc(var(--header-h)+24px)]"
             style={{
               opacity: summaryIn ? 1 : 0,
@@ -1029,12 +1026,12 @@ function GiveFormReady({ fundraiser }: { fundraiser: Fundraiser | undefined }) {
 
               <dl className="mt-s3 border-b border-paper/15 text-[14px]">
                 <div className="flex justify-between gap-s2 border-t border-paper/15 py-2.5">
-                  <dt className="text-paper/60">Gift</dt>
+                  <dt className="text-paper/60">Donation</dt>
                   <dd className="nums text-paper/90">{money2(amount)}</dd>
                 </div>
                 <div className="flex justify-between gap-s2 border-t border-paper/15 py-2.5">
-                  <dt className="text-paper/60">Fee covered</dt>
-                  <dd className="nums text-paper/90">{coverFee ? money2(fee) : 'No'}</dd>
+                  <dt className="text-paper/60">Operating costs</dt>
+                  <dd className="nums text-paper/90">{operatingCosts ? money2(operatingCosts) : 'None'}</dd>
                 </div>
                 <div className="flex justify-between gap-s2 border-t border-paper/15 py-2.5">
                   <dt className="font-semibold">{monthly ? 'Each month' : 'Total'}</dt>
@@ -1048,7 +1045,7 @@ function GiveFormReady({ fundraiser }: { fundraiser: Fundraiser | undefined }) {
               <p className="mt-s2 text-[12.5px] leading-relaxed text-paper/65">
                 {monthly
                   ? 'Charged on this date each month until you stop it, with a receipt every time.'
-                  : 'A one-time gift, with a receipt by email.'}
+                  : 'A one-time donation, with a receipt by email.'}
               </p>
 
               {/* The four trust facts, beside the button rather than in a band of

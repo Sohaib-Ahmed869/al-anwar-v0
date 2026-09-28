@@ -142,7 +142,10 @@ export type Plan = {
   appealTitle?: string
   designation: Designation
   amount: number
+  /** legacy percentage card fee, for plans started before 28 September 2026 */
   coverFee: boolean
+  /** cents added to each payment towards operating costs; absent on older plans */
+  operatingCosts?: number
   frequency: Frequency
   kind: PlanKind
   instalments?: { total: number; paid: number }
@@ -395,6 +398,9 @@ export type Settings = {
   }
   receipts: { prefix: string; signatory: string; signatoryTitle: string; footer: string }
   bank: { accountName: string; bsb: string; accountNumber: string; bankName: string }
+  /** feeRate is retired (28 September 2026): no longer editable and no longer
+   *  offered at checkout. Kept only so regular donations started before then
+   *  keep charging the card fee they were agreed on (server/lib/plans.ts). */
   payments: { feeRate: number; mode: 'live' | 'test' | 'simulated' }
   email: { fromName: string; fromEmail: string; replyTo: string }
   zakat: { nisab: number; nisabBasis: 'silver' | 'gold'; updatedAt: ISODate }

@@ -62,11 +62,11 @@ export default function Giving() {
     { key: 'date', header: 'Date', sort: 'date', cell: (g) => <span className="whitespace-nowrap text-text-2">{formatDay(g.date)}</span>, width: 110 },
     {
       key: 'appeal',
-      header: 'Gift',
+      header: 'Donation',
       cell: (g) => (
         <div className="min-w-0">
           <p className="flex items-center gap-1.5 truncate font-medium text-text">
-            {g.plan && <Repeat className="size-3.5 shrink-0 text-text-3" aria-label="Regular gift" />}
+            {g.plan && <Repeat className="size-3.5 shrink-0 text-text-3" aria-label="Regular donation" />}
             {g.appealTitle ?? 'Where most needed'}
           </p>
           {g.fundraiserTitle && <p className="truncate text-[12.5px] text-text-3">via {g.fundraiserTitle}</p>}
@@ -100,7 +100,7 @@ export default function Giving() {
     <div>
       <PageHeader
         title="My giving"
-        description="Every gift you have made — by card, PayPal, bank transfer or in person. Tap one for its receipt."
+        description="Every donation you have made — by card, PayPal, bank transfer or in person. Tap one for its receipt."
       />
 
       <div className="mb-4 space-y-3">
@@ -139,7 +139,7 @@ export default function Giving() {
           {data ? (
             <p className="text-[13.5px] text-text-2">
               <Money cents={data.sum} className="text-[15px] font-semibold text-text" /> given
-              {rangeText ? ` · ${rangeText}` : filtered ? ' in this view' : ' in total'} · {plural(data.sumCount, 'gift')}
+              {rangeText ? ` · ${rangeText}` : filtered ? ' in this view' : ' in total'} · {plural(data.sumCount, 'donation')}
               {data.total > data.sumCount && <span className="text-text-3"> (plus {data.total - data.sumCount} not completed)</span>}
             </p>
           ) : (
@@ -168,7 +168,7 @@ export default function Giving() {
                 </div>
                 <p className="mt-1 text-[12px] text-text-3">
                   {METHODS[g.method as Method]?.label}
-                  {g.plan ? ' · regular gift' : ''}
+                  {g.plan ? ' · regular donation' : ''}
                   {g.receipt?.number ? ` · ${g.receipt.number}` : ''}
                 </p>
               </div>
@@ -177,11 +177,11 @@ export default function Giving() {
           )}
           empty={
             filtered ? (
-              <EmptyState icon={<SearchX />} title="No gifts match" action={<button type="button" className={buttonClass('secondary')} onClick={() => (setQ(''), set(clear))}>Show all my gifts</button>}>
+              <EmptyState icon={<SearchX />} title="No donations match" action={<button type="button" className={buttonClass('secondary')} onClick={() => (setQ(''), set(clear))}>Show all my donations</button>}>
                 Try another year, or clear the filters.
               </EmptyState>
             ) : (
-              <EmptyState icon={<HandHeart />} title="No gifts yet" action={<a href="/give" className={buttonClass('give')}>Make your first gift</a>}>
+              <EmptyState icon={<HandHeart />} title="No donations yet" action={<a href="/give" className={buttonClass('give')}>Make your first donation</a>}>
                 When you give — online, by bank transfer or in person — it will appear here with its receipt.
               </EmptyState>
             )

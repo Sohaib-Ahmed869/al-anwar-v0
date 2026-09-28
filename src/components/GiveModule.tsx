@@ -2,7 +2,7 @@ import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react'
 import { Link } from 'react-router-dom'
 
 import { ArrowRight, Check, HandHeart, Lock } from './icons'
-import { FEE_RATE } from '../services/give'
+import { OPERATING_COSTS } from '../services/give'
 
 /* ---------------------------------------------------------------------------
    The give module. Ported from #hero-give in ../../index.html.
@@ -99,7 +99,8 @@ import { FEE_RATE } from '../services/give'
    IT ADDS UP OUT LOUD
    The fee tick used to say "add $1.30" while the button under it still said
    "Give $50", so the one number the form never showed was the number that would
-   leave the account. The pay step is a receipt: the gift, the fee, and the
+   leave the account. The pay step is a receipt: the donation, any operating
+   costs (the fee tick's successor, see below), and the
    total in the display face at the end of it, and nothing else — the line under
    it is set small and grey because the sum is the working, not the point.
 
@@ -109,7 +110,7 @@ import { FEE_RATE } from '../services/give'
    in a link is a donor's address in a browser history, a referrer header and
    anything that logs URLs. The query string carries only what /give needs to
    redraw itself if the link is opened cold: appeal, designation, amount,
-   frequency, fee.
+   frequency, and ops (the operating-costs dollars, when one was chosen).
 
    EVERY GROUP IS A RADIO GROUP AND BEHAVES LIKE ONE
    All three are `role="radiogroup"` with a roving tabindex, so the arrow keys
@@ -133,8 +134,16 @@ import { FEE_RATE } from '../services/give'
    donor check, the money formats), so the two forms cannot drift apart.
 --------------------------------------------------------------------------- */
 
-/* The fee rate lives in services/give.ts, so the server charges what the card
-   says it will. */
+/* The operating-cost amounts live in shared/operating-costs.ts (read here via
+   services/give.ts), so the server charges exactly what the card offers.
+
+   OPERATING COSTS, NOT A CARD FEE (28 September 2026, client feedback)
+   The pay step used to end on "Add $1.30 so the full $50 reaches Yemen", a
+   percentage of the gift. The client asked for the opposite message: the
+   charity takes a 0% admin fee on donations. So the step now says that in one
+   line and, under it, offers a small fixed contribution to operating costs —
+   $2, $5 or $10 — with "No thanks" chosen until the donor picks otherwise.
+   OperatingCostsChoice below is that control, and /give uses it too. */
 
 /** An amount on the ladder, and what it buys. The label is optional: a fund
  *  with no costed unit shows its rungs as figures and lets the panel beside
@@ -362,6 +371,71 @@ export const BACK_BUTTON =
   'inline-flex min-h-[52px] shrink-0 items-center justify-center rounded-[12px] px-4 text-[14.5px] ' +
   'font-semibold text-text-3 transition-colors duration-200 ease-brand hover:text-ink'
 
+/** "0% admin fee on donations", then the optional operating-costs choice as a
+ *  radio group of four: No thanks, $2, $5, $10. `value` is in dollars. The
+ *  tone follows the form it sits in — green on the home card, teal on /give —
+ *  because neither is the give action, so neither may be gold. */
+export function OperatingCostsChoice({
+  value,
+  onChange,
+  tone = 'green',
+  className = '',
+}: {
+  value: number
+  onChange: (dollars: number) => void
+  tone?: 'green' | 'teal'
+  className?: string
+}) {
+  const uid = useId()
+  const refs = useRef<(HTMLButtonElement | null)[]>([])
+  const at = Math.max(0, OPERATING_COSTS.indexOf(value))
+  const onKey = (e: KeyboardEvent<HTMLDivElement>) => {
+    const i = nextIndex(e.key, at, OPERATING_COSTS.length)
+    if (i === null) return
+    e.preventDefault()
+    onChange(OPERATING_COSTS[i])
+    refs.current[i]?.focus()
+  }
+  const on = tone === 'teal' ? 'border-teal bg-teal text-paper' : 'border-green bg-green text-paper'
+  const off = tone === 'teal' ? 'border-line bg-paper text-ink hover:border-teal/50' : 'border-line bg-paper text-ink hover:border-green/45'
+  return (
+    <div className={`rounded-[14px] border border-line-2 bg-paper-2/60 p-3.5 ${className}`}>
+      <p className="text-[14px] font-semibold text-ink">Al-Anwaar takes a 0% admin fee on donations.</p>
+      <p id={`${uid}-ops`} className="mt-1 text-[13px] leading-[1.45] text-text-2">
+        Would you like to contribute to our operating costs? Optional, and added to what you pay.
+      </p>
+      <div
+        role="radiogroup"
+        aria-labelledby={`${uid}-ops`}
+        onKeyDown={onKey}
+        className="mt-2.5 grid grid-cols-4 gap-2"
+      >
+        {OPERATING_COSTS.map((v, i) => {
+          const chosen = at === i
+          return (
+            <button
+              key={v}
+              ref={(el) => {
+                refs.current[i] = el
+              }}
+              type="button"
+              role="radio"
+              aria-checked={chosen}
+              tabIndex={chosen ? 0 : -1}
+              onClick={() => onChange(v)}
+              className={`min-h-[42px] rounded-[10px] border px-2 text-[13.5px] font-semibold transition-[border-color,background-color,color] duration-200 ease-brand ${
+                chosen ? on : off
+              }`}
+            >
+              {v === 0 ? 'No thanks' : <span className="nums">{money(v)}</span>}
+            </button>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
 export default function GiveModule({ causes, onChange, className = '' }: Props) {
   const uid = useId()
 
@@ -375,7 +449,8 @@ export default function GiveModule({ causes, onChange, className = '' }: Props) 
   /* null once someone types their own amount — the ladder lets go */
   const [chosen, setChosen] = useState<number | null>(0)
   const [typed, setTyped] = useState('')
-  const [coverFee, setCoverFee] = useState(true)
+  /* dollars; 0 is "No thanks", the default */
+  const [operatingCosts, setOperatingCosts] = useState(0)
   const [donor, setDonor] = useState<Donor>(EMPTY_DONOR)
   const [errors, setErrors] = useState<DonorErrors>({})
 
@@ -391,12 +466,11 @@ export default function GiveModule({ causes, onChange, className = '' }: Props) 
   const amount = custom ? typedAmount : rung.value
   const impact = custom ? null : (rung.label ?? null)
 
-  const fee = Math.round(amount * FEE_RATE * 100) / 100
-  const total = coverFee ? amount + fee : amount
+  const total = amount + operatingCosts
 
   const href =
     `/give?appeal=${cause.slug}&designation=${cause.id}&amount=${amount}` +
-    (coverFee ? '&fee=1' : '')
+    (operatingCosts ? `&ops=${operatingCosts}` : '')
 
   /* The callback is held in a ref so an inline arrow from the parent cannot
      turn this into a render loop: the effect fires on the choice, never on the
@@ -805,7 +879,7 @@ export default function GiveModule({ causes, onChange, className = '' }: Props) 
               onChange={(v) => setField('updates', v)}
               className="mt-s3"
             >
-              Send me word of what this fund did. A few times a year.
+              Keep me updated on this project
             </Tick>
 
             <div className="mt-s3 flex gap-2">
@@ -831,7 +905,7 @@ export default function GiveModule({ causes, onChange, className = '' }: Props) 
             <dl className="rounded-[14px] border border-line-2 bg-paper-2/60 p-3.5 text-[13.5px]">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <dt className="sr-only">Your gift</dt>
+                  <dt className="sr-only">Your donation</dt>
                   <dd className="leading-[1.45] text-text">
                     <span className="nums font-semibold">{money(amount)}</span> · {cause.label}
                   </dd>
@@ -867,19 +941,8 @@ export default function GiveModule({ causes, onChange, className = '' }: Props) 
               </div>
             </dl>
 
-            {/* --- the fee ask, written in dollars --- */}
-            <Tick
-              checked={coverFee}
-              onChange={setCoverFee}
-              className={`mt-s3 rounded-[14px] border p-3.5 transition-colors duration-200 ease-brand ${
-                coverFee
-                  ? 'border-green/35 bg-green-pale/50'
-                  : 'border-line-2 bg-paper-2/70 hover:border-line'
-              }`}
-            >
-              Add <b className="nums font-semibold text-text">{money2(fee)}</b> so the full{' '}
-              <b className="nums font-semibold text-text">{money(amount)}</b> reaches {cause.place}.
-            </Tick>
+            {/* --- 0% admin fee, and the optional operating costs --- */}
+            <OperatingCostsChoice value={operatingCosts} onChange={setOperatingCosts} className="mt-s3" />
 
             {/* --- the receipt ---
                 The last thing read before the button, and the only place the
@@ -891,11 +954,11 @@ export default function GiveModule({ causes, onChange, className = '' }: Props) 
                 <p className={LABEL}>Charged today</p>
 
                 <p className="mt-1 text-[12px] leading-[1.4] text-text-3">
-                  <span className="nums">{money(amount)}</span> gift
-                  {coverFee && (
+                  <span className="nums">{money(amount)}</span> donation
+                  {operatingCosts > 0 && (
                     <>
                       {' + '}
-                      <span className="nums">{money2(fee)}</span> card fee
+                      <span className="nums">{money2(operatingCosts)}</span> operating costs
                     </>
                   )}
                 </p>

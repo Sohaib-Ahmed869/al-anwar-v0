@@ -97,9 +97,9 @@ const SECTIONS: LegalSection[] = [
         </ul>
         <p>
           We never ask for your card number, your date of birth or your postal address on this site.
-          One thing is worth naming plainly: choosing a zakat gift says something about your faith,
+          One thing is worth naming plainly: choosing a zakat donation says something about your faith,
           and the law treats that as sensitive information. We use it for one purpose only, which is
-          applying your gift correctly.
+          applying your donation correctly.
         </p>
       </>
     ),
@@ -110,8 +110,8 @@ const SECTIONS: LegalSection[] = [
     body: (
       <>
         <ul>
-          <li>To take your gift, apply it to the fund you chose, and send your tax receipt.</li>
-          <li>To run a monthly gift, and to tell you if a payment fails.</li>
+          <li>To take your donation, apply it to the fund you chose, and send your tax receipt.</li>
+          <li>To run a monthly donation, and to tell you if a payment fails.</li>
           <li>To answer your message, by email or by phone if you gave us a number.</li>
           <li>To send the letter and fund news, only if you asked for them.</li>
           <li>
@@ -135,12 +135,12 @@ const SECTIONS: LegalSection[] = [
           Your card never reaches our site. When you press give, you are taken to a secure payment
           page run by <strong>Stripe</strong> (card, Apple Pay and Google Pay) or by{' '}
           <strong>PayPal</strong>, and you come back to us when it is done. Both are certified to
-          the PCI DSS standard. Monthly gifts are held by Stripe, and you can end one at any time by
+          the PCI DSS standard. Monthly donations are held by Stripe, and you can end one at any time by
           writing to us.
         </p>
         <p>
           What comes back to us is a record of the payment: your name, email, the amount, whether it
-          went through, and for a card the brand and last four digits, so we can find a gift when you
+          went through, and for a card the brand and last four digits, so we can find a donation when you
           ask about it. On their pages Stripe and PayPal handle your details under their own privacy
           policies, at{' '}
           <a href="https://stripe.com/au/privacy" target="_blank" rel="noreferrer">
@@ -256,7 +256,7 @@ const SECTIONS: LegalSection[] = [
         </p>
         <ul>
           <li>
-            <strong>Gift and receipt records:</strong> seven years, because tax and charity law
+            <strong>Donation and receipt records:</strong> seven years, because tax and charity law
             says seven years.
           </li>
           <li>
@@ -292,12 +292,12 @@ const SECTIONS: LegalSection[] = [
             us and we will do it by hand.
           </li>
           <li>
-            <strong>Delete it.</strong> We delete what we are allowed to. Gift records we must keep
+            <strong>Delete it.</strong> We delete what we are allowed to. Donation records we must keep
             for seven years, so we can take you off every list but cannot unmake a receipt.
           </li>
           <li>
             <strong>Stay anonymous.</strong> You can give by bank transfer without telling us who you
-            are. We cannot send a tax receipt for a gift with no name on it.
+            are. We cannot send a tax receipt for a donation with no name on it.
           </li>
         </ul>
         <p>

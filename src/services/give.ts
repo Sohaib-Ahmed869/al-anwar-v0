@@ -1,4 +1,5 @@
 import { CAUSES, MIN_GIFT, takesMonthly } from '../components/give-data'
+import { OPERATING_COSTS_CENTS, isOperatingCosts } from '../../shared/operating-costs'
 
 /* ---------------------------------------------------------------------------
    What a gift is, whether it is valid, and how it gets paid.
@@ -44,13 +45,22 @@ import { CAUSES, MIN_GIFT, takesMonthly } from '../components/give-data'
    which nothing in this repo creates, so `validateGift` refuses the
    combination outright instead of letting a monthly gift through as a single
    charge.
+
+   ── Operating costs (28 September 2026) ─────────────────────────────────
+   The percentage "cover the card fee" tick box is gone. Al-Anwaar takes a 0%
+   admin fee on donations, and the Pay step says so; under that the donor may
+   add $2, $5 or $10 towards operating costs, or nothing (the default). The
+   allowed amounts live in shared/operating-costs.ts, in cents, so the server
+   checks the same list after it converts. The payload carries dollars, like
+   `amount`, because this form works in dollars. On a monthly donation the
+   contribution is added to every payment, exactly as the card fee was.
 --------------------------------------------------------------------------- */
 
 /** The platform API. Empty it to switch online giving off (see above). */
 export const CHECKOUT_ENDPOINT = '/api/public/checkout'
 
-/** What the card processor takes, asked for in dollars on the form. */
-export const FEE_RATE = 0.026
+/** The operating-cost choices in dollars, for the form: 0, 2, 5, 10. */
+export const OPERATING_COSTS: number[] = OPERATING_COSTS_CENTS.map((c) => c / 100)
 
 export type Provider = 'stripe' | 'paypal'
 
@@ -72,9 +82,11 @@ export type GiftPayload = {
   appealSlug?: string
   /** the fundraiser's slug when the gift came through one */
   fundraiser?: string
-  /** the gift itself, in dollars, before any fee */
+  /** the donation itself, in dollars, before any operating costs */
   amount: number
-  coverFee: boolean
+  /** the optional contribution to operating costs, in dollars: one of
+   *  OPERATING_COSTS. Charged on top of `amount`, recorded separately. */
+  operatingCosts: number
   provider: Provider
   first: string
   last: string
@@ -89,10 +101,8 @@ export type GiftPayload = {
 
 const cents = (v: number) => Math.round(v * 100) / 100
 
-export const feeOf = (amount: number) => cents(amount * FEE_RATE)
-
-export const totalOf = (p: Pick<GiftPayload, 'amount' | 'coverFee'>) =>
-  cents(p.amount + (p.coverFee ? feeOf(p.amount) : 0))
+export const totalOf = (p: Pick<GiftPayload, 'amount' | 'operatingCosts'>) =>
+  cents(p.amount + (p.operatingCosts || 0))
 
 const EMAIL_LOOKS_RIGHT = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
 
@@ -102,10 +112,14 @@ const EMAIL_LOOKS_RIGHT = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
 export function validateGift(p: GiftPayload): Record<string, string> {
   const bad: Record<string, string> = {}
   const cause = CAUSES.find((c) => c.id === p.fund)
-  if (!cause) bad.fund = 'Choose what this gift is for.'
+  if (!cause) bad.fund = 'Choose what this donation is for.'
   if (!Number.isFinite(p.amount) || p.amount < MIN_GIFT)
-    bad.amount = `The smallest gift we can take is $${MIN_GIFT}.`
-  else if (p.amount > 1_000_000) bad.amount = 'For a gift this size, please call us.'
+    bad.amount = `The smallest donation we can take is $${MIN_GIFT}.`
+  else if (p.amount > 1_000_000) bad.amount = 'For a donation this size, please call us.'
+  /* Only the listed amounts, so a hand-built POST cannot add $3.17 or $10,000
+     to the charge under a label that promises a small fixed sum. */
+  if (!isOperatingCosts(Math.round((p.operatingCosts ?? 0) * 100)))
+    bad.operatingCosts = 'Choose $2, $5, $10 or no contribution to operating costs.'
   if (!p.first.trim()) bad.first = 'We would like to know who to thank.'
   if (!p.last.trim()) bad.last = 'And the rest of it.'
   if (!EMAIL_LOOKS_RIGHT.test(p.email.trim())) bad.email = 'The receipt needs a working address.'
@@ -120,9 +134,9 @@ export function validateGift(p: GiftPayload): Record<string, string> {
   if (p.frequency !== 'once' && p.frequency !== 'monthly') bad.frequency = 'Choose how often to give.'
   else if (p.frequency === 'monthly') {
     if (cause && !takesMonthly(cause))
-      bad.frequency = `${cause.label} is owed once, not monthly. Give it as a one-time gift.`
+      bad.frequency = `${cause.label} is owed once, not monthly. Give it as a one-time donation.`
     else if (p.provider === 'paypal')
-      bad.provider = 'Monthly gifts are by card. PayPal can only take a one-time gift.'
+      bad.provider = 'Monthly donations are by card. PayPal can only take a one-time donation.'
   }
   return bad
 }

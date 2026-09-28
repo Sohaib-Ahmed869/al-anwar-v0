@@ -211,7 +211,7 @@ export function DonorFormDialog({
       {fields}
     </Sheet>
   ) : (
-    <Dialog open={open} onOpenChange={onOpenChange} title="Add a donor" description="For someone who gave in person, rang in, or needs a record before their gift is entered." footer={footer} dismissible={false}>
+    <Dialog open={open} onOpenChange={onOpenChange} title="Add a donor" description="For someone who gave in person, rang in, or needs a record before their donation is entered." footer={footer} dismissible={false}>
       {fields}
     </Dialog>
   )

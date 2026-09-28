@@ -26,7 +26,7 @@ import {
 type Actor = { id: string; name: string; count: number }
 
 const AREAS: { key: string; label: string; icon: LucideIcon; match: string[] }[] = [
-  { key: 'gift', label: 'Gifts', icon: HandCoins, match: ['gift', 'receipt'] },
+  { key: 'gift', label: 'Donations', icon: HandCoins, match: ['gift', 'receipt'] },
   { key: 'donor', label: 'Donors', icon: Users, match: ['donor'] },
   { key: 'plan', label: 'Regular giving', icon: Repeat, match: ['plan'] },
   { key: 'appeal', label: 'Appeals', icon: Megaphone, match: ['appeal', 'fundraiser'] },

@@ -22,7 +22,7 @@ import { Menu, MenuItem, MenuSeparator } from '../ui/Menu'
 const NAV = [
   { to: '/account', label: 'Overview', short: 'Home', icon: Home, end: true },
   { to: '/account/giving', label: 'My giving', short: 'Giving', icon: HandHeart },
-  { to: '/account/plans', label: 'Regular gifts', short: 'Regular', icon: Repeat },
+  { to: '/account/plans', label: 'Regular donations', short: 'Regular', icon: Repeat },
   { to: '/account/receipts', label: 'Receipts & tax', short: 'Receipts', icon: Receipt },
   { to: '/account/fundraisers', label: 'Fundraisers', short: 'Fundraise', icon: Megaphone },
   { to: '/account/profile', label: 'Profile', short: 'Profile', icon: UserRound },

@@ -420,10 +420,10 @@ r.get('/imports/:id', async (req, res) => {
 r.delete('/imports/:id', async (req, res) => {
   const imp = await loadImport(req.params.id)
   if (imp.lines.some((l) => l.status === 'confirmed')) {
-    throw new HttpError(409, 'Some gifts from this statement are already saved, so it cannot be discarded.')
+    throw new HttpError(409, 'Some donations from this statement are already saved, so it cannot be discarded.')
   }
   await imp.deleteOne()
-  await audit(req, 'bank.discard', `Discarded bank statement ${imp.filename} before saving any gifts from it`, { type: 'bankImport', id: imp._id, label: imp.filename })
+  await audit(req, 'bank.discard', `Discarded bank statement ${imp.filename} before saving any donations from it`, { type: 'bankImport', id: imp._id, label: imp.filename })
   res.status(204).end()
 })
 
@@ -439,7 +439,7 @@ const zLinePatch = z.object({
 type LineDoc = ReturnType<typeof lineOf>
 
 async function applyPatch(req: Request, line: LineDoc, body: z.infer<typeof zLinePatch>) {
-  if (line.status === 'confirmed') throw new HttpError(409, 'That line is already saved as a gift.')
+  if (line.status === 'confirmed') throw new HttpError(409, 'That line is already saved as a donation.')
   const who = req.staff!.name
   const m = line.match!
 
@@ -590,7 +590,7 @@ r.post('/imports/:id/confirm', async (req, res) => {
   editable(imp)
   const body = parse(z.object({ lineIds: z.array(zId).max(2000).optional() }), req.body ?? {})
   const key = String(imp._id)
-  if (confirming.has(key)) throw new HttpError(409, 'These gifts are already being saved. Give it a moment.')
+  if (confirming.has(key)) throw new HttpError(409, 'These donations are already being saved. Give it a moment.')
   confirming.add(key)
   try {
     const want = body.lineIds ? new Set(body.lineIds) : null
@@ -696,7 +696,7 @@ r.post('/imports/:id/confirm', async (req, res) => {
       await audit(
         req,
         'bank.confirm',
-        `Saved ${saved} ${saved === 1 ? 'gift' : 'gifts'} totalling ${formatMoney(total)} from bank statement ${imp.filename}; ${emailed} ${emailed === 1 ? 'receipt' : 'receipts'} emailed`,
+        `Saved ${saved} ${saved === 1 ? 'donation' : 'donations'} totalling ${formatMoney(total)} from bank statement ${imp.filename}; ${emailed} ${emailed === 1 ? 'receipt' : 'receipts'} emailed`,
         { type: 'bankImport', id: imp._id, label: imp.filename },
       )
     }

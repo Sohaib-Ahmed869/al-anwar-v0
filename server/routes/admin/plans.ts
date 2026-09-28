@@ -124,7 +124,7 @@ async function recoveredThisMonth(monthStart: Date) {
 /* ---------- one plan ---------- */
 async function load(id: string) {
   const plan = await Plan.findById(id)
-  if (!plan) throw notFound('That regular gift')
+  if (!plan) throw notFound('That regular donation')
   return plan
 }
 
@@ -155,7 +155,7 @@ const log = (req: Request, p: PlanDoc, verb: string, summary: string) =>
 /* ---------- take the payment now ---------- */
 r.post('/:id/retry', async (req, res) => {
   const plan = await load(req.params.id)
-  if (!['past_due', 'active'].includes(plan.status)) throw badRequest('Only an active or failing regular gift can be charged.')
+  if (!['past_due', 'active'].includes(plan.status)) throw badRequest('Only an active or failing regular donation can be charged.')
   const result = await chargePlan(plan, req)
   await log(
     req,
@@ -171,7 +171,7 @@ r.post('/:id/retry', async (req, res) => {
 r.post('/:id/pause', async (req, res) => {
   const b = parse(z.object({ until: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Choose a date').optional().or(z.literal('')) }), req.body)
   const plan = await load(req.params.id)
-  if (!['active', 'past_due'].includes(plan.status)) throw badRequest('Only an active or failing regular gift can be paused.')
+  if (!['active', 'past_due'].includes(plan.status)) throw badRequest('Only an active or failing regular donation can be paused.')
   const until = b.until ? localDay(b.until) : undefined
   if (until && until.getTime() < Date.now()) throw badRequest('Some details need another look.', { until: 'Choose a date after today' })
   plan.status = 'paused'
@@ -187,7 +187,7 @@ r.post('/:id/pause', async (req, res) => {
 
 r.post('/:id/resume', async (req, res) => {
   const plan = await load(req.params.id)
-  if (plan.status !== 'paused') throw badRequest('This regular gift is not paused.')
+  if (plan.status !== 'paused') throw badRequest('This regular donation is not paused.')
   plan.status = 'active'
   plan.set('pausedUntil', undefined)
   plan.nextChargeAt = nextOnSchedule(plan, new Date(Date.now() + DAY / 2))
@@ -200,7 +200,7 @@ r.post('/:id/resume', async (req, res) => {
 r.post('/:id/cancel', async (req, res) => {
   const b = parse(z.object({ reason: z.string().trim().min(3, 'Say briefly why, for the record').max(500) }), req.body)
   const plan = await load(req.params.id)
-  if (['cancelled', 'completed'].includes(plan.status)) throw badRequest('This regular gift has already ended.')
+  if (['cancelled', 'completed'].includes(plan.status)) throw badRequest('This regular donation has already ended.')
   plan.status = 'cancelled'
   plan.cancelledAt = new Date()
   plan.cancelReason = b.reason
@@ -214,7 +214,7 @@ r.post('/:id/cancel', async (req, res) => {
 
 /* ---------- change amount, frequency or next date ---------- */
 const PatchBody = z.object({
-  amount: z.number().int().min(100, 'The smallest regular gift is $1').max(10_000_000).optional(),
+  amount: z.number().int().min(100, 'The smallest regular donation is $1').max(10_000_000).optional(),
   frequency: z.enum(FREQUENCY_KEYS as [Frequency, ...Frequency[]]).optional(),
   nextChargeAt: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Choose a date').optional(),
 })
@@ -222,7 +222,7 @@ const PatchBody = z.object({
 r.patch('/:id', async (req, res) => {
   const b = parse(PatchBody, req.body)
   const plan = await load(req.params.id)
-  if (['cancelled', 'completed'].includes(plan.status)) throw badRequest('This regular gift has ended and cannot be changed.')
+  if (['cancelled', 'completed'].includes(plan.status)) throw badRequest('This regular donation has ended and cannot be changed.')
   const changes: string[] = []
   if (b.amount != null && b.amount !== plan.amount) {
     changes.push(`amount ${formatMoney(plan.amount)} → ${formatMoney(b.amount)}`)
@@ -251,7 +251,7 @@ r.patch('/:id', async (req, res) => {
 /* ---------- send the fix-your-card email again ---------- */
 r.post('/:id/remind', async (req, res) => {
   const plan = await load(req.params.id)
-  if (plan.status !== 'past_due') throw badRequest('Only a regular gift whose payment failed needs a fix link.')
+  if (plan.status !== 'past_due') throw badRequest('Only a regular donation whose payment failed needs a fix link.')
   const donor = await Donor.findById(plan.donor)
   if (!donor || donor.email.endsWith('.invalid')) throw badRequest('There is no email address on this donor’s record.')
   const final = !plan.failure?.nextRetryAt && (plan.failure?.count ?? 0) > RETRY_SCHEDULE_DAYS.length

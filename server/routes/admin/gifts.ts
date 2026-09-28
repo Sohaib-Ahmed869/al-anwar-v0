@@ -88,7 +88,7 @@ function assertCanSee(req: Request, g: { enteredBy?: unknown; createdAt?: Date |
   if (staffCan(req, 'gifts.read')) return
   const mine = String(g.enteredBy ?? '') === String(req.staff!._id)
   const recent = g.createdAt && Date.now() - new Date(g.createdAt).getTime() < VOLUNTEER_WINDOW_DAYS * 86_400_000
-  if (!mine || !recent) throw notFound('That gift')
+  if (!mine || !recent) throw notFound('That donation')
 }
 
 type DonorLike = {
@@ -163,7 +163,7 @@ r.get('/export', requireStaff('gifts.read', 'reports.export'), async (req, res) 
     .lean()
   const byId = new Map(donors.map((d) => [String(d._id), d]))
   const header = [
-    'Gift', 'Date', 'Donor number', 'Donor', 'Email', 'Amount', 'Fee covered', 'Designation', 'Method', 'Status',
+    'Donation', 'Date', 'Donor number', 'Donor', 'Email', 'Amount', 'Operating costs contribution', 'Designation', 'Method', 'Status',
     'Appeal', 'Country', 'Receipt', 'Reference', 'Source', 'Entered by', 'Anonymous', 'Notes',
   ]
   const rows = gifts.map((g) => {
@@ -190,7 +190,7 @@ r.get('/export', requireStaff('gifts.read', 'reports.export'), async (req, res) 
     ]
   })
   const csv = [header, ...rows].map((row) => row.map(csvCell).join(',')).join('\r\n')
-  await audit(req, 'gift.export', `Exported ${gifts.length.toLocaleString('en-AU')} gifts to CSV`, { type: 'gift', label: 'CSV export' })
+  await audit(req, 'gift.export', `Exported ${gifts.length.toLocaleString('en-AU')} donations to CSV`, { type: 'gift', label: 'CSV export' })
   const stamp = ymd(new Date())
   res.setHeader('Content-Type', 'text/csv; charset=utf-8')
   res.setHeader('Content-Disposition', `attachment; filename="gifts-${stamp}.csv"`)
@@ -210,7 +210,7 @@ r.get('/donor/:id', requireStaff('gifts.create'), async (req, res) => {
 /* ---------- one gift ---------- */
 r.get('/:id', requireStaffAny('gifts.read', 'gifts.create'), async (req, res) => {
   const g = await Gift.findById(req.params.id).select('-external').lean()
-  if (!g) throw notFound('That gift')
+  if (!g) throw notFound('That donation')
   assertCanSee(req, g)
   const [donor, plan, events] = await Promise.all([
     Donor.findById(g.donor).lean(),
@@ -232,7 +232,7 @@ const OfflineBody = z
         phone: z.string().trim().max(40).optional(),
       })
       .optional(),
-    amount: zCents.max(100_000_000, 'That is more than one gift can be'),
+    amount: zCents.max(100_000_000, 'That is more than one donation can be'),
     method: z.enum(['cash', 'cheque', 'event', 'bank']),
     designation: z.enum(DESIGNATION_KEYS as [Designation, ...Designation[]]),
     appealId: z.union([zId, z.literal(''), z.null()]).optional(),
@@ -250,7 +250,7 @@ r.post('/offline', requireStaff('gifts.create'), async (req, res) => {
   const day = localDay(b.date)!
   const today = new Date()
   today.setHours(0, 0, 0, 0)
-  if (day.getTime() > today.getTime()) throw badRequest('Some details need another look.', { date: 'A gift cannot be dated in the future' })
+  if (day.getTime() > today.getTime()) throw badRequest('Some details need another look.', { date: 'A donation cannot be dated in the future' })
   /* today's gift keeps the time it was typed in, so a night's entries sort in
      the order they were taken; an earlier date sits at midday, clear of any
      timezone edge */
@@ -282,7 +282,7 @@ r.post('/offline', requireStaff('gifts.create'), async (req, res) => {
       donorCreated = true
     }
     if (donorCreated) {
-      await audit(req, 'donor.create', `Added donor ${fullName(donor)} (${donor.number}) while recording a gift`, {
+      await audit(req, 'donor.create', `Added donor ${fullName(donor)} (${donor.number}) while recording a donation`, {
         type: 'donor', id: donor._id, label: donor.number,
       })
     }
@@ -319,8 +319,8 @@ r.post('/offline', requireStaff('gifts.create'), async (req, res) => {
 /* ---------- resend a receipt ---------- */
 r.post('/:id/resend-receipt', requireStaff('gifts.read'), async (req, res) => {
   const gift = await Gift.findById(req.params.id)
-  if (!gift) throw notFound('That gift')
-  if (gift.status !== 'succeeded') throw badRequest('Only a paid gift has a receipt to send.')
+  if (!gift) throw notFound('That donation')
+  if (gift.status !== 'succeeded') throw badRequest('Only a paid donation has a receipt to send.')
   const donor = await Donor.findById(gift.donor).select('email firstName lastName number')
   if (!donor || isPlaceholder(donor.email)) {
     throw badRequest('There is no email address on this donor’s record. Add one to their record, then send the receipt.')
@@ -346,7 +346,7 @@ const PatchBody = z.object({
 r.patch('/:id', requireStaff('gifts.manage'), async (req, res) => {
   const b = parse(PatchBody, req.body)
   const gift = await Gift.findById(req.params.id)
-  if (!gift) throw notFound('That gift')
+  if (!gift) throw notFound('That donation')
   const changes: string[] = []
   const oldAppeal = gift.appeal
 
@@ -366,7 +366,7 @@ r.patch('/:id', requireStaff('gifts.manage'), async (req, res) => {
     const d = localDay(b.date)!
     const cur = new Date(gift.date)
     if (d.toDateString() !== cur.toDateString()) {
-      if (d.getTime() > Date.now()) throw badRequest('Some details need another look.', { date: 'A gift cannot be dated in the future' })
+      if (d.getTime() > Date.now()) throw badRequest('Some details need another look.', { date: 'A donation cannot be dated in the future' })
       changes.push(`date ${cur.toLocaleDateString('en-AU')} → ${d.toLocaleDateString('en-AU')}`)
       gift.date = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 12)
     }
@@ -390,14 +390,14 @@ r.patch('/:id', requireStaff('gifts.manage'), async (req, res) => {
 r.post('/:id/refund', requireStaff('gifts.manage'), async (req, res) => {
   const { reason } = parse(z.object({ reason: z.string().trim().min(3, 'Say briefly why, for the record').max(500) }), req.body)
   const gift = await Gift.findById(req.params.id)
-  if (!gift) throw notFound('That gift')
-  if (gift.status !== 'succeeded') throw badRequest('Only a paid gift can be refunded.')
+  if (!gift) throw notFound('That donation')
+  if (gift.status !== 'succeeded') throw badRequest('Only a paid donation can be refunded.')
   gift.status = 'refunded'
   const stamp = new Date().toLocaleDateString('en-AU')
   gift.notes = [gift.notes, `Refunded ${stamp} by ${req.staff!.name}: ${reason}`].filter(Boolean).join('\n')
   await gift.save()
   await refreshForGift(gift)
-  await audit(req, 'gift.refund', `Refunded ${formatMoney(gift.amount)} gift ${gift.number} from ${gift.donorName}: ${reason}`, {
+  await audit(req, 'gift.refund', `Refunded ${formatMoney(gift.amount)} donation ${gift.number} from ${gift.donorName}: ${reason}`, {
     type: 'gift', id: gift._id, label: gift.number,
   })
   res.json({ gift: out(gift.toObject()) })
@@ -407,8 +407,8 @@ r.post('/:id/refund', requireStaff('gifts.manage'), async (req, res) => {
 r.post('/:id/received', requireStaff('gifts.manage'), async (req, res) => {
   const b = parse(z.object({ date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(), sendReceipt: z.boolean().optional().default(true) }), req.body)
   const gift = await Gift.findById(req.params.id)
-  if (!gift) throw notFound('That gift')
-  if (gift.status !== 'pending') throw badRequest('Only a gift awaiting its transfer can be marked as received.')
+  if (!gift) throw notFound('That donation')
+  if (gift.status !== 'pending') throw badRequest('Only a donation awaiting its transfer can be marked as received.')
   const d = b.date ? localDay(b.date)! : new Date()
   if (d.getTime() > Date.now()) throw badRequest('Some details need another look.', { date: 'The money cannot arrive in the future' })
   gift.status = 'succeeded'

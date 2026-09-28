@@ -38,8 +38,8 @@ export default function Overview() {
         <h1 className="mt-1 text-[28px] leading-tight font-semibold tracking-[-0.02em] text-text sm:text-[32px]">Assalamu alaykum, {first}</h1>
         <p className="mt-1.5 text-[14.5px] text-text-2">
           {d.totals.giftCount
-            ? `Thank you for everything you have given — ${plural(d.totals.giftCount, 'gift')} to ${plural(d.totals.appealsSupported, 'appeal')}${d.totals.countries.length ? ` in ${listCountries(d.totals.countries)}` : ''}.`
-            : 'Welcome. Your gifts, receipts and regular giving will all be here.'}
+            ? `Thank you for everything you have given — ${plural(d.totals.giftCount, 'donation')} to ${plural(d.totals.appealsSupported, 'appeal')}${d.totals.countries.length ? ` in ${listCountries(d.totals.countries)}` : ''}.`
+            : 'Welcome. Your donations, receipts and regular giving will all be here.'}
         </p>
       </header>
 
@@ -48,7 +48,7 @@ export default function Overview() {
           key={p.id}
           tone="red"
           icon={<TriangleAlert />}
-          title={`Your ${perPeriod(p)} gift${p.appealTitle ? ` to ${p.appealTitle}` : ''} did not go through`}
+          title={`Your ${perPeriod(p)} donation${p.appealTitle ? ` to ${p.appealTitle}` : ''} did not go through`}
           action={
             <ButtonLink to={`/account/plans?fix=${p.id}`} variant="primary" size="sm" className="bg-red hover:bg-[#8e3017]">
               Update card
@@ -117,7 +117,7 @@ function Hero({ d }: { d: OverviewData }) {
         <p className="text-[13px] font-medium text-white/70">This financial year · {fyLabel(d.fy)}</p>
         <p className="nums mt-2 text-[40px] leading-none font-semibold tracking-[-0.03em] sm:text-[52px]">{formatMoney(d.totals.thisFy)}</p>
         <p className="mt-3 text-[14px] text-white/80">
-          {thisYear ? `${plural(thisYear.count, 'gift')} since 1 July ${d.fy - 1}` : `Nothing yet since 1 July ${d.fy - 1}`}
+          {thisYear ? `${plural(thisYear.count, 'donation')} since 1 July ${d.fy - 1}` : `Nothing yet since 1 July ${d.fy - 1}`}
           {d.totals.lastFy > 0 && (
             <>
               {' · '}
@@ -134,8 +134,8 @@ function Hero({ d }: { d: OverviewData }) {
               <p className="font-semibold">{july ? `Your ${fyLabel(statementFy)} tax statement is ready` : `The financial year closes on 30 June`}</p>
               <p className="text-[13px] text-white/75">
                 {july
-                  ? `${formatMoney(statementYear.total)} across ${plural(statementYear.count, 'gift')}, with every receipt number — ready for your tax return.`
-                  : 'Gifts made by 30 June count towards this year’s tax return. Your statement so far is ready to check.'}
+                  ? `${formatMoney(statementYear.total)} across ${plural(statementYear.count, 'donation')}, with every receipt number — ready for your tax return.`
+                  : 'Donations made by 30 June count towards this year’s tax return. Your statement so far is ready to check.'}
               </p>
             </div>
             <Link to={`/account/statement/${statementFy}`} className={buttonClass('secondary', 'md', 'shrink-0 bg-white text-[#1d4a3e] ring-0 hover:bg-white/90')}>
@@ -162,7 +162,7 @@ function Hero({ d }: { d: OverviewData }) {
 function LifetimeRow({ d }: { d: OverviewData }) {
   const items = [
     { label: 'Given in total', value: <Money cents={d.totals.lifetime} /> },
-    { label: 'Gifts', value: d.totals.giftCount.toLocaleString('en-AU') },
+    { label: 'Donations', value: d.totals.giftCount.toLocaleString('en-AU') },
     { label: 'Appeals', value: d.totals.appealsSupported },
     { label: 'Countries', value: d.totals.countries.length },
   ]
@@ -204,7 +204,7 @@ function RecentGifts({ gifts, onOpen }: { gifts: MyGift[]; onOpen: (g: MyGift) =
   return (
     <section>
       <SectionHeading
-        title="Recent gifts"
+        title="Recent donations"
         action={
           <Link to="/account/giving" className="inline-flex items-center gap-1 text-[13.5px] font-medium text-green hover:underline">
             See all <ChevronRight className="size-4" />
@@ -213,7 +213,7 @@ function RecentGifts({ gifts, onOpen }: { gifts: MyGift[]; onOpen: (g: MyGift) =
       />
       <Card className="overflow-hidden">
         {gifts.length === 0 ? (
-          <EmptyState compact icon={<HandHeart />} title="No gifts yet" action={<a href="/give" className={buttonClass('give', 'md')}>Make your first gift</a>}>
+          <EmptyState compact icon={<HandHeart />} title="No donations yet" action={<a href="/give" className={buttonClass('give', 'md')}>Make your first donation</a>}>
             When you give, it appears here with its receipt.
           </EmptyState>
         ) : (
@@ -250,7 +250,7 @@ function RegularGifts({ d }: { d: OverviewData }) {
   return (
     <section>
       <SectionHeading
-        title="Regular gifts"
+        title="Regular donations"
         action={
           plans.length > 0 && (
             <Link to="/account/plans" className="inline-flex items-center gap-1 text-[13.5px] font-medium text-green hover:underline">
@@ -261,8 +261,8 @@ function RegularGifts({ d }: { d: OverviewData }) {
       />
       {plans.length === 0 ? (
         <Card>
-          <EmptyState compact icon={<Repeat />} title="No regular gifts" action={<a href="/give" className={buttonClass('give', 'md')}>Set up a monthly gift</a>}>
-            A small monthly gift is steady support an appeal can plan around. Pause or stop any time.
+          <EmptyState compact icon={<Repeat />} title="No regular donations" action={<a href="/give" className={buttonClass('give', 'md')}>Set up a monthly donation</a>}>
+            A small monthly donation is steady support an appeal can plan around. Pause or stop any time.
           </EmptyState>
         </Card>
       ) : (
@@ -304,7 +304,7 @@ function FundraiserCard({ d }: { d: OverviewData }) {
           </span>
           <div>
             <p className="font-semibold text-text">Raise money for an appeal</p>
-            <p className="mt-1 text-[13px] leading-relaxed text-text-2">A wedding, a birthday, a walk or a Ramadan challenge — make a page, share it, and every gift counts towards the appeal you choose.</p>
+            <p className="mt-1 text-[13px] leading-relaxed text-text-2">A wedding, a birthday, a walk or a Ramadan challenge — make a page, share it, and every donation counts towards the appeal you choose.</p>
             <Link to="/account/fundraisers/new" className="mt-3 inline-flex items-center gap-1 text-[13.5px] font-medium text-green hover:underline">
               Start a fundraiser <ArrowRight className="size-4" />
             </Link>
@@ -350,10 +350,10 @@ function GiveAgain({ d }: { d: OverviewData }) {
       <p className="mt-1 text-[13px] leading-relaxed text-text-2">
         {last ? (
           <>
-            Your last gift was to <strong className="font-medium text-text">{last.appealTitle}</strong>. The appeal is still open.
+            Your last donation was to <strong className="font-medium text-text">{last.appealTitle}</strong>. The appeal is still open.
           </>
         ) : (
-          'Every appeal is open to gifts of any size. Zakat is passed on in full.'
+          'Every appeal is open to donations of any size. Zakat is passed on in full.'
         )}
       </p>
       <a href={last ? giveAgainHref({ appealSlug: last.appealSlug, designation: last.designation, amount: last.amount }) : '/give'} className={buttonClass('give', 'md', 'mt-4 w-full')}>

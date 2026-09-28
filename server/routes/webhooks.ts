@@ -62,7 +62,7 @@ export async function afterOnlineGiftPaid(gift: GiftDoc, by: 'Stripe' | 'PayPal'
   await refreshForGift(gift)
   await auditSystem(
     'gift.online',
-    `${by} confirmed ${formatMoney(gift.amount + (gift.fee ?? 0))} for gift ${gift.number} from ${gift.donorName}${gift.appealTitle ? ` to ${gift.appealTitle}` : ''}`,
+    `${by} confirmed ${formatMoney(gift.amount + (gift.fee ?? 0))} for donation ${gift.number} from ${gift.donorName}${gift.appealTitle ? ` to ${gift.appealTitle}` : ''}`,
     { type: 'gift', id: gift._id, label: gift.number },
   )
 }
@@ -100,7 +100,10 @@ async function onGiftPaid(s: Stripe, session: Stripe.Checkout.Session, later: La
   await startPlan({
     donor,
     amount: gift.amount,
-    coverFee: Boolean(c.coverFee),
+    /* each later payment adds what the first one did: the operating-costs
+       contribution, or for a checkout begun before it existed, the card fee
+       that first payment carried */
+    operatingCosts: c.operatingCosts ?? gift.fee ?? 0,
     designation: gift.designation as Designation,
     frequency: c.frequency as Frequency,
     instalments: c.instalments,

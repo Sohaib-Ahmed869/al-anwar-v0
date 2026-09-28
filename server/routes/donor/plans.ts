@@ -42,15 +42,15 @@ const LIVE = ['active', 'paused', 'past_due']
 
 async function ownPlan(req: Request): Promise<PlanDoc> {
   const id = String(req.params.id)
-  if (!isId(id)) throw notFound('That regular gift')
+  if (!isId(id)) throw notFound('That regular donation')
   const p = await Plan.findOne({ _id: id, donor: me(req)._id })
-  if (!p) throw notFound('That regular gift')
+  if (!p) throw notFound('That regular donation')
   return p
 }
 
 function requireLive(p: PlanDoc) {
   if (!LIVE.includes(p.status)) {
-    throw new HttpError(400, p.status === 'completed' ? 'This gift has been paid in full, so there is nothing left to change.' : 'This regular gift has been cancelled. You can start a new one from the Give page.')
+    throw new HttpError(400, p.status === 'completed' ? 'This donation has been paid in full, so there is nothing left to change.' : 'This regular donation has been cancelled. You can start a new one from the Give page.')
   }
 }
 
@@ -65,7 +65,7 @@ function nextDateAfter(p: PlanDoc, after: Date): Date {
   return d
 }
 
-const describe = (p: PlanDoc) => `${formatMoney(p.amount)} ${FREQUENCIES[p.frequency as Frequency].label.toLowerCase()} gift ${p.number}${p.appealTitle ? ` to ${p.appealTitle}` : ''}`
+const describe = (p: PlanDoc) => `${formatMoney(p.amount)} ${FREQUENCIES[p.frequency as Frequency].label.toLowerCase()} donation ${p.number}${p.appealTitle ? ` to ${p.appealTitle}` : ''}`
 
 async function confirmByEmail(req: Request, p: PlanDoc, what: string) {
   const donor = me(req)
@@ -108,7 +108,7 @@ r.get('/:id', async (req, res) => {
 r.patch('/:id', async (req, res) => {
   const body = parse(
     z.object({
-      amount: zCents.min(100, 'The smallest regular gift is $1').max(10_000_00, 'For a regular gift over $10,000, please get in touch').optional(),
+      amount: zCents.min(100, 'The smallest regular donation is $1').max(10_000_00, 'For a regular donation over $10,000, please get in touch').optional(),
       frequency: z.enum(FREQUENCY_KEYS as [Frequency, ...Frequency[]]).optional(),
     }),
     req.body,
@@ -116,7 +116,7 @@ r.patch('/:id', async (req, res) => {
   const p = await ownPlan(req)
   requireLive(p)
   if (p.kind === 'instalment') {
-    throw new HttpError(400, 'Instalments are fixed so the whole gift is paid on schedule. To change one, send us a message and we will sort it out.')
+    throw new HttpError(400, 'Instalments are fixed so the whole donation is paid on schedule. To change one, send us a message and we will sort it out.')
   }
   const before = describe(p)
   const changes: string[] = []
@@ -136,7 +136,7 @@ r.patch('/:id', async (req, res) => {
   /* a new amount deserves a fresh heads-up email before it is taken */
   p.set('noticeSentFor', undefined)
   await p.save()
-  await confirmByEmail(req, p, body.amount != null && changes.length === 1 && changes[0].startsWith('amount') ? 'Your new amount is set' : 'Your regular gift has been updated')
+  await confirmByEmail(req, p, body.amount != null && changes.length === 1 && changes[0].startsWith('amount') ? 'Your new amount is set' : 'Your regular donation has been updated')
   await audit(req, 'plan.update', `${donorName(me(req))} changed their ${before} themselves: ${changes.join(', ')}`, { type: 'plan', id: p._id, label: p.number })
   res.json({ plan: planJson(p), changed: true })
 })
@@ -148,7 +148,7 @@ r.post('/:id/pause', async (req, res) => {
   )
   const p = await ownPlan(req)
   requireLive(p)
-  if (p.status === 'past_due') throw new HttpError(400, 'The last payment on this gift did not go through. Update the card first, then you can pause it.')
+  if (p.status === 'past_due') throw new HttpError(400, 'The last payment on this donation did not go through. Update the card first, then you can pause it.')
   if (until && until.getTime() < Date.now() + 86_400_000) throw new HttpError(400, 'Choose a date at least a day from now.', { until: 'Too soon' })
   if (until && until.getTime() > Date.now() + 366 * 86_400_000) throw new HttpError(400, 'A pause can last up to a year.', { until: 'Too far ahead' })
   p.status = 'paused'
@@ -159,7 +159,7 @@ r.post('/:id/pause', async (req, res) => {
   await p.save()
   await refreshDonor(p.donor)
   const when = until ? until.toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' }) : null
-  await confirmByEmail(req, p, when ? `Paused until ${when}` : 'Your regular gift is paused')
+  await confirmByEmail(req, p, when ? `Paused until ${when}` : 'Your regular donation is paused')
   await audit(req, 'plan.pause', `${donorName(me(req))} paused their ${describe(p)} themselves${when ? ` until ${when}` : ' until they resume it'}`, { type: 'plan', id: p._id, label: p.number })
   res.json({ plan: planJson(p) })
 })
@@ -167,13 +167,13 @@ r.post('/:id/pause', async (req, res) => {
 r.post('/:id/resume', async (req, res) => {
   const p = await ownPlan(req)
   requireLive(p)
-  if (p.status !== 'paused') throw new HttpError(400, 'This gift is not paused.')
+  if (p.status !== 'paused') throw new HttpError(400, 'This donation is not paused.')
   p.status = 'active'
   p.set('pausedUntil', undefined)
   p.nextChargeAt = nextDateAfter(p, new Date())
   await p.save()
   await refreshDonor(p.donor)
-  await confirmByEmail(req, p, 'Your regular gift has resumed')
+  await confirmByEmail(req, p, 'Your regular donation has resumed')
   await audit(req, 'plan.resume', `${donorName(me(req))} resumed their ${describe(p)} themselves`, { type: 'plan', id: p._id, label: p.number })
   res.json({ plan: planJson(p) })
 })
@@ -189,7 +189,7 @@ r.post('/:id/cancel', async (req, res) => {
   p.set('pausedUntil', undefined)
   await p.save()
   await refreshDonor(p.donor)
-  await confirmByEmail(req, p, 'Your regular gift is cancelled')
+  await confirmByEmail(req, p, 'Your regular donation is cancelled')
   await audit(req, 'plan.cancel', `${donorName(me(req))} cancelled their ${describe(p)} themselves${reason ? ` — “${reason}”` : ''}`, { type: 'plan', id: p._id, label: p.number })
   res.json({ plan: planJson(p) })
 })
@@ -256,7 +256,7 @@ r.post('/:id/card', async (req, res) => {
   }
   const fresh = (await Plan.findById(p._id))!
   /* a declined retry has already emailed the donor (chargePlan); one email is enough */
-  if (!charge || charge.ok) await confirmByEmail(req, fresh, charge?.ok ? 'Your card is updated and your gift went through' : 'Your card is updated')
+  if (!charge || charge.ok) await confirmByEmail(req, fresh, charge?.ok ? 'Your card is updated and your donation went through' : 'Your card is updated')
   res.json({ plan: planJson(fresh), charge })
 })
 

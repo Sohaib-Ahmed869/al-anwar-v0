@@ -11,7 +11,12 @@ const PlanSchema = new Schema(
     designation: { type: String, enum: DESIGNATION_KEYS, default: 'sadaqah' },
     /** cents, per payment */
     amount: { type: Number, required: true, min: 100 },
+    /** legacy: the donor covered a percentage card fee (before 28 September
+     *  2026). Read only for plans that have no operatingCosts. */
     coverFee: { type: Boolean, default: false },
+    /** cents added to every payment towards operating costs: 0, 200, 500 or
+     *  1000 (shared/operating-costs.ts). Absent on plans started before it. */
+    operatingCosts: Number,
     frequency: { type: String, enum: FREQUENCY_KEYS, required: true },
     kind: { type: String, enum: ['recurring', 'instalment'], default: 'recurring' },
     instalments: { total: Number, paid: Number },

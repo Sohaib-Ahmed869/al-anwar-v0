@@ -270,7 +270,7 @@ export const FAQ = [
   },
   {
     q: 'Is my zakat tax deductible?',
-    a: 'Yes. Al-Anwaar is a deductible gift recipient, so gifts of $2 and over are tax deductible, and your receipt comes by email.',
+    a: 'Yes. Al-Anwaar is a deductible gift recipient, so donations of $2 and over are tax deductible, and your receipt comes by email.',
   },
 ]
 

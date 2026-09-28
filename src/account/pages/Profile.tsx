@@ -123,7 +123,7 @@ function Details({ donor, focus }: { donor: MeDonor; focus: boolean }) {
             <Input value={v.lastName} onChange={(e) => setV({ ...v, lastName: e.target.value })} autoComplete="family-name" />
           </Field>
         </div>
-        <Field label="Phone" optional help="Only used if there is a problem with a gift." error={err?.fields.phone}>
+        <Field label="Phone" optional help="Only used if there is a problem with a donation." error={err?.fields.phone}>
           <Input type="tel" value={v.phone} onChange={(e) => setV({ ...v, phone: e.target.value })} autoComplete="tel" inputMode="tel" />
         </Field>
         <FormError message={err && !Object.keys(err.fields).length ? err.message : undefined} />
@@ -231,13 +231,13 @@ function Preferences({ donor }: { donor: MeDonor }) {
         </div>
         <p className="flex gap-2 text-[12.5px] leading-relaxed text-text-3">
           <ShieldCheck className="mt-0.5 size-4 shrink-0" />
-          Receipts, your tax statement and anything about your regular gifts are always sent, whatever you choose here.
+          Receipts, your tax statement and anything about your regular donations are always sent, whatever you choose here.
         </p>
         <div className="border-t border-line-2 pt-5">
           <Switch
             checked={p.anonymous}
             disabled={save.isPending}
-            onChange={(v) => update({ anonymous: v }, v ? 'Your gifts will show as anonymous' : 'Your first name can show with your gifts')}
+            onChange={(v) => update({ anonymous: v }, v ? 'Your donations will show as anonymous' : 'Your first name can show with your donations')}
             label={
               <span className="inline-flex items-center gap-1.5">
                 <EyeOff className="size-4 text-text-3" /> Give anonymously by default
@@ -278,7 +278,7 @@ function SignIn({ donor, providers }: { donor: MeDonor; providers: { google: boo
         </ul>
         {donor.altEmails.length > 0 && (
           <p className="mt-3 text-[12.5px] leading-relaxed text-text-3">
-            Gifts made with {donor.altEmails.join(', ')} are also recognised as yours.
+            Donations made with {donor.altEmails.join(', ')} are also recognised as yours.
           </p>
         )}
         <Button variant="secondary" icon={<Mail />} className="mt-4" onClick={() => setOpen(true)}>
@@ -361,7 +361,7 @@ function ChangeEmailDialog({ open, onClose, current }: { open: boolean; onClose:
             <Field label="New email" error={sendErr?.fields.email ? sendErr.message : sendErr?.message}>
               <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoFocus autoComplete="email" leading={<Mail />} />
             </Field>
-            <p className="text-[12.5px] leading-relaxed text-text-3">Your old address stays linked to your account, so gifts made with it still show up here.</p>
+            <p className="text-[12.5px] leading-relaxed text-text-3">Your old address stays linked to your account, so donations made with it still show up here.</p>
           </>
         ) : (
           <>
@@ -441,9 +441,9 @@ function DeleteAccount() {
         }
       >
         <div className="space-y-4 text-[14px] leading-relaxed text-text-2">
-          <p>A person on the team will close your account, stop any regular gifts and remove your details from our mailing lists, then email you to confirm.</p>
+          <p>A person on the team will close your account, stop any regular donations and remove your details from our mailing lists, then email you to confirm.</p>
           <p>
-            Australian tax law asks charities to keep a record of each gift and its receipt for seven years, so those stay — securely, and used for nothing else.
+            Australian tax law asks charities to keep a record of each donation and its receipt for seven years, so those stay — securely, and used for nothing else.
           </p>
           <Field label="Anything we should know?" optional>
             <Textarea value={reason} onChange={(e) => setReason(e.target.value)} rows={3} />

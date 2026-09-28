@@ -215,7 +215,7 @@ export function EnquiryThread({ id, className }: { id: string; className?: strin
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-medium text-text">{donor.name}</p>
               <p className="nums truncate text-[12.5px] text-text-3">
-                {donor.number} · {donor.giftCount ? `${formatMoney(donor.totalGiven)} over ${donor.giftCount} ${donor.giftCount === 1 ? 'gift' : 'gifts'}` : 'No gifts yet'}
+                {donor.number} · {donor.giftCount ? `${formatMoney(donor.totalGiven)} over ${donor.giftCount} ${donor.giftCount === 1 ? 'donation' : 'donations'}` : 'No donations yet'}
                 {donor.hasActivePlan ? ' · gives regularly' : ''}
               </p>
             </div>

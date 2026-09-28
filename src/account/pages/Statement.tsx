@@ -59,11 +59,11 @@ export default function Statement() {
             <p className="rounded-lg bg-[#fbf1dc] px-4 py-3 text-[12.5px] text-[#6d4700] ring-1 ring-[#ecd6a6]">
               {isFy ? (
                 <>
-                  <strong className="font-semibold">This financial year is still in progress.</strong> The statement shows gifts received up to {formatDateLong(s.issuedAt)}. The final one is ready after 30 June {s.fy}.
+                  <strong className="font-semibold">This financial year is still in progress.</strong> The statement shows donations received up to {formatDateLong(s.issuedAt)}. The final one is ready after 30 June {s.fy}.
                 </>
               ) : (
                 <>
-                  <strong className="font-semibold">These dates run past today.</strong> The statement shows gifts received up to {formatDateLong(s.issuedAt)}.
+                  <strong className="font-semibold">These dates run past today.</strong> The statement shows donations received up to {formatDateLong(s.issuedAt)}.
                 </>
               )}
             </p>
@@ -72,25 +72,25 @@ export default function Statement() {
           <div className="grid gap-6 sm:grid-cols-2 print:grid-cols-2">
             <AddressBlock label="Prepared for" name={s.donor.name} address={s.donor.address} extra={<p className="mt-1 text-[12px] text-[#6b7371]">Supporter number {s.donor.number}</p>} />
             <div className="sm:text-right print:text-right">
-              <p className="text-[10.5px] font-semibold tracking-[.08em] text-[#6b7371] uppercase">Total tax-deductible gifts</p>
+              <p className="text-[10.5px] font-semibold tracking-[.08em] text-[#6b7371] uppercase">Total tax-deductible donations</p>
               <p className="nums mt-1 font-serif text-[36px] leading-none text-[#1d4a3e]">{formatMoney(s.totals.total, { exact: true })}</p>
               <p className="mt-1.5 text-[12.5px] text-[#4d5553]">
-                {s.totals.count} {s.totals.count === 1 ? 'gift' : 'gifts'} between {formatDateLong(s.period.from)} and {formatDateLong(s.period.to)}
+                {s.totals.count} {s.totals.count === 1 ? 'donation' : 'donations'} between {formatDateLong(s.period.from)} and {formatDateLong(s.period.to)}
               </p>
             </div>
           </div>
 
           {s.gifts.length === 0 ? (
-            <p className="py-10 text-center text-[13px] text-[#6b7371]">No gifts were received {isFy ? 'in this financial year' : 'between these dates'}.</p>
+            <p className="py-10 text-center text-[13px] text-[#6b7371]">No donations were received {isFy ? 'in this financial year' : 'between these dates'}.</p>
           ) : (
             <table className="w-full border-collapse text-[12.5px]">
               <thead>
                 <tr className="border-b border-[#1b1f1e] text-left text-[10.5px] tracking-[.06em] text-[#4d5553] uppercase">
                   <th className="py-2 pr-3 font-semibold">Date</th>
                   <th className="hidden py-2 pr-3 font-semibold sm:table-cell print:table-cell">Receipt no.</th>
-                  <th className="py-2 pr-3 font-semibold">Gift</th>
+                  <th className="py-2 pr-3 font-semibold">Donation</th>
                   <th className="hidden py-2 pr-3 font-semibold sm:table-cell print:table-cell">Given as</th>
-                  {fees && <th className="hidden py-2 pr-3 text-right font-semibold sm:table-cell print:table-cell">Fees covered</th>}
+                  {fees && <th className="hidden py-2 pr-3 text-right font-semibold sm:table-cell print:table-cell">Operating costs</th>}
                   <th className="py-2 text-right font-semibold">Amount</th>
                 </tr>
               </thead>
@@ -132,7 +132,7 @@ export default function Statement() {
                 ))}
                 {fees && (
                   <div className="flex justify-between gap-4 py-1.5 text-[#6b7371]">
-                    <dt>of which card fees you covered</dt>
+                    <dt>of which operating costs contributions</dt>
                     <dd className="nums">{formatMoney(s.totals.fees, { exact: true })}</dd>
                   </div>
                 )}
@@ -145,10 +145,10 @@ export default function Statement() {
           )}
 
           <div className="space-y-4 break-inside-avoid">
-            <DgrStatement org={s.org} footer={s.receipts.footer.replace(/this gift/, 'these gifts')} />
+            <DgrStatement org={s.org} footer={s.receipts.footer.replace(/this (gift|donation)/, 'these donations')} />
             <p className="text-[11.5px] leading-relaxed text-[#6b7371]">
               This statement brings together the individual receipts already issued to you {isFy ? 'for this financial year' : 'between these dates'}; each receipt number above can be matched to its original. Please keep it with your tax records.
-              It is a record of your gifts, not tax advice.
+              It is a record of your donations, not tax advice.
             </p>
             <div className="pt-2">
               <p className="font-serif text-[15px]">{s.receipts.signatory}</p>

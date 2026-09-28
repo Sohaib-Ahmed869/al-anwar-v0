@@ -159,7 +159,9 @@ export async function startPlan(
   p: {
     donor: DonorDoc
     amount: number
-    coverFee: boolean
+    /** cents added to every payment towards operating costs (0, 200, 500 or
+     *  1000). Replaces the old coverFee flag, which startPlan no longer sets. */
+    operatingCosts: number
     designation: Designation
     frequency: Frequency
     instalments?: number | null
@@ -180,7 +182,7 @@ export async function startPlan(
     appealTitle: p.appeal?.title,
     designation: p.designation,
     amount: p.amount,
-    coverFee: p.coverFee,
+    operatingCosts: p.operatingCosts,
     frequency: p.frequency,
     kind: instalment ? 'instalment' : 'recurring',
     instalments: instalment ? { total: p.instalments, paid: 1 } : undefined,
@@ -199,7 +201,7 @@ export async function startPlan(
   await refreshDonor(p.donor._id)
   const what = instalment
     ? `${p.instalments} ${p.frequency} instalments of ${formatMoney(p.amount)}`
-    : `a ${p.frequency} gift of ${formatMoney(p.amount)}`
+    : `a ${p.frequency} donation of ${formatMoney(p.amount)}`
   await audit(
     req ?? null,
     'plan.create',

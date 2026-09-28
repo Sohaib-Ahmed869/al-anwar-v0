@@ -19,10 +19,10 @@ import { keys, useTitle, type MyFundraiser } from '../components/data'
 
 const EXPLAIN: Record<FundraiserStatus, string> = {
   pending: 'Awaiting approval — the team reads every page before it goes public. It usually takes a working day, and we will email you.',
-  live: 'Live — anyone with the link can give, and every gift counts towards the appeal.',
+  live: 'Live — anyone with the link can give, and every donation counts towards the appeal.',
   changes: 'The team has asked for a few changes before it goes public. Edit the page and it comes straight back to them.',
   rejected: 'This page was not approved. Our email explains why — reply to it if you would like to talk it through.',
-  ended: 'Ended — the page is closed to new gifts. Everything it raised has gone to the appeal.',
+  ended: 'Ended — the page is closed to new donations. Everything it raised has gone to the appeal.',
 }
 
 export default function Fundraisers() {
@@ -34,7 +34,7 @@ export default function Fundraisers() {
     <div>
       <PageHeader
         title="Fundraisers"
-        description="Your own pages for a wedding, a birthday, a walk or a Ramadan challenge. Every gift made on them goes to the appeal you chose."
+        description="Your own pages for a wedding, a birthday, a walk or a Ramadan challenge. Every donation made on them goes to the appeal you chose."
         actions={items.length > 0 && <ButtonLink to="/account/fundraisers/new" variant="primary" icon={<Plus />}>Start a fundraiser</ButtonLink>}
       />
       {q.isLoading ? (
@@ -163,7 +163,7 @@ function FundraiserCard({ f }: { f: MyFundraiser }) {
               const ok = await confirm({
                 title: 'End this fundraiser?',
                 body: f.raised > 0
-                  ? `The page will close to new gifts. The ${formatMoney(f.raised)} it raised stays with ${f.appealTitle}, and the page stays in your account.`
+                  ? `The page will close to new donations. The ${formatMoney(f.raised)} it raised stays with ${f.appealTitle}, and the page stays in your account.`
                   : 'The page will close and no one will be able to give on it. It stays in your account.',
                 confirmLabel: 'End fundraiser',
                 tone: 'danger',
@@ -181,7 +181,7 @@ function FundraiserCard({ f }: { f: MyFundraiser }) {
 
 function HowItWorks() {
   const steps = [
-    { t: 'Choose an appeal', d: 'Food in Yemen, water, a school — every gift on your page goes to it.' },
+    { t: 'Choose an appeal', d: 'Food in Yemen, water, a school — every donation on your page goes to it.' },
     { t: 'Tell your story', d: 'Why it matters to you, and a target. A few honest sentences work best.' },
     { t: 'We check, you share', d: 'The team reads every page before it goes public, then you share the link.' },
   ]

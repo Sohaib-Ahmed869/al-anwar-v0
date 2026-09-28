@@ -99,7 +99,7 @@ r.get('/:id', async (req, res) => {
 r.post('/', async (req, res) => {
   const body = parse(createSchema, req.body)
   const appeal = await Appeal.findById(body.appeal)
-  if (!appeal || appeal.status !== 'open') throw new HttpError(400, 'That appeal is not taking gifts right now. Choose another.', { appeal: 'Not open' })
+  if (!appeal || appeal.status !== 'open') throw new HttpError(400, 'That appeal is not taking donations right now. Choose another.', { appeal: 'Not open' })
   const donor = me(req)
   const f = await Fundraiser.create({
     slug: slugify(body.title),

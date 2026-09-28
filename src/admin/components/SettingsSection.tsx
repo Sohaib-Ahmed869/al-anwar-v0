@@ -94,9 +94,19 @@ export function SettingsCard({
   description?: ReactNode
   icon?: ReactNode
   action?: ReactNode
-  section: Pick<ReturnType<typeof useSettingsSection>, 'dirty' | 'formError' | 'submit' | 'saving' | 'justSaved' | 'reset' | 'errors'>
+  /** absent for a card with nothing to save (Payments, since its fee rate was
+   *  retired): the card then reads as information, with no Save button */
+  section?: Pick<ReturnType<typeof useSettingsSection>, 'dirty' | 'formError' | 'submit' | 'saving' | 'justSaved' | 'reset' | 'errors'>
   children: ReactNode
 }) {
+  if (!section) {
+    return (
+      <Card id={id} className="scroll-mt-20 lg:scroll-mt-6">
+        <CardHeader title={title} description={description} icon={icon} action={action} />
+        <CardBody className="space-y-4">{children}</CardBody>
+      </Card>
+    )
+  }
   return (
     <Card id={id} className="scroll-mt-20 lg:scroll-mt-6">
       <form

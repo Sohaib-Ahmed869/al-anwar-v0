@@ -28,7 +28,7 @@ const TEMPLATE_LABELS: Record<string, string> = {
   'campaign.test': 'Campaign test',
   'plan.notice': 'Payment heads-up',
   'plan.failed': 'Payment failed',
-  'plan.changed': 'Regular gift changed',
+  'plan.changed': 'Regular donation changed',
   'tax.statement': 'Tax statement',
   'bank.instructions': 'Transfer details',
   'staff.invite': 'Staff invitation',

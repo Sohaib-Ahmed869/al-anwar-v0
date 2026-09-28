@@ -107,7 +107,7 @@ export default function Receipts() {
       </section>
 
       <section className="mb-10">
-        <SectionHeading title="Tax statements">One per financial year, 1 July to 30 June — every gift with its receipt number, ready for your tax return.</SectionHeading>
+        <SectionHeading title="Tax statements">One per financial year, 1 July to 30 June — every donation with its receipt number, ready for your tax return.</SectionHeading>
         {statements.isLoading ? (
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {[0, 1, 2].map((i) => (
@@ -155,11 +155,11 @@ export default function Receipts() {
             empty={
               s.q || dates ? (
                 <EmptyState icon={<SearchX />} title="No receipts match" action={<Button onClick={() => (setQ(''), set({ q: '', range: 'all', from: '', to: '' }))}>Show all receipts</Button>}>
-                  {s.q ? 'Receipt numbers look like AA-2026-001234.' : 'No gifts were received between these dates.'}
+                  {s.q ? 'Receipt numbers look like AA-2026-001234.' : 'No donations were received between these dates.'}
                 </EmptyState>
               ) : (
                 <EmptyState icon={<Receipt />} title="No receipts yet">
-                  Every gift that arrives gets a numbered tax receipt, emailed to you and kept here.
+                  Every donation that arrives gets a numbered tax receipt, emailed to you and kept here.
                 </EmptyState>
               )
             }
@@ -192,7 +192,7 @@ function StatementCard({ y, current }: { y: StatementYear; current: number }) {
       </div>
       <p className="mt-4 text-[13px] text-text-2">
         <Money cents={y.total} className="text-[24px] font-semibold tracking-[-0.02em] text-text" />
-        <span className="ml-2">{plural(y.count, 'gift')}</span>
+        <span className="ml-2">{plural(y.count, 'donation')}</span>
       </p>
       <div className="mt-5 flex flex-wrap gap-2">
         <Link to={`/account/statement/${y.fy}`} className={buttonClass('primary', 'md', 'grow sm:grow-0')}>

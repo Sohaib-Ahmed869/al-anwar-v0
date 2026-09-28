@@ -66,7 +66,7 @@ export function GiftSheet({ gift, onClose }: { gift: MyGift | null; onClose: () 
             </div>
             {g.fee > 0 && (
               <p className="mt-2.5 text-[12.5px] text-text-2">
-                Includes <Money cents={g.fee} exact /> you covered in card fees, so the whole <Money cents={g.amount} exact /> reached the appeal.
+                Includes <Money cents={g.fee} exact /> you added towards operating costs, on top of your <Money cents={g.amount} exact /> donation.
               </p>
             )}
           </div>
@@ -83,7 +83,7 @@ export function GiftSheet({ gift, onClose }: { gift: MyGift | null; onClose: () 
                 <>
                   {' '}
                   <Link to={`/account/plans?fix=${g.plan}`} className="font-medium underline underline-offset-2">
-                    Update the card on this regular gift
+                    Update the card on this regular donation
                   </Link>
                 </>
               )}
@@ -98,12 +98,12 @@ export function GiftSheet({ gift, onClose }: { gift: MyGift | null; onClose: () 
               { label: 'Through', value: g.fundraiserTitle, hidden: !g.fundraiserTitle },
               { label: 'Country', value: countryName(g.country), hidden: !g.country },
               { label: 'Paid by', value: METHODS[g.method as Method]?.label ?? g.method },
-              { label: 'Gift amount', value: <Money cents={g.amount} exact /> },
-              { label: 'Card fees you covered', value: <Money cents={g.fee} exact />, hidden: !g.fee },
+              { label: 'Donation amount', value: <Money cents={g.amount} exact /> },
+              { label: 'Operating costs contribution', value: <Money cents={g.fee} exact />, hidden: !g.fee },
               { label: 'Bank reference', value: <span className="nums">{g.reference}</span>, hidden: !g.reference },
-              { label: 'Part of', value: <Link to="/account/plans" className="text-green hover:underline">A regular gift</Link>, hidden: !g.plan },
+              { label: 'Part of', value: <Link to="/account/plans" className="text-green hover:underline">A regular donation</Link>, hidden: !g.plan },
               { label: 'Shown publicly as', value: g.anonymous ? 'Anonymous' : 'Your name', hidden: !g.fundraiser },
-              { label: 'Gift number', value: <span className="nums text-text-2">{g.number}</span> },
+              { label: 'Donation number', value: <span className="nums text-text-2">{g.number}</span> },
             ]}
           />
 
@@ -116,7 +116,7 @@ export function GiftSheet({ gift, onClose }: { gift: MyGift | null; onClose: () 
 
           {ok && g.receipt?.number && (
             <p className="text-[12.5px] leading-relaxed text-text-3">
-              Receipt issued {formatDateLong(g.receipt.issuedAt)} for your {DESIGNATIONS[g.designation as Designation]?.label.toLowerCase()} gift
+              Receipt issued {formatDateLong(g.receipt.issuedAt)} for your {DESIGNATIONS[g.designation as Designation]?.label.toLowerCase()} donation
               {g.receipt.emailedAt && <>; last emailed {formatDateTime(g.receipt.emailedAt)}{donor ? ` to ${donor.email}` : ''}</>}.
             </p>
           )}

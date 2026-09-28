@@ -134,7 +134,7 @@ export const LISTING = {
   list: {
     eyebrow: 'Give to a fundraiser',
     title: 'Fundraisers that need you',
-    lede: 'Every one raises for a real appeal, so you always know where your gift goes.',
+    lede: 'Every one raises for a real appeal, so you always know where your donation goes.',
     all: 'All',
     empty: 'No fundraisers for this yet. Be the first to start one.',
   },
@@ -145,7 +145,7 @@ export const LISTING = {
       { title: 'Pick an appeal', body: 'Choose where the money goes. It is always one of our real appeals.' },
       { title: 'Make your page', body: 'Add your reason, a goal and a photo if you like.' },
       { title: 'Share it', body: 'Send the link to family, friends and your community.' },
-      { title: 'See where it went', body: 'Every gift is receipted, and we report back on the appeal.' },
+      { title: 'See where it went', body: 'Every donation is receipted, and we report back on the appeal.' },
     ],
   },
   close: {
@@ -162,7 +162,7 @@ export const START = {
   steps: ['Occasion', 'Appeal', 'Your page', 'About you'],
 
   reason: { title: 'What is the occasion?', hint: 'Choose what you are raising for. Next you pick the appeal your money goes to.' },
-  appeal: { title: 'Which appeal should it go to?', hint: 'Every gift on your page goes to this appeal. Donors can click through and see it.' },
+  appeal: { title: 'Which appeal should it go to?', hint: 'Every donation on your page goes to this appeal. Donors can click through and see it.' },
   page: {
     title: 'Tell people why',
     titleLabel: 'Fundraiser title',
@@ -183,7 +183,7 @@ export const START = {
     email: 'Email',
     group: 'Or a group name (optional)',
     groupHint: 'For a class, a family or a team, shown instead of your name.',
-    agree: 'I will only share this page with people I know, and I understand every gift goes to the appeal I chose.',
+    agree: 'I will only share this page with people I know, and I understand every donation goes to the appeal I chose.',
   },
 
   back: 'Back',

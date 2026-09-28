@@ -303,7 +303,7 @@ export default function AboutTeam() {
         <SectionHead
           id="team-head"
           eyebrow="Board & team"
-          title="The people accountable for your gift."
+          title="The people accountable for your donation."
           lede="Three people carry the legal responsibility for this charity, and the fourth runs the warehouse the packs go out of. Open a seat to read what it covers."
         />
 

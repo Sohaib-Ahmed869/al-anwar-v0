@@ -133,7 +133,7 @@ r.get('/income.csv', exporting, async (req, res) => {
   const rep = await income(req.query)
   const { from, to } = range(req.query)
   const rows: CsvRow[] = [
-    [GROUP_HEADINGS[rep.group], 'Amount (AUD)', 'Fees covered by donors (AUD)', 'Gifts', 'Donors'],
+    [GROUP_HEADINGS[rep.group], 'Amount (AUD)', 'Operating costs contributions (AUD)', 'Donations', 'Donors'],
     ...rep.rows.map((x) => [x.label, centsToDecimal(x.amount), centsToDecimal(x.fees), x.count, x.donors]),
     ['Total', centsToDecimal(rep.totals.amount), centsToDecimal(rep.totals.fees), rep.totals.count, rep.totals.donors],
   ]
@@ -195,7 +195,7 @@ r.get('/receipts.csv', exporting, async (req, res) => {
   const rep = await receipts(req.query, true)
   type Row = { number: string; donorName: string; amount: number; designation: Designation; method: Method; status: string; date: string; appealTitle?: string; receipt: { number: string; issuedAt: string; emailedAt?: string; resent?: number } }
   const rows: CsvRow[] = [
-    ['Receipt number', 'Issued', 'Gift', 'Gift date', 'Donor', 'Amount (AUD)', 'Designation', 'Appeal', 'Method', 'Status', 'Emailed', 'Times re-sent'],
+    ['Receipt number', 'Issued', 'Donation', 'Donation date', 'Donor', 'Amount (AUD)', 'Designation', 'Appeal', 'Method', 'Status', 'Emailed', 'Times re-sent'],
     ...(rep.items.items as unknown as Row[]).map((g) => [
       g.receipt.number,
       format(new Date(g.receipt.issuedAt), 'dd/MM/yyyy'),
@@ -349,9 +349,10 @@ async function xeroRows(q: Request['query'], limit?: number) {
     const ref = g.receipt?.number ?? g.number
     const tracking = g.appealTitle ?? 'General fund'
     rows.push([date, centsToDecimal(g.amount), g.donorName, `${DESIGNATIONS[des].label} - ${tracking} - ${g.number} (${METHODS[g.method as Method]?.label ?? g.method})`, ref, '', s.accounts[des], s.taxType, s.trackingName, tracking])
-    /* the fee a donor chose to cover arrived with the gift; it is coded to the
-       fees account so it offsets what the card processor charged */
-    if ((g.fee ?? 0) > 0) rows.push([date, centsToDecimal(g.fee!), g.donorName, `Card fee covered by the donor - ${g.number}`, ref, '', s.feesAccount, s.taxType, s.trackingName, tracking])
+    /* the operating-costs contribution a donor added (a covered card fee, before
+       28 September 2026) arrived with the gift; it is coded to the
+       operating-costs account, apart from the donation's fund */
+    if ((g.fee ?? 0) > 0) rows.push([date, centsToDecimal(g.fee!), g.donorName, `Operating costs contribution - ${g.number}`, ref, '', s.feesAccount, s.taxType, s.trackingName, tracking])
   }
   return {
     from, to, rows,
@@ -377,8 +378,8 @@ r.get('/xero/preview', async (req, res) => {
 
 r.get('/xero', exporting, async (req, res) => {
   const x = await xeroRows(req.query)
-  if (!x.rows.length) throw badRequest('There are no paid gifts in those dates, so there is nothing to export.')
-  await audit(req, 'report.export', `Exported the Xero bank file for ${rangeLabel(x.from, x.to)}: ${x.totals.gifts} gifts, ${formatMoney(x.totals.amount)}`, { type: 'report', label: 'xero' })
+  if (!x.rows.length) throw badRequest('There are no paid donations in those dates, so there is nothing to export.')
+  await audit(req, 'report.export', `Exported the Xero bank file for ${rangeLabel(x.from, x.to)}: ${x.totals.gifts} donations, ${formatMoney(x.totals.amount)}`, { type: 'report', label: 'xero' })
   sendCsv(res, `xero-${format(x.from, 'yyyy-MM-dd')}-to-${lastDay(x.to)}.csv`, [XERO_HEADER, ...x.rows], { bom: false })
 })
 

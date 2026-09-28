@@ -23,7 +23,7 @@ import { PlanDialogs, type PlanAction } from '../components/PlanDialogs'
 const CURRENT = ['past_due', 'active', 'paused']
 
 export default function Plans() {
-  useTitle('Regular gifts')
+  useTitle('Regular donations')
   const { data, isLoading } = usePlans()
   const [params, setParams] = useSearchParams()
   const [target, setTarget] = useState<{ plan: MyPlan; action: PlanAction } | null>(null)
@@ -52,7 +52,7 @@ export default function Plans() {
   const resume = useMutation({
     mutationFn: (p: MyPlan) => api.post<{ plan: MyPlan }>(`/me/plans/${p.id}/resume`),
     onSuccess: (r) => {
-      toast.success('Welcome back — your gift has resumed', {
+      toast.success('Welcome back — your donation has resumed', {
         description: r.plan.nextChargeAt ? `The next payment goes out on ${formatDate(r.plan.nextChargeAt)}.` : undefined,
       })
       qc.invalidateQueries({ queryKey: keys.all })
@@ -70,7 +70,7 @@ export default function Plans() {
   return (
     <div>
       <PageHeader
-        title="Regular gifts"
+        title="Regular donations"
         description="Change the amount, pause for a while, use another card or stop — any time, from here. Every change is confirmed by email."
         meta={data?.simulated ? <Badge tone="teal">Test payments — no real money moves</Badge> : undefined}
       />
@@ -85,10 +85,10 @@ export default function Plans() {
         <Card>
           <EmptyState
             icon={<Repeat />}
-            title={past.length ? 'No regular gifts running' : 'No regular gifts yet'}
-            action={<a href="/give" className={buttonClass('give', 'md')}>Set up a monthly gift</a>}
+            title={past.length ? 'No regular donations running' : 'No regular donations yet'}
+            action={<a href="/give" className={buttonClass('give', 'md')}>Set up a monthly donation</a>}
           >
-            A regular gift is steady support an appeal can plan around. You choose the amount and the day, and you can pause or stop it here whenever you like.
+            A regular donation is steady support an appeal can plan around. You choose the amount and the day, and you can pause or stop it here whenever you like.
           </EmptyState>
         </Card>
       ) : (
@@ -115,7 +115,7 @@ export default function Plans() {
             className="flex items-center gap-2 rounded-lg py-1 text-[14px] font-medium text-text-2 hover:text-text"
           >
             <ChevronDown className={cn('size-4 transition-transform', showPast && 'rotate-180')} />
-            Past regular gifts ({past.length})
+            Past regular donations ({past.length})
           </button>
           {showPast && (
             <Card className="mt-3 divide-y divide-line-2 overflow-hidden">
@@ -164,7 +164,7 @@ function PlanCard({ plan: p, onAction, onResume, resuming }: { plan: MyPlan; onA
       <div className="px-5 pt-5 sm:px-6">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <p className="text-[12.5px] font-medium text-text-3">{instalment ? 'Instalments' : 'Regular gift'} · {p.number}</p>
+            <p className="text-[12.5px] font-medium text-text-3">{instalment ? 'Instalments' : 'Regular donation'} · {p.number}</p>
             <p className={cn('nums mt-1 text-[26px] leading-tight font-semibold tracking-[-0.02em]', paused ? 'text-text-2' : 'text-text')}>{perPeriod(p)}</p>
             <p className="mt-1 text-[14px] text-text-2">
               {p.appealTitle ?? 'Where most needed'} <StatusBadge kind="designation" value={p.designation} size="sm" className="ml-1 align-[1px]" />
@@ -187,7 +187,7 @@ function PlanCard({ plan: p, onAction, onResume, resuming }: { plan: MyPlan; onA
         <Row label="Paying with" value={<CardChip payment={p.payment} />} />
         <Row label="Given so far" value={<Money cents={p.collected} className="font-medium text-text" />} />
         <Row label="Since" value={formatDate(p.startDate)} />
-        {p.coverFee && <Row label="Card fee" value="You cover it, thank you" />}
+        {p.operatingCosts ? <Row label="Operating costs" value={`${formatMoney(p.operatingCosts, { exact: true })} each payment, thank you`} /> : p.coverFee && p.operatingCosts == null && <Row label="Card fee" value="You cover it, thank you" />}
       </dl>
 
       {expired && !failing && (

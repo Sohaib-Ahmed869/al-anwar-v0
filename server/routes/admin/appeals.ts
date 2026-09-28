@@ -220,7 +220,7 @@ r.post('/:id/status', manage, async (req, res) => {
   await audit(
     req,
     `appeal.${status === 'open' ? 'open' : status === 'closed' ? 'close' : 'draft'}`,
-    `${verb} the appeal “${a.title}”${status === 'closed' ? ' — no new gifts; the page and its history stay' : ''}`,
+    `${verb} the appeal “${a.title}”${status === 'closed' ? ' — no new donations; the page and its history stay' : ''}`,
     { type: 'appeal', id: a._id, label: label(a) },
   )
   res.json(out(a.toObject()))
