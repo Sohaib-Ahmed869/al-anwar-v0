@@ -75,15 +75,15 @@ const T = EMAIL_COLORS
 const LABEL_STYLE = `font:600 11px/1.3 'Helvetica Neue',Helvetica,Arial,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:${T.text3};`
 
 /* The ACNC "Registered Charity" and "DGR – Tax deductible" badges above the
-   receipt's legal lines (28 September 2026, client feedback). PNG, not SVG,
-   because Gmail and Outlook do not show SVG. The files are placeholders in
-   public/assets/badges/; see src/components/badges-data.ts for how to swap
-   them. They load from APP_URL, so in development they only show when the
+   receipt's legal lines (28 September 2026, client feedback): two round
+   seals of the same size, the official ACNC logo and our own DGR seal. PNG,
+   not SVG, because Gmail and Outlook do not show SVG; see
+   src/components/badges-data.ts for where the artwork comes from. They load from APP_URL, so in development they only show when the
    outbox is viewed from the same machine. The fine print sits under them as
    the site's checkout has it. */
 function badges() {
   const img = (file: string, alt: string) =>
-    `<img src="${url(`/assets/badges/${file}`)}" alt="${esc(alt)}" width="132" height="44" style="display:inline-block;border:0;height:44px;width:132px;margin:0 8px 8px 0;vertical-align:middle;color:${T.text2};font-size:12px;">`
+    `<img src="${url(`/assets/badges/${file}`)}" alt="${esc(alt)}" width="84" height="84" style="display:inline-block;border:0;height:84px;width:84px;margin:0 12px 10px 0;vertical-align:middle;color:${T.text2};font-size:12px;">`
   return (
     `<div style="margin:0 0 6px;">${img('acnc-registered.png', 'ACNC Registered Charity')}${img('dgr-tax-deductible.png', 'DGR – Tax deductible')}</div>` +
     muted('Donations of $2 or more are tax deductible in Australia.')

@@ -4,12 +4,14 @@
    They replace the text headings "Registered with the ACNC" and "Tax
    deductible" that used to open the trust list on the give form.
 
-   The artwork in public/assets/badges/ is a PLACEHOLDER drawn by us. When the
-   official ACNC badge (from the ACNC Charity Portal) or a designed DGR badge
-   arrives, overwrite the .svg (for the site) and the .png (for email, where
-   SVG does not display in Gmail or Outlook) under the same names. Nothing
-   else needs to change. The server's receipt email points at the .png files
-   by the same paths; see server/emails/templates.ts.
+   Both are round seals of the same size so they sit as a pair.
+   acnc-registered.png is the official ACNC "Registered Charity" logo the
+   client supplied (docs/acnc-registered-charity-logo_rgb.png), trimmed and
+   squared but otherwise untouched, as the ACNC's logo terms require. The ATO
+   publishes no DGR logo, so dgr-tax-deductible.svg is our own seal in the
+   charity's green, and its .png is the same seal rendered for email (Gmail
+   and Outlook do not show SVG). The server's receipt email points at the
+   .png files by the same paths; see server/emails/templates.ts.
 
    REPLACES lists the TRUST titles in give-data.ts that the badges stand in
    for, so GiveForm can leave them out of its list without that file changing.
@@ -17,7 +19,7 @@
 
 export const BADGES = [
   {
-    src: '/assets/badges/acnc-registered.svg',
+    src: '/assets/badges/acnc-registered.png',
     alt: 'Registered charity with the ACNC',
     to: '/where-it-goes#accounts',
   },

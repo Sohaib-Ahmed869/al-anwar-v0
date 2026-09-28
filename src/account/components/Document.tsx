@@ -107,12 +107,12 @@ export function AddressBlock({ label, name, address, extra }: { label: string; n
 export function DgrStatement({ org, footer }: { org: Settings['org']; footer: string }) {
   return (
     <div className="rounded-lg bg-[#f1f6f3] px-4 py-3.5 text-[12px] leading-relaxed text-[#2c3432] ring-1 ring-[#d7e5de] print:bg-transparent">
-      <div className="mb-2.5 flex flex-wrap gap-2">
+      <div className="mb-3 flex items-center gap-3">
         {BADGES.map((b) => (
-          <img key={b.src} src={b.src} alt={b.alt} width={120} height={40} className="block h-10 w-auto" />
+          <img key={b.src} src={b.src} alt={b.alt} width={64} height={64} className="block size-16 shrink-0" />
         ))}
+        <p className="max-w-[26ch] font-medium text-[#1d4a3e]">{BADGE_FINE_PRINT}</p>
       </div>
-      <p className="mb-1">{BADGE_FINE_PRINT}</p>
       <p>
         <strong className="font-semibold">{org.name}</strong> (ABN {org.abn}). {org.dgr ? org.dgrNote : ''}
       </p>

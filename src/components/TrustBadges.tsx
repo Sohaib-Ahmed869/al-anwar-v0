@@ -8,21 +8,22 @@ import { BADGES, BADGE_FINE_PRINT } from './badges-data'
    paths are in badges-data.ts, and why the artwork is a placeholder is said
    there too.
 
-   The badges carry their own white ground, so they read the same on the dark
-   summary panel of the give form as on paper. `tone` only sets the colour of
+   Both badges are round seals with their own white ground, drawn at one
+   size so they read as a pair, the same on the dark summary panel of the
+   give form as on paper. 76px keeps the ACNC logo's small type legible. `tone` only sets the colour of
    the fine print under them.
 --------------------------------------------------------------------------- */
 
 export default function TrustBadges({ tone = 'light', className = '' }: { tone?: 'light' | 'dark'; className?: string }) {
   return (
     <div className={className}>
-      <ul className="flex flex-wrap items-center gap-2.5" aria-label="Accreditation">
+      <ul className="flex flex-wrap items-center gap-3" aria-label="Accreditation">
         {BADGES.map((b) => {
-          const img = <img src={b.src} alt={b.alt} width={132} height={44} className="block h-[44px] w-auto" />
+          const img = <img src={b.src} alt={b.alt} width={76} height={76} className="block size-[76px]" />
           return (
             <li key={b.src}>
               {b.to ? (
-                <Link to={b.to} className="block rounded-[8px] transition-opacity duration-200 ease-brand hover:opacity-85">
+                <Link to={b.to} className="block rounded-full transition-opacity duration-200 ease-brand hover:opacity-85">
                   {img}
                 </Link>
               ) : (
