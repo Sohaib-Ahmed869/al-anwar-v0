@@ -1,8 +1,10 @@
 import { Router, type Request, type Response } from 'express'
 import { z } from 'zod'
 import { REGISTERS, registerByKey, riskBand, riskScore, type RegisterDef } from '../../../shared/registers'
+import { sydneyDay } from '../../../shared/domain'
 import { requireStaff } from '../../lib/auth'
 import { audit } from '../../lib/audit'
+import { sendCsv as sendCsvFile, type CsvRow } from '../../lib/csv'
 import { escapeRegex, HttpError, isId, notFound, out, paging, parse } from '../../lib/http'
 import { AuditEvent, RegisterEntry } from '../../models'
 
@@ -180,7 +182,7 @@ r.get('/:key/export', async (req, res) => {
     ...(def.key === 'risks' ? [String(riskScore(e.fields) ?? '')] : []),
     isReviewDue(def, e) ? 'Yes' : '',
     e.archived ? 'Yes' : '',
-    e.updatedAt ? e.updatedAt.toISOString().slice(0, 10) : '',
+    e.updatedAt ? sydneyDay(e.updatedAt) : '',
   ])
   await audit(req, 'register.export', `Exported the ${def.label} register (${rows.length} entries)`, { type: 'register', label: def.label }, { register: def.key })
   sendCsv(res, `${def.key}-${todayStr()}.csv`, [header, ...lines])
@@ -277,21 +279,10 @@ export function startOfToday() {
   return new Date(d.getFullYear(), d.getMonth(), d.getDate())
 }
 
-/* A cell that starts with = + @ (or - before a letter) would run as a formula
-   when the export is opened in Excel, so it is prefixed with an apostrophe. */
-function cell(v: unknown) {
-  let s = v === null || v === undefined ? '' : String(v)
-  if (/^[=+@]/.test(s) || /^-[^\d]/.test(s)) s = `'${s}`
-  return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s
-}
-
-export function toCsv(rows: unknown[][]) {
-  return rows.map((row) => row.map(cell).join(',')).join('\r\n')
-}
-
-/** With a BOM, so Excel opens it as UTF-8 and names keep their accents. */
+/** The registers and the audit trail export through lib/csv.ts like every
+ *  other file, so one rule decides what Excel could run as a formula (this
+ *  file used to keep its own copy, which let "-1+…" through). With a BOM, so
+ *  Excel opens it as UTF-8 and names keep their accents. */
 export function sendCsv(res: Response, filename: string, rows: unknown[][]) {
-  res.setHeader('Content-Type', 'text/csv; charset=utf-8')
-  res.setHeader('Content-Disposition', `attachment; filename="${filename.replace(/[^\w.-]/g, '_')}"`)
-  res.send('﻿' + toCsv(rows))
+  sendCsvFile(res, filename, rows as CsvRow[])
 }

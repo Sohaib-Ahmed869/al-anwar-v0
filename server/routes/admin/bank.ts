@@ -15,6 +15,7 @@ import { fullName, issueReceipt, recordGift } from '../../lib/giving'
 import { HttpError, badRequest, isId, notFound, out, paging, parse, zId } from '../../lib/http'
 import { findReference, matchLines, normalise, payerName, type LineIn } from '../../lib/matching'
 import { refreshForGift } from '../../lib/stats'
+import { env } from '../../env'
 
 /* ---------------------------------------------------------------------------
    /api/admin/bank — bank statement import.
@@ -42,7 +43,17 @@ import { refreshForGift } from '../../lib/stats'
 const r = Router()
 r.use(requireStaff('bank.import'))
 
-const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024, files: 1 } })
+/* Limits on everything multer reads, not only the file: an upload is one CSV
+   and, at most, a column mapping. Without fields/parts limits a request could
+   carry thousands of form fields into memory. */
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024, files: 1, fields: 5, fieldSize: 64 * 1024, parts: 8 },
+})
+/* A month of a busy charity account is a few hundred lines. Above this the
+   matcher (every line against every donor's name) gets slow, and the import
+   document itself could pass MongoDB's 16 MB limit. */
+const MAX_LINES = 5000
 const takeFile = (req: Request, res: Response, next: NextFunction) =>
   upload.single('file')(req, res, (err: unknown) => {
     if (err instanceof multer.MulterError) {
@@ -324,6 +335,10 @@ r.post('/imports', takeFile, async (req, res) => {
   const parsed = Papa.parse<string[]>(text, { skipEmptyLines: 'greedy' })
   const rows = parsed.data.filter((r) => Array.isArray(r) && r.some((c) => String(c).trim())).map((r) => r.map((c) => String(c ?? '')))
   if (!rows.length) throw badRequest('That file is empty.', { file: 'The file has no rows' })
+  if (rows.length > MAX_LINES + 1)
+    throw badRequest(`That statement has ${rows.length.toLocaleString('en-AU')} rows. Export it in parts of up to ${MAX_LINES.toLocaleString('en-AU')} lines (a month at a time) and import each one.`, {
+      file: `Up to ${MAX_LINES.toLocaleString('en-AU')} lines per file`,
+    })
 
   let mapping: Mapping
   let layout: string
@@ -463,6 +478,7 @@ async function applyPatch(req: Request, line: LineDoc, body: z.infer<typeof zLin
       m.donorName = fullName(donor)
       m.candidates = undefined
       m.confidence = 1
+      m.via = 'manual'
       /* the matcher's doubts about who it was no longer apply; what the line
          said it was for still does */
       m.reasons = [`Chosen by ${who}`, ...m.reasons.filter((x) => !/^(Chosen by|Accepted by|New donor)|choose the right one|^No donor called|^No name on the line|could be \d+ donors|^Name is close to|^Name matches|^Paid from this account/.test(x))]
@@ -487,6 +503,8 @@ async function applyPatch(req: Request, line: LineDoc, body: z.infer<typeof zLin
       if (line.status !== 'matched') {
         m.confidence = Math.max(m.confidence ?? 0, 1)
         m.reasons = [`Accepted by ${who}`, ...m.reasons.filter((x) => !x.startsWith('Accepted by'))]
+        /* a person looked at the suggestion and said yes */
+        m.via = 'manual'
       }
       line.status = 'matched'
     } else if (line.status === 'duplicate') {
@@ -582,16 +600,33 @@ r.post('/imports/:id/lines/:lineId/new-donor', async (req, res) => {
 
 /* ---------- confirm: the only step that saves gifts ---------- */
 
-/* one confirm per import at a time, so a double press cannot save a line twice */
-const confirming = new Set<string>()
+/* One confirm per import at a time, so a double press, a second tab or a
+   second server cannot save a line twice. The claim is a field on the import
+   set in one atomic update, and the lines are read from the document that
+   update returns, so a confirm that waited behind another one sees the lines
+   that one already saved as saved. (An in-memory Set used to do this; it was
+   per process and was checked only after the lines had been loaded.) The
+   claim lapses on its own after ten minutes, in case a process dies holding
+   it. */
+const CLAIM_MS = 10 * 60_000
+
+/** Who may teach the matcher an alias: a reference, a pledge, or a person.
+ *  Lines saved before `via` existed count as a person's choice only when
+ *  their reasons say so. */
+const teachesAlias = (m: { via?: string | null; reasons: string[] }) =>
+  m.via ? ['pledge', 'usedRef', 'manual'].includes(m.via) : /^(Chosen by|Accepted by|New donor)/.test(m.reasons[0] ?? '')
 
 r.post('/imports/:id/confirm', async (req, res) => {
-  const imp = await loadImport(req.params.id)
-  editable(imp)
   const body = parse(z.object({ lineIds: z.array(zId).max(2000).optional() }), req.body ?? {})
-  const key = String(imp._id)
-  if (confirming.has(key)) throw new HttpError(409, 'These donations are already being saved. Give it a moment.')
-  confirming.add(key)
+  const found = await loadImport(req.params.id)
+  editable(found)
+  const now = new Date()
+  const imp = await BankImport.findOneAndUpdate(
+    { _id: found._id, status: 'review', $or: [{ confirmingUntil: null }, { confirmingUntil: { $lt: now } }] },
+    { $set: { confirmingUntil: new Date(now.getTime() + CLAIM_MS) } },
+    { returnDocument: 'after' },
+  )
+  if (!imp) throw new HttpError(409, 'These donations are already being saved. Give it a moment.')
   try {
     const want = body.lineIds ? new Set(body.lineIds) : null
     const lines = imp.lines.filter((l) => l.status === 'matched' && l.match?.donor && (!want || want.has(String(l._id))))
@@ -610,9 +645,45 @@ r.post('/imports/:id/confirm', async (req, res) => {
         continue
       }
       const canEmail = !donor.email.endsWith('.invalid')
-      const pledge = m.pledge ? await Gift.findById(m.pledge) : null
+      /* the pledge is claimed (pending → succeeded) in one conditional update,
+         so if someone pressed "Received" on it a moment ago, or another line
+         already paid it, this line does not pay it a second time */
+      /* SAVING A LINE TWICE NEVER MAKES TWO GIFTS. A save that failed half-way
+         (an error, or the process stopping) leaves the line `matched` with its
+         gift already made and receipted; pressing Save again would make a
+         second. So every gift carries the line it came from (Gift.bankLine,
+         unique), and a line whose gift exists is simply marked saved. */
+      const made = await Gift.findOne({ bankLine: line._id })
+      if (made) {
+        /* stopped before its receipt was issued: issue it now (once — the
+           number is never reissued, and an emailed one is not sent again) */
+        if (made.status === 'succeeded' && !made.receipt?.number) await issueReceipt(made, { email: canEmail })
+        line.status = 'confirmed'
+        line.gift = made._id
+        await imp.save()
+        continue
+      }
+      const pledge = m.pledge
+        ? await Gift.findOneAndUpdate(
+            { _id: m.pledge, donor: donor._id, status: 'pending' },
+            { $set: { status: 'succeeded', date: line.date, bankImport: imp._id, bankLine: line._id } },
+            { returnDocument: 'before' },
+          )
+        : null
+      if (m.pledge && !pledge) {
+        const p = await Gift.findById(m.pledge).select('status donor number')
+        if (p && String(p.donor) === String(donor._id)) {
+          /* paid (or cancelled) since this statement was matched: saving the
+             line too would count the same money twice, so a person decides */
+          line.status = 'review'
+          m.pledge = undefined
+          m.reasons = [`Pledge ${p.number} is no longer waiting for payment (it is ${p.status}); check this line is not the same money`, ...m.reasons]
+          await imp.save()
+          continue
+        }
+      }
       let giftDoc
-      if (pledge && pledge.status === 'pending' && String(pledge.donor) === String(donor._id)) {
+      if (pledge) {
         /* the pledge made on the website becomes the gift: one record, its
            reference kept, now paid */
         const oldAppeal = pledge.appeal
@@ -643,28 +714,44 @@ r.post('/imports/:id/confirm', async (req, res) => {
         )
         giftDoc = pledge
       } else {
-        giftDoc = await recordGift(
-          {
-            donor,
-            amount: line.amount,
-            designation: (m.designation as Designation) ?? 'general',
-            method: 'bank',
-            source: 'bank',
-            date: line.date,
-            reference: line.reference || findReference(line.description),
-            appealId: m.appeal ?? null,
-            bankImport: imp._id,
-            notes: `Bank statement: ${line.description}`,
-            sendReceipt: canEmail,
-          },
-          req,
-        )
+        try {
+          giftDoc = await recordGift(
+            {
+              donor,
+              amount: line.amount,
+              designation: (m.designation as Designation) ?? 'general',
+              method: 'bank',
+              source: 'bank',
+              date: line.date,
+              reference: line.reference || findReference(line.description),
+              appealId: m.appeal ?? null,
+              bankImport: imp._id,
+              bankLine: line._id,
+              notes: `Bank statement: ${line.description}`,
+              sendReceipt: canEmail,
+            },
+            req,
+          )
+        } catch (err) {
+          /* another save of this same line got there first (the unique index) */
+          if ((err as { code?: number }).code !== 11000) throw err
+          const other = await Gift.findOne({ bankLine: line._id }).select('_id')
+          if (!other) throw err
+          line.status = 'confirmed'
+          line.gift = other._id
+          await imp.save()
+          continue
+        }
       }
 
-      /* learn how this donor's bank writes their name, for next time */
-      /* two words at least: a lone "PERSON" or "SMITH" would claim strangers */
+      /* learn how this donor's bank writes their name, for next time — but
+         only from a reference, a pledge or a person's choice. A name match on
+         its own never teaches an alias, or one wrong guess would send every
+         later transfer from that account to the wrong person.
+         Two words at least: a lone "PERSON" or "SMITH" would claim strangers. */
       const alias = payerName(line.description)
-      if (alias.split(' ').length >= 2 && alias.replace(/ /g, '').length >= 4) await Donor.updateOne({ _id: donor._id }, { $addToSet: { bankAliases: alias } })
+      if (teachesAlias(m) && alias.split(' ').length >= 2 && alias.replace(/ /g, '').length >= 4)
+        await Donor.updateOne({ _id: donor._id }, { $addToSet: { bankAliases: alias } })
 
       line.status = 'confirmed'
       line.gift = giftDoc._id
@@ -700,9 +787,11 @@ r.post('/imports/:id/confirm', async (req, res) => {
         { type: 'bankImport', id: imp._id, label: imp.filename },
       )
     }
+    imp.set('confirmingUntil', undefined)
+    await imp.save()
     res.json({ saved, total, emailed, completed: imp.status === 'completed', gifts, import: await present(imp) })
   } finally {
-    confirming.delete(key)
+    await BankImport.updateOne({ _id: imp._id }, { $unset: { confirmingUntil: 1 } })
   }
 })
 
@@ -717,6 +806,9 @@ r.post('/imports/:id/confirm', async (req, res) => {
    being caught. Seeded by the date, so the same day gives the same file. */
 
 r.get('/sample', async (_req, res) => {
+  /* the file is built from real donor names in the database, which is fine
+     for a demo and not something to hand out from a live one */
+  if (env.isProd && !env.seedDemo) throw notFound('That page')
   let seed = Number(format(new Date(), 'yyyyMMdd'))
   const rand = () => {
     seed = (seed + 0x6d2b79f5) | 0

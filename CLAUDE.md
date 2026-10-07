@@ -1,5 +1,7 @@
 # CLAUDE.md
 
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
 Working notes for Claude on the Al-Anwaar website and donation platform. `README.md` is
 the long-form design log (why each page looks the way it does); this file covers what you
 need to work in the repo safely. Keep both up to date when something they say changes.
@@ -25,17 +27,30 @@ A charity site plus three portals, in one Vite app, backed by one Express API:
 
 ```
 npm run dev        # site on :5190 and API on :4600 together (vite proxies /api)
-npm run typecheck  # client (tsconfig.json) and server (server/tsconfig.json)
+npm run dev:web    # or either half alone (dev:api)
+npm run typecheck  # client, server and tests (tsconfig.json, server/, tests/)
 npm run build      # typecheck both, then vite build to dist/
 npm start          # the API; with NODE_ENV=production it also serves dist/
 node scripts/sweep.mjs [filter]      # screenshot every portal page, desktop and phone,
                                      # report console errors and sideways scroll
 node scripts/shot.mjs admin/donors --mobile [--as email | --donor email]
+npm test                             # unit + API tests (vitest; in-memory Mongo per file)
+npx vitest run tests/api/<file>      # one file
+npm run test:e2e                     # Playwright browser tests
+npx tsx server/jobs/run-once.ts [--force]            # run every background job once, now
+npx tsx server/scripts/migrate.ts [--again <name>]   # one-off data migrations
 ```
 
-There's no test suite. To verify a change, run `npm run typecheck`, then
-`node scripts/sweep.mjs` while `npm run dev` is running. It should report
-"74/74 clean". For flows, drive the page with Playwright.
+Shots land in `.data/shots` and `.data/sweep`. Write page paths without the leading
+slash (`admin/donors`), because Git Bash rewrites `/admin` into a Windows path.
+`shot.mjs` undoes that, but other scripts may not.
+
+To verify a change: `npm run typecheck`, `npm test`, then `node scripts/sweep.mjs`
+while `npm run dev` is running (it should report "74/74 clean"). API tests use
+`tests/helpers/server.ts` (`startApi()`, signed-in `Client`s). Tests run with the
+process in UTC, as on Render, so date code that leans on the machine's zone fails there.
+Set `STRICT_LIMITS=1` in a test that checks rate limits (otherwise they are 20× looser
+outside production).
 
 ## Machine-specific gotchas
 
@@ -44,8 +59,15 @@ There's no test suite. To verify a change, run `npm run typecheck`, then
 - **The connected Chrome can't reach localhost.** Use `scripts/shot.mjs` or
   Playwright for screenshots, not the browser extension.
 - **No local Mongo or Docker.** Development uses mongodb-memory-server, with files
-  in `.data/mongo`. It seeds invented data the first time; `SEED_RESET=1` wipes and
-  re-seeds.
+  in `.data/mongo`, on port 27031. It seeds invented data the first time; `SEED_RESET=1`
+  wipes and re-seeds. Only one process can open the embedded database, so
+  `run-once.ts` connects to the dev server's instance if it's already running (and then
+  needs `--force`, because the dev server holds the jobs lease).
+- **A `.env` may exist** with real keys. Don't read it or print it. Tests and child
+  processes must set every variable they care about explicitly (even to `''`), because
+  `server/env.ts` loads `.env` and fills in anything left unset.
+- **Bash heredocs lose backslashes here** (`\/` came out as `/`, `\u0000` as a NUL
+  byte). Use the Edit tool for anything with a regex or an escape in it.
 - With no `.env`, email goes to Admin → Email log (the outbox) and payments are
   simulated. A regular gift on a card ending 0002 is declined.
 
@@ -60,10 +82,12 @@ Donor: `amina.rahman@example.com`; in development the code is shown on screen.
   boundary.
 - **One road for a gift.** Every gift goes through `recordGift()` in
   `server/lib/giving.ts`: checkout, the recurring scheduler, bank matching and admin
-  entry alike. Don't write `Gift.create` anywhere else.
+  entry alike. Don't write `Gift.create` anywhere else. The one exception is the seed's
+  bulk `insertMany`.
 - **Permissions live in one table**, `shared/access.ts`. The server checks it on each
-  route, and the portals read it to decide what to draw. When you add a route, add a
-  permission check there and gate the UI the same way.
+  route (`requireStaff(...perms)` / `requireStaffAny` in `server/lib/auth.ts`), and the
+  portals read it to decide what to draw. When you add a route, add a permission check
+  there and gate the UI the same way.
 - **Audit every change.** Mutations call `audit(req, action, sentence, target)` from
   `server/lib/audit.ts`. The sentence is plain English for the compliance portal.
 - **CSRF:** every `/api` write needs the `X-Requested-With` header. `src/portal/api.ts`
@@ -72,14 +96,40 @@ Donor: `amina.rahman@example.com`; in development the code is shown on screen.
   both. `/api/me/*` routes never take a donor id from the request.
 - **Validation:** parse bodies with `parse(zodSchema, req.body)` from `server/lib/http.ts`.
   A failure returns `{ error: { message, fields } }`, and forms show `fields` inline.
-- **Public-site validation is shared.** `validateGift()` in `src/services/give.ts`
-  runs in the browser and, loaded by path, on the server.
+- **Public-site validation is shared.** `validateGift()` lives in `shared/giving.ts`,
+  which the server and the site both import. The server never imports from `src/`.
 - **Fundraisers** are read from `/api/public/fundraisers` through `useFundraisers()` /
   `useFundraiser()` (`src/services/fundraisers.ts`). New ones, from the site or the
   donor portal, start as `pending` and go public only after admin approval.
 - **The portals are lazy chunks** outside the public `Layout` (`src/App.tsx`).
-- **Background jobs** (`server/jobs/scheduler.ts`) run on `setInterval` inside the API
-  process. Only one process may run them.
+- **Background jobs** (`server/jobs/scheduler.ts`) run on timers inside the API process,
+  but only in the process holding the **jobs lease** (`server/models/JobLease.ts`), so a
+  deploy overlap or a second instance never charges or emails twice. Every job also
+  **claims each item** with a conditional update before acting on it (a plan, a notice,
+  a campaign batch, a reminder); keep that pattern in anything new. Loops check
+  `isStopping()` (`jobs/lifecycle.ts`) between items, so SIGTERM never lands mid-charge.
+  `RUN_JOBS=0` turns the timers off.
+- **Mongoose 9 rejects update pipelines** (`[{ $set: … }]`) unless you pass
+  `updatePipeline: true`.
+- **The server's clock is Sydney.** `server/env.ts` sets `process.env.TZ =
+  'Australia/Sydney'` before anything else, so local-time Date maths and date-fns on the
+  server follow the charity's calendar. Code in `shared/` also runs in browsers anywhere,
+  so it must not use local time: use `fyOf`, `fyRange`, `sydneyDay` and `sydneyMidnight`
+  from `shared/domain.ts`, and send date filters as `yyyy-mm-dd` strings.
+- **Secrets never reach the email log.** An email carrying a code or a token link sets
+  `logged` (the redacted copy the log stores) in `server/emails/templates.ts`. Keep codes
+  out of subjects. In development the unredacted message is printed to the API console
+  instead (that's where to find an invite or reset link), and so is it on a staging deploy
+  with no SMTP (`ALLOW_SIMULATED_PAYMENTS=1`). On those two, and never on a live deploy,
+  the donor sign-in screens also show the code (`showsCodesOnScreen()` in
+  `server/lib/email.ts`).
+- **User text stays out of email subjects and markup.** Campaign merge fields go in
+  after the markdown is rendered (`campaignEmail`). New templates must `esc()` names and
+  never put a donor's or fundraiser's words in a subject.
+- **Failures nobody is watching** (a job, a webhook 5xx, an email that couldn't go) go
+  through `alert()` in `server/lib/alert.ts`: one `[alert] kind: …` log line.
+- **One-off data changes** go in `server/migrations.ts` (each runs once, at start-up),
+  and are never edited after they ship.
 
 ## Design conventions
 
@@ -98,27 +148,68 @@ Donor: `amina.rahman@example.com`; in development the code is shown on screen.
 
 ## Configuration and deploying
 
-`.env.example` lists every variable. In production (`NODE_ENV=production`),
-`JWT_SECRET` and `MONGODB_URI` are required and the server refuses to start without
-them. `APP_URL` is used in emailed links.
+`.env.example` lists every variable. **Production (`NODE_ENV=production`) refuses to
+start** without `JWT_SECRET`, `APP_URL`, `MONGODB_URI`, `SMTP_HOST`, a live
+`STRIPE_SECRET_KEY` (`sk_live_`) and `STRIPE_WEBHOOK_SECRET` (the webhook is
+`POST /api/webhooks/stripe`). If PayPal keys are set, it also needs the live
+`PAYPAL_API` and `PAYPAL_WEBHOOK_ID` (the webhook is `POST /api/webhooks/paypal`; each
+event is verified with PayPal, then the order or capture is re-read from PayPal). A staging deploy sets `ALLOW_SIMULATED_PAYMENTS=1` to waive the payment
+and email checks. Simulated gifts are then marked and never get a real receipt, and
+with no SMTP an email is recorded as failed rather than "sent".
 
-Optional variables: SMTP (Amazon SES), `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET`
-(the webhook is `POST /api/webhooks/stripe`), the PayPal keys, and `S3_BUCKET` (without
-it, uploads go to `.data/uploads`, which is not durable on most hosts). Google and
-Facebook donor sign-in are also optional.
+Other variables:
+- `ORIGIN_SECRET`: when set (on Render and Vercel both), `/api` answers only requests
+  carrying it in `X-Origin-Auth`, which `middleware.ts` (Vercel Routing Middleware)
+  adds. The health checks and the Stripe webhook are exempt. `API_ORIGIN` on Vercel
+  gives the middleware the API's address.
+- `REQUIRE_STAFF_MFA`: `1` or `0`. Unset means on in production and off elsewhere.
+  When it's on, owner, admin and finance staff must set up an authenticator app (TOTP).
+- `MFA_KEY`: the key two-step sign-in secrets and recovery codes are sealed with. Without
+  it they use `JWT_SECRET`, so rotating that would break every enrolment. **Set it before
+  go-live.** Setting it later is safe: secrets sealed under `JWT_SECRET` still open.
+- A sole owner locked out of two-step sign-in (no phone, no recovery codes):
+  `npx tsx server/scripts/reset-staff-mfa.ts <email>` in the API's shell. Otherwise an owner
+  resets a colleague's from Staff and access, which also clears their password and emails
+  them a reset link.
+- `RUN_JOBS=0`: no background jobs in this process.
+- `S3_BUCKET`: without it, uploads go to `.data/uploads`, which is not durable on most
+  hosts. Google and Facebook donor sign-in are optional.
+- `TZ` is pinned to Australia/Sydney by the server itself; `render.yaml` sets it too.
+
+Health: `/api/health` returns 503 when MongoDB doesn't answer a ping (and Render
+restarts the instance), and reports each job's last success. `/api/live` only says the
+process is up. Retention (`server/jobs/retention.ts`, daily) strips email bodies after
+90 days and deletes enquiries closed more than two years ago. The privacy page promises
+exactly that, so change them together.
 
 **Hosting (25 September 2026):**
 - **API on Render**, set up in `render.yaml` as the service `al-anwaar-api` on the
-  Starter plan, with a 1 GB disk at `/var/data` set as `DATA_DIR`.
-- **Site on Vercel**, set up in `vercel.json`, which rewrites `/api/*` to
-  `https://al-anwaar-api.onrender.com`. If the Render service gets a different URL,
-  change it there too.
+  Starter plan, with a 1 GB disk at `/var/data` set as `DATA_DIR`. The build runs
+  `npm run typecheck`, so a type error stops the deploy.
+- **Site on Vercel**, set up in `vercel.json` (security headers, SPA fallback) and
+  `middleware.ts` (forwards `/api/*` with the origin secret). Both forward to
+  `https://al-anwaar.onrender.com`; `vercel.json`'s rewrite is the fallback.
+- **UNCONFIRMED (finding H7):** `render.yaml` names the service `al-anwaar-api`, but
+  the forwarding goes to `al-anwaar.onrender.com`. Someone with the Render dashboard
+  must confirm which is live and make `render.yaml`, `vercel.json` and `middleware.ts`
+  agree (a unit test checks the last two). Syncing the Blueprint under the wrong name
+  creates a second service.
+- `npm start` runs the server through `tsx`, which is a dev dependency, so the
+  production install has to keep dev dependencies (`npm ci --include=dev`).
+- Security headers (CSP, frame denial, HSTS) are in `vercel.json` and
+  `server/security-headers.ts`, and a test keeps them identical. A new third party (a
+  script, a font, an embed) has to be added to both, and to the privacy page.
 
 Because of the rewrite, the browser sees a single origin, so the `lax` session cookies
-work without CORS. `TRUST_PROXY=2` accounts for both proxies. `.vercelignore` keeps
-`api/` and `server/` out of the Vercel upload. `SEED_DEMO=1` seeds the demo data into
-an empty production database for staging. Turn it off before real donors arrive.
+work without CORS. `TRUST_PROXY=2` accounts for both proxies, and recorded IPs use
+`req.ip`. `.vercelignore` keeps
+`server/` out of the Vercel upload. Don't add a top-level `api/` folder: Vercel would
+turn it into serverless functions that take over the `/api` paths from the rewrite. `SEED_DEMO=1` seeds the demo data into
+an empty production database for staging. Production accepts it only alongside
+`ALLOW_SIMULATED_PAYMENTS=1`, and with it off refuses to start while any staff login still
+uses the demo password (`demoLoginsLeft()` in `server/seed/seed.ts`), so going live means a
+fresh database. New staff passwords are checked against Have I Been Pwned in production
+(`server/lib/breached.ts`, `PWNED_CHECK`); a failed lookup accepts the password.
 
 The production shape is **one Node process** that serves `/api` and the built `dist/`.
 It needs a persistent process because of the timers, and a real MongoDB (Atlas).
-The handlers in `api/` predate the server and are superseded by it.

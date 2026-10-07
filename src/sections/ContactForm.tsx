@@ -99,9 +99,9 @@ import {
    `peer-focus-visible` on it is for.
 
    ── Validation ──────────────────────────────────────────────────────────
-   The rules live in services/contact.ts, not here, because api/contact.ts has
-   to apply exactly the same ones — validation that only runs in the browser is
-   not validation. This file decides only WHEN to run them: on blur once a field
+   The rules live in services/contact.ts, not here, because the server
+   (zEnquiry in server/routes/public.ts) has to apply the same ones — validation
+   that only runs in the browser is not validation. This file decides only WHEN to run them: on blur once a field
    has been left, and on submit. Never on the first keystroke. Being told an
    address is wrong while you are still on the third character of it is the
    worst version of this.

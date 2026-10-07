@@ -1,6 +1,6 @@
 import type { Request } from 'express'
 import type { Types } from 'mongoose'
-import { PRE_CHARGE_NOTICE_DAYS, RETRY_SCHEDULE_DAYS, type Designation, type Frequency } from '../../shared/domain'
+import { PRE_CHARGE_NOTICE_DAYS, RETRY_SCHEDULE_DAYS, sydneyDay, type Designation, type Frequency } from '../../shared/domain'
 import { formatMoney } from '../../shared/money'
 import { preChargeEmail } from '../emails/templates'
 import { audit, auditSystem } from '../lib/audit'
@@ -9,6 +9,7 @@ import { advance } from '../lib/giving'
 import { chargePlan } from '../lib/plans'
 import { refreshDonor } from '../lib/stats'
 import { Donor, Plan, nextPlanNumber, type DonorDoc, type GiftDoc, type PlanDoc } from '../models'
+import { isStopping } from './lifecycle'
 
 /* ---------------------------------------------------------------------------
    The recurring-gift engine: what the scheduler runs every few minutes.
@@ -32,6 +33,14 @@ import { Donor, Plan, nextPlanNumber, type DonorDoc, type GiftDoc, type PlanDoc 
    deleted by hand, a card the provider chokes on) never stops the rest of
    the run.
 
+   SAFE WITH MORE THAN ONE RUNNER. The scheduler holds a lease so only one
+   process runs this at a time (scheduler.ts), but a click in the portal can
+   still land in the middle of a run. So every change here is conditional on
+   the state it was decided from: a pause is ended only if the plan is still
+   paused, a notice is claimed before it is sent, and chargePlan() claims the
+   plan before it takes a payment (lib/plans.ts). Between plans the run checks
+   whether the process is shutting down, and stops there rather than mid-charge.
+
    startPlan() is the other half: how a regular gift begins, from the website
    (simulated checkout) or from the Stripe webhook once the first payment has
    landed. It lives here because it is the engine's front door.
@@ -54,15 +63,19 @@ export async function processDuePlans(now = new Date()): Promise<RunSummary> {
   /* 1. paused plans whose pause has run out */
   const waking = await Plan.find({ status: 'paused', pausedUntil: { $lte: now } })
   for (const plan of waking) {
+    if (isStopping()) return summary
     try {
-      plan.status = 'active'
-      plan.pausedUntil = undefined
-      plan.nextChargeAt = nextFuture(plan.nextChargeAt ?? now, plan.frequency as Frequency, anchorOf(plan), now)
-      await plan.save()
+      const next = nextFuture(plan.nextChargeAt ?? now, plan.frequency as Frequency, anchorOf(plan), now)
+      const woke = await Plan.updateOne(
+        { _id: plan._id, status: 'paused', pausedUntil: plan.pausedUntil },
+        { $set: { status: 'active', nextChargeAt: next }, $unset: { pausedUntil: 1 } },
+      )
+      if (!woke.modifiedCount) continue
+      plan.nextChargeAt = next
       summary.resumed++
       await auditSystem(
         'plan.resume',
-        `Resumed ${plan.number} for ${plan.donorName} after its pause ended; next payment ${plan.nextChargeAt.toISOString().slice(0, 10)}`,
+        `Resumed ${plan.number} for ${plan.donorName} after its pause ended; next payment ${sydneyDay(plan.nextChargeAt)}`,
         { type: 'plan', id: plan._id, label: plan.number },
       )
     } catch (err) {
@@ -84,16 +97,23 @@ export async function processDuePlans(now = new Date()): Promise<RunSummary> {
   }).sort({ nextChargeAt: 1 })
 
   for (const plan of due) {
+    if (isStopping()) return summary
     try {
       const r = await chargePlan(plan)
       if (r.ok) {
         summary.charged++
-        /* no catching up — see the note at the top */
-        if (plan.status === 'active' && plan.nextChargeAt && plan.nextChargeAt <= now) {
-          plan.nextChargeAt = nextFuture(plan.nextChargeAt, plan.frequency as Frequency, anchorOf(plan), now)
-          await plan.save()
+        /* no catching up — see the note at the top. Read back what the charge
+           left, and move the date only if nobody has moved it since. */
+        const fresh = await Plan.findById(plan._id).select('status nextChargeAt frequency startDate')
+        if (fresh && fresh.status === 'active' && fresh.nextChargeAt && fresh.nextChargeAt <= now) {
+          await Plan.updateOne(
+            { _id: fresh._id, status: 'active', nextChargeAt: fresh.nextChargeAt },
+            { $set: { nextChargeAt: nextFuture(fresh.nextChargeAt, fresh.frequency as Frequency, anchorOf(fresh), now) } },
+          )
         }
-      } else {
+      } else if (!(r as { busy?: boolean }).busy) {
+        /* "busy" is not a decline: something else charged or claimed this plan
+           since the list was read (a card update, a retry, another runner) */
         summary.failed++
       }
     } catch (err) {
@@ -111,7 +131,15 @@ export async function sendPreChargeNotices(now = new Date()): Promise<number> {
   const plans = await Plan.find({ status: 'active', nextChargeAt: { $gt: now, $lte: horizon } })
   let sent = 0
   for (const plan of plans) {
-    if (plan.noticeSentFor && plan.nextChargeAt && plan.noticeSentFor.getTime() === plan.nextChargeAt.getTime()) continue
+    if (isStopping()) break
+    if (!plan.nextChargeAt) continue
+    if (plan.noticeSentFor && plan.noticeSentFor.getTime() === plan.nextChargeAt.getTime()) continue
+    /* claim this date's notice before sending it, so two runners can't both send it */
+    const claimed = await Plan.updateOne(
+      { _id: plan._id, status: 'active', nextChargeAt: plan.nextChargeAt, noticeSentFor: { $ne: plan.nextChargeAt } },
+      { $set: { noticeSentFor: plan.nextChargeAt } },
+    )
+    if (!claimed.modifiedCount) continue
     try {
       const donor = await Donor.findById(plan.donor)
       if (!donor) continue
@@ -131,10 +159,10 @@ export async function sendPreChargeNotices(now = new Date()): Promise<number> {
         ),
         { donor: donor._id },
       )
-      plan.noticeSentFor = plan.nextChargeAt
-      await plan.save()
       sent++
     } catch (err) {
+      /* give the claim back, so the next run tries again */
+      await Plan.updateOne({ _id: plan._id, noticeSentFor: plan.nextChargeAt }, { $unset: { noticeSentFor: 1 } })
       console.error('[jobs] could not send notice for', plan.number, err)
     }
   }
@@ -193,6 +221,9 @@ export async function startPlan(
     failure: { count: 0 },
     payment: p.payment,
     collected: p.firstGift ? p.amount : 0,
+    /* set in the same write that creates the plan, so the unique index on
+       Plan.firstGift refuses a second plan for one payment outright */
+    firstGift: p.firstGift?._id,
   })
   if (p.firstGift) {
     p.firstGift.plan = plan._id

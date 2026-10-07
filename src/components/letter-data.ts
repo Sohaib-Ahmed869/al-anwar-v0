@@ -20,7 +20,7 @@
    its own. What was in the small print has not been lost — the footer's own
    bottom row links the privacy policy two rows below this, and the unsubscribe
    link in every letter is required by the Spam Act whether or not a page
-   promises one. See api/letter.ts.
+   promises one. See server/emails/layout.ts, which draws it.
 --------------------------------------------------------------------------- */
 
 export const LETTER = {
@@ -41,9 +41,15 @@ export const LETTER = {
     failed: 'Sorry, that did not go through. Try again, or email us.',
   },
 
+  /* Since 7 October 2026 joining takes two steps (double opt-in, finding
+     M10): the form only sends a link, and the address is added when its owner
+     clicks it. So the footer says "check your inbox", never "you are on the
+     list" — that would be the small broken promise this block exists to
+     avoid. The server answers the same way for every address, so this says
+     the same thing to everyone. */
   joined: {
-    title: 'You are on the list.',
-    body: 'The next letter goes out at the start of the month.',
+    title: 'Check your inbox.',
+    body: 'We have sent a link to that address. Click it and the letter is yours, from the start of next month. Nothing is sent until you do.',
     /* The mailto hand-off is not a subscription, and it must never be dressed
        as one. See the note on ENDPOINT in services/letter.ts. */
     handedOff: 'Over to your email app.',
@@ -51,4 +57,15 @@ export const LETTER = {
       'A one-line message is written out and ready to send from your own email. Send it and we will add you by hand. If nothing opened, write to us at',
     again: 'Use a different address',
   },
+} as const
+
+/** The page the confirmation link opens (/letter/confirm). */
+export const LETTER_CONFIRM = {
+  eyebrow: 'The letter',
+  title: 'Confirm your email',
+  body: 'One click and the monthly letter starts coming to you: once a month, what your giving did.',
+  button: 'Yes, send me the letter',
+  done: { title: 'You are on the list.', body: 'The next letter goes out at the start of the month. You can stop it at any time from the link at the foot of every letter.' },
+  failed: 'That link has expired or has already been used. You can sign up again from the bottom of any page.',
+  missing: 'This page needs the link from your email. Open the email we sent and click the button in it.',
 } as const

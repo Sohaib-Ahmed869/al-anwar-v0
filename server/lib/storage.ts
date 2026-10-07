@@ -1,4 +1,4 @@
-import { mkdir, readFile, writeFile } from 'node:fs/promises'
+import { mkdir, readFile, unlink, writeFile } from 'node:fs/promises'
 import { join, resolve, extname } from 'node:path'
 import { randomBytes } from 'node:crypto'
 import { env } from '../env'
@@ -39,12 +39,27 @@ export async function putFile(key: string, body: Buffer, mime: string) {
   await writeFile(path, body)
 }
 
+const KEY = /^[\w-]+\/[\w.-]+$/
+
 export async function getFile(key: string): Promise<Buffer> {
-  if (!/^[\w-]+\/[\w.-]+$/.test(key)) throw new Error('bad key')
+  if (!KEY.test(key)) throw new Error('bad key')
   if (env.s3) {
     const { mod, client } = await s3()
     const r = await client.send(new mod.GetObjectCommand({ Bucket: env.s3.bucket, Key: key }))
     return Buffer.from(await r.Body!.transformToByteArray())
   }
   return readFile(join(localRoot(), key))
+}
+
+/** Remove a stored file. One that is already gone is not an error. */
+export async function deleteFile(key: string): Promise<void> {
+  if (!KEY.test(key)) throw new Error('bad key')
+  if (env.s3) {
+    const { mod, client } = await s3()
+    await client.send(new mod.DeleteObjectCommand({ Bucket: env.s3.bucket, Key: key }))
+    return
+  }
+  await unlink(join(localRoot(), key)).catch((err: NodeJS.ErrnoException) => {
+    if (err.code !== 'ENOENT') throw err
+  })
 }

@@ -7,7 +7,8 @@ import { AuditEvent, Donor, Gift, Plan, type PlanDoc } from '../../models'
 import { audit } from '../../lib/audit'
 import { requireStaff } from '../../lib/auth'
 import { sendEmail } from '../../lib/email'
-import { badRequest, isId, notFound, oid, out, paging, parse, searchRegex, sorting } from '../../lib/http'
+import { badRequest, HttpError, isId, notFound, oid, out, paging, parse, searchRegex, sorting } from '../../lib/http'
+import { limiter } from '../../lib/ratelimit'
 import { advance } from '../../lib/giving'
 import { chargePlan } from '../../lib/plans'
 import { refreshDonor } from '../../lib/stats'
@@ -152,18 +153,39 @@ const onBehalf = (p: PlanDoc) => `on behalf of ${p.donorName}`
 const log = (req: Request, p: PlanDoc, verb: string, summary: string) =>
   audit(req, `plan.${verb}`, summary, { type: 'plan', id: p._id, label: p.number })
 
-/* ---------- take the payment now ---------- */
-r.post('/:id/retry', async (req, res) => {
-  const plan = await load(req.params.id)
+/* ---------- take the payment now ----------
+   For a failing plan, any time: that is what "Retry now" is for. An active
+   plan only once its payment is due, so a second click (or a stale tab) can
+   never take next month's payment early. chargePlan() itself refuses to run
+   twice at once (finding M7), and each plan has its own limit on tries, so a
+   card is never hammered (finding L11). */
+const retryLimit = limiter({
+  name: 'admin-plan-retry',
+  windowMs: 10 * 60_000,
+  limit: 5,
+  keyGenerator: (req) => `plan:${String(req.params.id)}`,
+  message: 'This payment has been tried several times in the last few minutes. Wait a little before trying again.',
+})
+
+r.post('/:id/retry', retryLimit, async (req, res) => {
+  const plan = await load(String(req.params.id))
   if (!['past_due', 'active'].includes(plan.status)) throw badRequest('Only an active or failing regular donation can be charged.')
-  const result = await chargePlan(plan, req)
+  if (plan.status === 'active' && plan.nextChargeAt && plan.nextChargeAt.getTime() > Date.now()) {
+    throw badRequest(`The next payment is not due until ${fmtDay(plan.nextChargeAt)}, so there is nothing to take yet.`)
+  }
+  /* a failing plan may be tried before its retry date; an active one only
+     when due, which the check above and chargePlan's own claim both enforce */
+  const result = await chargePlan(plan, req, { retryNow: true })
+  if (!result.ok && result.busy) throw new HttpError(409, result.error)
   await log(
     req,
     plan,
     'retry',
-    `Retried the ${formatMoney(plan.amount)} payment on ${plan.number} ${onBehalf(plan)}: ${result.ok ? 'it went through' : `declined (${result.error})`}`,
+    `Retried the ${formatMoney(plan.amount)} payment on ${plan.number} ${onBehalf(plan)}: ${
+      result.ok ? 'it went through' : result.pending ? `no answer yet (${result.error})` : `declined (${result.error})`
+    }`,
   )
-  const fresh = await load(req.params.id)
+  const fresh = await load(String(req.params.id))
   res.json({ ok: result.ok, error: result.ok ? undefined : result.error, final: result.ok ? false : result.final, plan: view(fresh) })
 })
 

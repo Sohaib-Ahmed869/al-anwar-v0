@@ -5,7 +5,7 @@ import GiveFaq from '../sections/GiveFaq'
 /* ---------------------------------------------------------------------------
    Give, in three parts. Like every other page, this file is a table of contents
    and nothing else. Copy and figures are in components/give-data.ts; how a
-   gift is checked and paid is in services/give.ts and api/checkout.ts.
+   gift is checked and paid is in services/give.ts and server/routes/public.ts.
 
    1. Give with purpose .......... GiveHero    one screen: the film, an ayah,
                                                and one button down to the form

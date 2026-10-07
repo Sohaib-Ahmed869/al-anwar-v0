@@ -204,3 +204,30 @@ export const SENT = {
   browse: 'See other fundraisers',
   sending: 'Sending…',
 }
+
+/* When the organiser was not signed in, the page waits for them to confirm
+   their email address before anyone here reads it (finding M10): the form
+   ends on this instead of SENT, and the emailed link lands on CONFIRM below. */
+export const SENT_CHECK_EMAIL = {
+  eyebrow: 'One more step',
+  title: 'Check your email',
+  body: 'We have sent you a link to confirm it is your email address. Once you press it, your fundraiser goes to our team, who read every page before it goes public.',
+  manage: 'The link works for 48 hours. If nothing arrives, check your spam folder, or sign in to your account with the same email and send it for approval from there.',
+}
+
+export const CONFIRM = {
+  eyebrow: 'Your fundraiser',
+  title: 'Confirm your fundraiser',
+  body: 'Press the button to confirm this is your email address. Your fundraiser then goes to our team for approval.',
+  button: 'Confirm my fundraiser',
+  missing: 'This link is missing its code. Open it again from the email we sent you.',
+  failed: 'That did not work. Please try again in a minute.',
+  done: {
+    title: 'Thank you, it is with us',
+    body: 'Your fundraiser is on its way to our team. We will email you the moment it is live, with the link to share.',
+  },
+  already: {
+    title: 'Already confirmed',
+    body: 'This fundraiser has already been sent to our team. We will email you when it is live.',
+  },
+}

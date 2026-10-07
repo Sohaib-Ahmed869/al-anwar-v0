@@ -17,8 +17,11 @@ import { giftStatus, type GiftStatus } from '../services/give'
      3. One more thing — see it in your account, or give again
 
    IT SHOWS WHAT THE SERVER KNOWS, NOT WHAT THE FORM HOPED
-   Stripe and PayPal send the donor here with ?gift=<id>, and the page asks
-   /api/public/gifts/<id>/status what actually happened. A donor can reach this
+   Stripe and PayPal send the donor here with ?gift=<id>&t=<token>, and the
+   page asks /api/public/gifts/<id>/status?t=<token> what actually happened.
+   The token is the gift's own random key (since 7 October 2026, finding L5):
+   the id alone could be guessed from a neighbouring one, so without the token
+   the server says "not found". A donor can reach this
    URL without paying — the back button, a copied link, a card declined on the
    provider's page — so the page never assumes: the tick appears only for a
    gift the server has as paid.
@@ -28,9 +31,12 @@ import { giftStatus, type GiftStatus } from '../services/give'
                          about half a minute before saying it is still waiting
      pending, transfer   no tick: one step left, with the account and the
                          reference to pay to
+     pending, held       PayPal took it and is holding it for review: no
+                         polling, and a plain "it will arrive" (finding M6)
      failed              nothing was taken, and the way back to /give
    A gift made while payments are SIMULATED (no Stripe keys on the platform)
-   says so in plain words under the tick, so a demo is never mistaken for money.
+   says so in plain words under the tick, and its receipt is called a test
+   receipt, so a demo is never mistaken for money or for a tax receipt.
    With no ?gift at all the page thanks the reader without claiming anything.
 --------------------------------------------------------------------------- */
 
@@ -39,17 +45,18 @@ type State = { kind: 'none' } | { kind: 'loading' } | { kind: 'missing' } | { ki
 const POLL_MS = 2000
 const POLL_TRIES = 15
 
-function useGift(id: string | null): State {
-  const [state, setState] = useState<State>(id ? { kind: 'loading' } : { kind: 'none' })
+function useGift(id: string | null, token: string | null): State {
+  const [state, setState] = useState<State>(id ? (token ? { kind: 'loading' } : { kind: 'missing' }) : { kind: 'none' })
   useEffect(() => {
-    if (!id) return
+    if (!id || !token) return
     let alive = true
     let timer: ReturnType<typeof setTimeout> | undefined
     const ask = async (n: number) => {
-      const gift = await giftStatus(id)
+      const gift = await giftStatus(id, token)
       if (!alive) return
       if (!gift) return setState({ kind: 'missing' })
-      const confirming = gift.status === 'pending' && gift.method !== 'bank'
+      /* a capture PayPal is holding settles in hours or days, not seconds */
+      const confirming = gift.status === 'pending' && gift.method !== 'bank' && !gift.held
       setState({ kind: 'ready', gift, waiting: confirming && n < POLL_TRIES })
       if (confirming && n < POLL_TRIES) timer = setTimeout(() => ask(n + 1), POLL_MS)
     }
@@ -58,7 +65,7 @@ function useGift(id: string | null): State {
       alive = false
       clearTimeout(timer)
     }
-  }, [id])
+  }, [id, token])
   return state
 }
 
@@ -67,7 +74,7 @@ const day = (iso: string) =>
 
 export default function ThankYou() {
   const [params] = useSearchParams()
-  const state = useGift(params.get('gift'))
+  const state = useGift(params.get('gift'), params.get('t'))
 
   return (
     <div className="gutter mx-auto max-w-page py-s5 sm:py-s6">
@@ -106,7 +113,8 @@ function Gift({ gift: g, waiting }: { gift: GiftStatus; waiting: boolean }) {
         {g.simulated && (
           <Note tone="amber" title="This was a simulated payment">
             Online payments are not connected to a card processor yet, so no card was charged and no money moved.
-            The donation, the receipt and the email are real records, made to show how giving will work.
+            The donation is recorded to show how giving will work, and its receipt is marked as a test: it is not a
+            tax receipt.
           </Note>
         )}
 
@@ -123,9 +131,11 @@ function Gift({ gift: g, waiting }: { gift: GiftStatus; waiting: boolean }) {
           />
           <p className="mt-s2 flex items-start gap-2 text-[14px] leading-relaxed text-text-2">
             <Mail className="mt-[3px] h-4 w-4 shrink-0 text-teal" />
-            {g.receiptEmailed
-              ? 'Your tax receipt is in your inbox now. Keep it for your return — donations of $2 or more are tax deductible.'
-              : 'Your tax receipt is on its way to your inbox.'}
+            {g.simulated
+              ? 'A test receipt is on its way to your inbox. It is not a tax receipt.'
+              : g.receiptEmailed
+                ? 'Your tax receipt is in your inbox now. Keep it for your return — donations of $2 or more are tax deductible.'
+                : 'Your tax receipt is on its way to your inbox.'}
           </p>
           {regular && g.nextChargeAt && (
             <p className="mt-s1 text-[14px] leading-relaxed text-text-2">
@@ -177,6 +187,19 @@ function Gift({ gift: g, waiting }: { gift: GiftStatus; waiting: boolean }) {
     )
   }
 
+  if (g.status === 'pending' && g.held) {
+    return (
+      <>
+        <Head eyebrow="Being processed" title="PayPal is processing your payment">
+          PayPal has your <span className="nums font-semibold text-text">{formatMoney(total)}</span> and is holding it for
+          a routine check before it reaches us. There is nothing more to do and no need to give again: your receipt
+          will arrive by email as soon as PayPal releases it, usually within a day or two.
+        </Head>
+        <Next />
+      </>
+    )
+  }
+
   if (g.status === 'pending') {
     return (
       <>
@@ -198,7 +221,7 @@ function Gift({ gift: g, waiting }: { gift: GiftStatus; waiting: boolean }) {
   return (
     <>
       <Head eyebrow="Not taken" title="The payment did not go through">
-        Nothing has been charged. {g.failureReason ? `The payment service said: “${g.failureReason}”` : ''}
+        {g.failureReason ?? 'Nothing has been charged.'}
       </Head>
       <div className="mt-s4 flex flex-wrap gap-s2">
         <Link

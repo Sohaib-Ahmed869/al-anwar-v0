@@ -36,10 +36,19 @@ import { ORG, LEGAL_UPDATED } from '../components/org-data'
    Adding analytics, a pixel, a chat widget or a video embed is a change to
    this page before it is a change to the site.
 
+   UPDATED 7 OCTOBER 2026 (security review, finding M18). "Where it lives"
+   now names every company that holds donor data for us and where — APP 8
+   asks for that — and "for how long" promises only what the platform does:
+   jobs/retention.ts deletes closed enquiries after two years and strips email
+   bodies after 90 days; gift records are kept, not deleted, after seven
+   years, until the charity decides how to anonymise them. "Cookies" now
+   admits the sign-in cookie the donor portal sets. Change this page and that
+   job together.
+
    TODO before launch:
      - have a solicitor read this against the systems we actually run;
-     - name the email provider and the host in clause 7 once they are chosen
-       (api/contact.ts and api/letter.ts have none yet);
+     - confirm the MongoDB Atlas and Amazon SES regions and name them in
+       "Where it lives" (the Render region is in render.yaml: Singapore);
      - consider self-hosting the fonts, which would take Google out of clause 6;
      - set LEGAL_UPDATED in components/org-data.ts to the sign-off date.
 --------------------------------------------------------------------------- */
@@ -165,8 +174,10 @@ const SECTIONS: LegalSection[] = [
     body: (
       <>
         <p>
-          This site sets <strong>no cookies</strong> of its own, and runs no analytics, advertising
-          pixels or trackers.
+          This site runs no analytics, advertising pixels or trackers. The only cookie it sets is
+          the one that keeps you <strong>signed in</strong> to your donor account, if you sign in;
+          it is removed when you sign out. (Staff signing in to run the charity get one of their
+          own.)
         </p>
         <p>
           It keeps one small note in your browser&rsquo;s own storage: if you close the emergency
@@ -223,8 +234,9 @@ const SECTIONS: LegalSection[] = [
           </li>
           <li>
             <strong>Suppliers doing one job for us.</strong> Stripe and PayPal for payments, the
-            company that hosts this website, our email provider, our accountant and our auditor.
-            Each may use your details for that job and nothing else.
+            companies that host this website and its database (named below), our email provider,
+            our accountant and our auditor. Each may use your details for that job and nothing
+            else.
           </li>
           <li>
             <strong>Regulators, where the law requires it.</strong> The ACNC, the ATO, or a court
@@ -249,28 +261,51 @@ const SECTIONS: LegalSection[] = [
     body: (
       <>
         <p>
-          Some of the services above store data outside Australia, mainly in the United States and
-          the European Union. Stripe, PayPal, Google and Meta all do. Before we use a supplier we
-          check it protects your information to a standard comparable to the Australian Privacy
-          Principles, which is what APP 8 asks of us.
+          Your details are held for us by these companies, some of them outside Australia:
         </p>
         <ul>
           <li>
-            <strong>Donation and receipt records:</strong> seven years, because tax and charity law
-            says seven years.
+            <strong>Render</strong> runs the system behind this site — your account, your gifts and
+            receipts — on servers in <strong>Singapore</strong>.
           </li>
           <li>
-            <strong>Messages to us:</strong> two years after the conversation ends.
+            <strong>MongoDB Atlas</strong> stores that system&rsquo;s database.
           </li>
           <li>
-            <strong>The letter and fund news:</strong> until you unsubscribe, then removed at the
-            next clean-up.
+            <strong>Vercel</strong> serves the website&rsquo;s pages, from servers around the world,
+            and passes what you send on to Render.
+          </li>
+          <li>
+            <strong>Amazon Web Services</strong> sends our emails (Amazon SES) and may store files
+            uploaded to us, such as a fundraiser photo.
+          </li>
+          <li>
+            <strong>Stripe, PayPal, Google and Meta</strong>, for the parts of the site described
+            above, mainly in the United States and the European Union.
           </li>
         </ul>
         <p>
-          After that it is deleted, or stripped of everything that identifies you and kept only as a
-          number inside a total.
+          Before we use a supplier we check it protects your information to a standard comparable
+          to the Australian Privacy Principles, which is what APP 8 asks of us.
         </p>
+        <ul>
+          <li>
+            <strong>Donation and receipt records:</strong> at least seven years, because tax and
+            charity law says seven years. We do not delete them automatically after that yet; if
+            you would like yours removed once the seven years are up, ask us.
+          </li>
+          <li>
+            <strong>Messages to us:</strong> deleted two years after the conversation is closed.
+          </li>
+          <li>
+            <strong>Copies of emails we send you:</strong> the full email for 90 days, then only a
+            note of when it was sent and whether it arrived.
+          </li>
+          <li>
+            <strong>The letter and fund news:</strong> until you unsubscribe. After that we keep
+            only the note that you did, so you are never emailed again by mistake.
+          </li>
+        </ul>
       </>
     ),
   },

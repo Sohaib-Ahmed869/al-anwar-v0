@@ -69,11 +69,15 @@ export async function segmentFilter(segment: Segment): Promise<DonorFilter> {
   return { $and: and } as DonorFilter
 }
 
-/** Copy the matching donor ids into the campaign's queue and mark it sending. */
-export async function startSending(campaignId: Types.ObjectId | string, segment: Segment) {
+/** Copy the matching donor ids into the campaign's queue and mark it sending.
+ *  Returns null when the campaign was already sending or sent: the update only
+ *  matches a draft or scheduled campaign, so two callers at once (the
+ *  scheduler on two processes, or a click on "Send now" as the scheduled time
+ *  arrives) can never both start it and reset each other's queue. */
+export async function startSending(campaignId: Types.ObjectId | string, segment: Segment): Promise<number | null> {
   const ids = (await Donor.find(await segmentFilter(segment)).select('_id').lean()).map((d) => d._id)
-  await Campaign.updateOne(
-    { _id: campaignId },
+  const claimed = await Campaign.updateOne(
+    { _id: campaignId, status: { $in: ['draft', 'scheduled'] } },
     {
       $set: {
         queue: ids,
@@ -84,5 +88,5 @@ export async function startSending(campaignId: Types.ObjectId | string, segment:
       },
     },
   )
-  return ids.length
+  return claimed.modifiedCount ? ids.length : null
 }

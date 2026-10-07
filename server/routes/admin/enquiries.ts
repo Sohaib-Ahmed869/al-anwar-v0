@@ -9,7 +9,7 @@ import { requireStaff } from '../../lib/auth'
 import { sendEmail } from '../../lib/email'
 import { findOrCreateDonor, fullName } from '../../lib/giving'
 import { badRequest, notFound, out, paging, parse, searchRegex, zId } from '../../lib/http'
-import { donorSummary } from './gifts'
+import { donorFor } from './gifts'
 
 /* ---------------------------------------------------------------------------
    /api/admin/enquiries — the inbox for everything the website's forms send:
@@ -95,16 +95,19 @@ async function load(id: string) {
   return e
 }
 
-async function detail(e: EnquiryDoc) {
+/* The linked donor, or the one whose address matches, as this person may see
+   them: a volunteer handles enquiries but has no donors.read, so they get who
+   it is without the record's phone or giving (donorFor, in gifts.ts). */
+async function detail(req: Request, e: EnquiryDoc) {
   const donor = e.donor ? await Donor.findById(e.donor).lean() : null
   const suggestion = !donor
     ? await Donor.findOne({ $or: [{ email: e.email }, { altEmails: e.email }], status: 'active' }).lean()
     : null
-  return { enquiry: out(e.toObject()), donor: donorSummary(donor), suggestion: donorSummary(suggestion) }
+  return { enquiry: out(e.toObject()), donor: donorFor(req, donor), suggestion: donorFor(req, suggestion) }
 }
 
 r.get('/:id', async (req, res) => {
-  res.json(await detail(await load(req.params.id)))
+  res.json(await detail(req, await load(req.params.id)))
 })
 
 const label = (e: EnquiryDoc) => `${ENQUIRY_TYPES[e.type as keyof typeof ENQUIRY_TYPES].label.toLowerCase()} from ${e.name}`
@@ -143,11 +146,11 @@ r.patch('/:id', async (req, res) => {
       lines.push('Unassigned')
     }
   }
-  if (!lines.length) return void res.json(await detail(e))
+  if (!lines.length) return void res.json(await detail(req, e))
   addNote(e, req, 'status', lines.join(' · '))
   await e.save()
   await log(req, e, 'update', `${lines.join('; ')} — ${label(e)}`)
-  res.json(await detail(e))
+  res.json(await detail(req, e))
 })
 
 /* ---------- internal note ---------- */
@@ -157,7 +160,7 @@ r.post('/:id/notes', async (req, res) => {
   addNote(e, req, 'note', body)
   await e.save()
   await log(req, e, 'note', `Added a note to the ${label(e)}`)
-  res.status(201).json(await detail(e))
+  res.status(201).json(await detail(req, e))
 })
 
 /* ---------- reply by email ---------- */
@@ -183,7 +186,7 @@ r.post('/:id/reply', async (req, res) => {
   if (extra.length) addNote(e, req, 'status', extra.join(' · '))
   await e.save()
   await log(req, e, 'reply', `Emailed a reply to ${e.name} (${e.email}) about “${e.subject ?? 'their message'}”`)
-  res.status(201).json(await detail(e))
+  res.status(201).json(await detail(req, e))
 })
 
 /* ---------- attach to a donor ---------- */
@@ -191,12 +194,12 @@ r.post('/:id/link', async (req, res) => {
   const { donorId } = parse(z.object({ donorId: zId.nullable() }), req.body)
   const e = await load(req.params.id)
   if (!donorId) {
-    if (!e.donor) return void res.json(await detail(e))
+    if (!e.donor) return void res.json(await detail(req, e))
     e.set('donor', undefined)
     addNote(e, req, 'status', 'Unlinked from the donor record')
     await e.save()
     await log(req, e, 'unlink', `Unlinked the ${label(e)} from its donor record`)
-    return void res.json(await detail(e))
+    return void res.json(await detail(req, e))
   }
   let d = await Donor.findById(donorId)
   while (d?.status === 'merged' && d.mergedInto) d = await Donor.findById(d.mergedInto)
@@ -205,7 +208,7 @@ r.post('/:id/link', async (req, res) => {
   addNote(e, req, 'status', `Linked to ${fullName(d)} (${d.number})`)
   await e.save()
   await log(req, e, 'link', `Linked the ${label(e)} to donor ${fullName(d)} (${d.number})`)
-  res.json(await detail(e))
+  res.json(await detail(req, e))
 })
 
 r.post('/:id/create-donor', async (req, res) => {
@@ -226,7 +229,7 @@ r.post('/:id/create-donor', async (req, res) => {
   addNote(e, req, 'status', created ? `Created donor record ${donor.number}` : `Linked to ${fullName(donor)} (${donor.number})`)
   await e.save()
   await log(req, e, 'link', `${created ? 'Created and linked' : 'Linked'} donor ${fullName(donor)} (${donor.number}) for the ${label(e)}`)
-  res.status(created ? 201 : 200).json({ ...(await detail(e)), created })
+  res.status(created ? 201 : 200).json({ ...(await detail(req, e)), created })
 })
 
 export default r

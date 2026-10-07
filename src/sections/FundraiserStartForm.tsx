@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 
 import FundraiserCard from '../components/FundraiserCard'
 import { BREAKOUT } from '../components/SectionHead'
-import { REASONS, SENT, START } from '../components/fundraiser-data'
+import { REASONS, SENT, SENT_CHECK_EMAIL, START } from '../components/fundraiser-data'
 import { PLACES, appealBySlug } from '../components/appeals-data'
 
 import { appealView } from '../components/appeal-view'
@@ -37,9 +37,11 @@ import {
    every keystroke. On a phone it sits under the form.
 
    CREATING IT posts the draft to the platform (submitFundraiser in
-   services/fundraisers.ts). It lands in the admin approval queue, the
-   organiser is emailed a link to their account, and the form ends on SENT:
-   no link to share, because the page is not public until it is approved.
+   services/fundraisers.ts). Someone signed in to their account as the email
+   given goes straight to the admin approval queue and the form ends on SENT.
+   Anyone else is asked to confirm the address first: the server emails a
+   link, and the form ends on SENT_CHECK_EMAIL (finding M10). Either way there
+   is no link to share, because the page is not public until it is approved.
    A field the server rejects takes the user back to the step it is on.
 --------------------------------------------------------------------------- */
 
@@ -134,7 +136,9 @@ export default function FundraiserStartForm() {
   const [photoError, setPhotoError] = useState('')
   const [saveError, setSaveError] = useState('')
   const [sending, setSending] = useState(false)
-  const [sent, setSent] = useState(false)
+  /* false until it is saved; then whether it went to the team or is waiting
+     for the organiser to confirm their email address */
+  const [sent, setSent] = useState<false | 'queued' | 'confirm'>(false)
 
   const set = <K extends keyof Draft>(k: K, v: Draft[K]) => {
     setD((prev) => ({ ...prev, [k]: v }))
@@ -170,7 +174,7 @@ export default function FundraiserStartForm() {
     void submitFundraiser(d).then((r) => {
       setSending(false)
       if (r.ok) {
-        setSent(true)
+        setSent(r.confirm ? 'confirm' : 'queued')
         top.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
         return
       }
@@ -182,6 +186,7 @@ export default function FundraiserStartForm() {
         const first = Math.min(...Object.keys(fields).map((k) => stepOf[k] ?? 3))
         setStep(first)
         setErrors(fields)
+        if (fields.photo) setPhotoError(fields.photo)
       }
     })
   }
@@ -211,7 +216,8 @@ export default function FundraiserStartForm() {
     reason: (d.reason ?? '') as Draft['reason'] & string,
   }
 
-  if (sent)
+  if (sent) {
+    const words = sent === 'confirm' ? { ...SENT, ...SENT_CHECK_EMAIL } : SENT
     return (
       <section aria-labelledby="sent-title" className="pt-[clamp(32px,5vw,64px)] pb-[clamp(56px,6.5vw,96px)]">
         <div ref={top} className="gutter mx-auto max-w-page scroll-mt-[calc(var(--header-h)+16px)]">
@@ -219,16 +225,16 @@ export default function FundraiserStartForm() {
             <div role="status">
               <p className="inline-flex items-center gap-2 font-script text-[clamp(21px,1.9vw,27px)] leading-none text-green">
                 <Check className="h-4 w-4" />
-                {SENT.eyebrow}
+                {words.eyebrow}
               </p>
               <h1
                 id="sent-title"
                 className="mt-s2 font-display text-[clamp(34px,4.4vw,58px)] leading-[1.04] font-semibold tracking-[-0.025em]"
               >
-                {SENT.title}
+                {words.title}
               </h1>
-              <p className="mt-s3 max-w-[54ch] text-[clamp(15.5px,1.2vw,17px)] leading-[1.55] text-text-2">{SENT.body}</p>
-              <p className="mt-s2 max-w-[54ch] text-[clamp(15.5px,1.2vw,17px)] leading-[1.55] text-text-2">{SENT.manage}</p>
+              <p className="mt-s3 max-w-[54ch] text-[clamp(15.5px,1.2vw,17px)] leading-[1.55] text-text-2">{words.body}</p>
+              <p className="mt-s2 max-w-[54ch] text-[clamp(15.5px,1.2vw,17px)] leading-[1.55] text-text-2">{words.manage}</p>
               <div className="mt-s4 flex flex-wrap items-center gap-s3">
                 <Link
                   to="/account/fundraisers"
@@ -249,6 +255,7 @@ export default function FundraiserStartForm() {
         </div>
       </section>
     )
+  }
 
   return (
     <section aria-labelledby="start-title" className="pt-[clamp(32px,5vw,64px)] pb-[clamp(56px,6.5vw,96px)]">

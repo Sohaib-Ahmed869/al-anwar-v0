@@ -19,6 +19,10 @@ import { donorName, me } from './util'
    words people read (title, story) sends it back to 'pending' for another
    look — the portal says so before they save. Numbers (target, end date) are
    the supporter's own business and change on a live page straight away.
+
+   A page started from the public form while signed out is 'unverified' until
+   its organiser confirms the address; it shows here, says so, and can be sent
+   for approval from here (POST /:id/confirm).
 --------------------------------------------------------------------------- */
 
 const r = Router()
@@ -156,6 +160,22 @@ r.patch('/:id', async (req, res) => {
     { type: 'fundraiser', id: f._id, label: f.title },
   )
   res.json({ fundraiser: out(f.toObject()), resubmitted })
+})
+
+/* A page started from the public form while signed out waits for its
+   organiser to confirm the address by email (routes/public.ts). Signing in
+   here proved the same thing — the code went to that inbox — so the owner can
+   send it for approval from the portal instead of hunting for the link. */
+r.post('/:id/confirm', async (req, res) => {
+  const f = await ownPage(req)
+  const moved = await Fundraiser.updateOne({ _id: f._id, status: 'unverified' }, { $set: { status: 'pending', 'verify.confirmedAt': new Date() } })
+  if (moved.modifiedCount) {
+    await audit(req, 'fundraiser.confirm', `${donorName(me(req))} confirmed their fundraiser “${f.title}” from their account, so it was sent for approval`, {
+      type: 'fundraiser', id: f._id, label: f.title,
+    })
+  }
+  const fresh = await Fundraiser.findById(f._id)
+  res.json({ fundraiser: out(fresh!.toObject()) })
 })
 
 r.post('/:id/end', async (req, res) => {

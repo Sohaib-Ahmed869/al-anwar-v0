@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 
 import { ArrowRight, Check, HandHeart, Lock } from './icons'
 import { OPERATING_COSTS } from '../services/give'
+import { NAME_LOOKS_RIGHT } from '../../shared/giving'
 
 /* ---------------------------------------------------------------------------
    The give module. Ported from #hero-give in ../../index.html.
@@ -245,8 +246,12 @@ const looksLikeEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.tri
 
 export const checkDonor = (d: Donor): DonorErrors => {
   const bad: DonorErrors = {}
+  /* the name rule is the server's own (shared/giving.ts), checked here so a
+     name it would refuse is marked on this step, not after "Give" */
   if (!d.first.trim()) bad.first = 'We would like to know who to thank.'
+  else if (!NAME_LOOKS_RIGHT.test(d.first.trim())) bad.first = 'Use letters only in your name.'
   if (!d.last.trim()) bad.last = 'And the rest of it.'
+  else if (!NAME_LOOKS_RIGHT.test(d.last.trim())) bad.last = 'Use letters only in your name.'
   if (!d.email.trim()) bad.email = 'The receipt needs somewhere to go.'
   else if (!looksLikeEmail(d.email)) bad.email = 'That address is missing something.'
   if (d.behalf && !d.behalfName.trim()) bad.behalfName = 'Whose name should it be given in?'

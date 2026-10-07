@@ -16,9 +16,15 @@ import { Appeal, Donor, Gift } from '../models'
         A reference an earlier gift used (people set up a standing transfer
         with the reference they were first given) → matched, 0.9.
      2. The payer text is one the office already confirmed for a donor (a
-        learnt bank alias)      → matched, 0.95.
-     3. The full name matches exactly one donor → matched, 0.85. Several
-        donors with that name   → "needs a look", with the people named.
+        learnt bank alias)      → matched, 0.95 — unless another donor now
+        has that same name, in which case it needs a look.
+     3. The full name matches exactly one donor → "needs a look", 0.85, and
+        matched only if that donor also has a pending pledge of exactly this
+        amount. A name alone is not enough to issue a tax receipt unseen:
+        "Confirm all" would otherwise receipt the one Mohammed Ali we know
+        for a transfer from a Mohammed Ali we don't, and then learn the alias
+        so every later transfer went to him too. Several donors with that
+        name                    → "needs a look", with the people named.
      4. Close to a name (a typo, or surname + first initial, the way banks
         shorten names)          → "needs a look", 0.6, never matched.
      5. Nothing                 → unmatched.
@@ -47,8 +53,14 @@ export type MatchOut = {
     reasons: string[]
     pledge?: Oid
     candidates?: Candidate[]
+    via?: MatchVia
   }
 }
+
+/** How a line's donor was found. A name on its own is never enough to save a
+ *  line unseen, and only a reference, a pledge or a person's choice teaches
+ *  the matcher a new alias (routes/admin/bank.ts). */
+export type MatchVia = 'pledge' | 'usedRef' | 'alias' | 'name' | 'fuzzy' | 'manual'
 
 /* ---------- reading a bank narrative ---------- */
 
@@ -229,6 +241,7 @@ export async function matchLines(lines: LineIn[]): Promise<MatchOut[]> {
       const d = donorById.get(String(pledge.donor))
       setDonor(d ?? { _id: pledge.donor as Oid }, d ? nameOf(d) : pledge.donorName)
       m.pledge = pledge._id
+      m.via = 'pledge'
       reasons.push(`Reference ${ref} matches ${pledge.donorName}'s pledge of ${formatMoney(pledge.amount)} on ${day(pledge.date)}`)
       if (pledge.amount === line.amount) {
         out.status = 'matched'
@@ -251,6 +264,7 @@ export async function matchLines(lines: LineIn[]): Promise<MatchOut[]> {
         setDonor(d)
         out.status = 'matched'
         m.confidence = 0.9
+        m.via = 'usedRef'
         reasons.push(`Reference ${ref} was used by ${nameOf(d)} before (donation ${g.number} on ${format(g.date, 'd MMM yyyy')})`)
       }
     }
@@ -259,16 +273,32 @@ export async function matchLines(lines: LineIn[]): Promise<MatchOut[]> {
     if (!m.donor && payerKey) {
       const alias = byAlias.get(payerKey)
       const exact = byKey.get(payerKey)
-      if (alias?.length === 1) {
+      /* a learnt alias is trusted only while it is unambiguous: if someone
+         else with that very name has since joined, the old alias may be the
+         wrong one of the two, so a person decides */
+      const sameName = (exact ?? []).filter((d) => !alias?.some((a) => String(a._id) === String(d._id)))
+      if (alias?.length === 1 && sameName.length) {
+        setDonor(alias[0]!)
+        out.status = 'review'
+        m.confidence = 0.6
+        m.via = 'alias'
+        m.candidates = [alias[0]!, ...sameName].slice(0, 6).map((d) => ({ donor: d._id, donorName: nameOf(d), number: d.number }))
+        reasons.push(
+          `Paid from this account before as ${nameOf(alias[0]!)}, but ${sameName.map((d) => `${nameOf(d)} (${d.number})`).join(', ')} has the same name: check which one`,
+        )
+      } else if (alias?.length === 1) {
         setDonor(alias[0]!)
         out.status = 'matched'
         m.confidence = 0.95
+        m.via = 'alias'
         reasons.push(`Paid from this account before: “${payer}” is ${nameOf(alias[0]!)}`)
       } else if (exact?.length === 1) {
+        /* a name alone: suggested, never saved unseen (see the header) */
         setDonor(exact[0]!)
-        out.status = 'matched'
+        out.status = 'review'
         m.confidence = 0.85
-        reasons.push(`Name matches ${nameOf(exact[0]!)} (${exact[0]!.number})`)
+        m.via = 'name'
+        reasons.push(`Name matches ${nameOf(exact[0]!)} (${exact[0]!.number}); a name alone is not enough, so check before saving`)
       } else if ((exact?.length ?? 0) > 1 || (alias?.length ?? 0) > 1) {
         const people = exact && exact.length > 1 ? exact : alias!
         out.status = 'review'
@@ -281,6 +311,7 @@ export async function matchLines(lines: LineIn[]): Promise<MatchOut[]> {
           setDonor(close[0]!.d)
           out.status = 'review'
           m.confidence = close[0]!.score
+          m.via = 'fuzzy'
           reasons.push(`Name is close to ${nameOf(close[0]!.d)} (${close[0]!.d.number}): ${close[0]!.why}`)
         } else if (close.length > 1) {
           out.status = 'review'
@@ -297,6 +328,14 @@ export async function matchLines(lines: LineIn[]): Promise<MatchOut[]> {
         if (theirs) {
           claimed.add(String(theirs._id))
           m.pledge = theirs._id
+          /* an exact name plus a pending pledge of exactly this amount is a
+             second, independent signal: that is enough to save. A fuzzy name
+             or a doubted alias stays with a person even so. */
+          if (m.via === 'name') {
+            out.status = 'matched'
+            m.confidence = 0.9
+            m.via = 'pledge'
+          }
           reasons.push(
             ref
               ? `Reference ${ref} is not one we issued (a typo of ${theirs.reference}?), but the amount is exactly their pledge of ${day(theirs.date)}`

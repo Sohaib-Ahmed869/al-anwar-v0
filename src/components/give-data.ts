@@ -1,4 +1,5 @@
 import type { GiveCause, GiveChoice } from './GiveModule'
+import { MIN_GIFT, takesMonthly as fundTakesMonthly } from '../../shared/giving'
 
 /* ---------------------------------------------------------------------------
    The funds, as data. The home page's give card (HomeAsk) and the /give page
@@ -170,8 +171,10 @@ export type Cause = GiveCause & {
   monthly?: number[]
 }
 
-/** Can this fund be given monthly at all? The hero and the form both ask. */
-export const takesMonthly = (c: Cause) => !!c.monthly
+/** Can this fund be given monthly at all? The hero and the form both ask. The
+ *  rule is shared/giving.ts's, which the server enforces; a fund also needs a
+ *  monthly ladder here for the form to offer one. */
+export const takesMonthly = (c: Cause) => fundTakesMonthly(c.id) && !!c.monthly
 
 /** A rung on whichever ladder is showing. */
 export type Rung = { value: number; label?: string }
@@ -408,9 +411,9 @@ export const impactOf = ({ amount, impact, cause }: GiveChoice) => {
    Everything below is the /give page's own.
 --------------------------------------------------------------------------- */
 
-/** The smallest gift the form takes: the smallest that can carry a deductible
- *  receipt, per /terms. */
-export const MIN_GIFT = 2
+/** The smallest gift the form takes (shared/giving.ts): the smallest that can
+ *  carry a deductible receipt, per /terms. */
+export { MIN_GIFT }
 
 /** Links around the site name a place or an appeal rather than a fund —
  *  the home hero's "Donate to Gaza" sends ?country=gaza, its hot-meals slide
@@ -460,7 +463,8 @@ export const TRUST = [
 ] as { title: string; body: string; to?: string }[]
 
 /* TODO: an answer about receipts depends on the payment setup doing what
-   api/checkout.ts says it should — check both once it is live.
+   POST /checkout in server/routes/public.ts says it should — check both once
+   it is live.
    Five questions, cut from seven on 16 September 2026: "is paying online
    safe?" went (the pay step and the summary panel both say it), and the two
    monthly questions became one. */

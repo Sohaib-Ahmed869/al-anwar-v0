@@ -91,7 +91,12 @@ export const COUNTRIES: Record<string, string> = {
   australia: 'Australia',
 }
 
+/* `unverified`: started from the public form by someone not signed in, and
+   waiting for the organiser to confirm the email address by the link we sent.
+   Nobody else sees it — not the public, not the approval queue — and it is
+   deleted after 7 days if the link is never used (server/lib/sweeps.ts). */
 export const FUNDRAISER_STATUSES = {
+  unverified: { label: 'Waiting for email confirmation', tone: 'neutral' },
   pending: { label: 'Awaiting approval', tone: 'amber' },
   live: { label: 'Live', tone: 'green' },
   changes: { label: 'Changes requested', tone: 'violet' },
@@ -217,14 +222,73 @@ export type DocumentCategory = keyof typeof DOCUMENT_CATEGORIES
    owns what each tone looks like. */
 export type Tone = 'neutral' | 'green' | 'teal' | 'amber' | 'red' | 'violet' | 'gold'
 
+/* ---------- the charity's calendar: Sydney ----------
+   Every date that matters to a donor or the ATO — which financial year a gift
+   falls in, the day printed on a receipt — is a date in Sydney, where the
+   charity is. This file runs on the server AND in browsers anywhere, so it
+   never asks the machine for its zone (getMonth(), new Date(y, m, d)): a
+   donor in London, or a server in UTC, would get a different answer at the
+   edges of the day. It asks for Sydney by name instead. (The server process
+   is pinned to Sydney too — server/env.ts — but this must not depend on it.) */
+export const ORG_TZ = 'Australia/Sydney'
+
+const sydneyFmt = new Intl.DateTimeFormat('en-AU', {
+  timeZone: ORG_TZ,
+  year: 'numeric',
+  month: 'numeric',
+  day: 'numeric',
+  hour: 'numeric',
+  minute: 'numeric',
+  second: 'numeric',
+  hourCycle: 'h23',
+})
+
+/** An instant's date and time on Sydney's calendar (month 1–12). */
+export function sydneyParts(d: Date | string) {
+  const parts = Object.fromEntries(sydneyFmt.formatToParts(new Date(d)).map((p) => [p.type, p.value]))
+  return {
+    year: Number(parts.year),
+    month: Number(parts.month),
+    day: Number(parts.day),
+    hour: Number(parts.hour) % 24,
+    minute: Number(parts.minute),
+    second: Number(parts.second),
+  }
+}
+
+/** Sydney's calendar date of an instant, as yyyy-mm-dd. */
+export function sydneyDay(d: Date | string): string {
+  const p = sydneyParts(d)
+  return `${p.year}-${String(p.month).padStart(2, '0')}-${String(p.day).padStart(2, '0')}`
+}
+
+/** The instant a Sydney calendar day begins (month 1–12). Midnight never falls
+ *  in a daylight-saving jump in Sydney (they happen at 2am and 3am), so it
+ *  always exists and is unique. */
+export function sydneyMidnight(year: number, month: number, day: number): Date {
+  const wall = Date.UTC(year, month - 1, day)
+  let t = wall
+  /* the offset depends on the instant, which depends on the offset: two
+     rounds settle it, since midnight is hours away from any changeover */
+  for (let i = 0; i < 2; i++) {
+    const p = sydneyParts(new Date(t))
+    const offset = Date.UTC(p.year, p.month - 1, p.day, p.hour, p.minute, p.second) - t
+    t = wall - offset
+  }
+  return new Date(t)
+}
+
 /* ---------- the Australian financial year ----------
    July to June. "FY2026" is 1 July 2025 to 30 June 2026, which is the year a
-   tax statement covers and the year the AIS reports on. */
+   tax statement covers and the year the AIS reports on — in Sydney: a gift at
+   9am on 1 July in Sydney is still 30 June in UTC, and belongs to the new
+   year. */
 export function fyOf(d: Date | string): number {
-  const x = new Date(d)
-  return x.getMonth() >= 6 ? x.getFullYear() + 1 : x.getFullYear()
+  const { year, month } = sydneyParts(d)
+  return month >= 7 ? year + 1 : year
 }
+/** From Sydney midnight on 1 July to Sydney midnight a year later (exclusive). */
 export function fyRange(fy: number): { from: Date; to: Date } {
-  return { from: new Date(fy - 1, 6, 1), to: new Date(fy, 6, 1) }
+  return { from: sydneyMidnight(fy - 1, 7, 1), to: sydneyMidnight(fy, 7, 1) }
 }
 export const fyLabel = (fy: number) => `${fy - 1}–${String(fy).slice(2)}`

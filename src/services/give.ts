@@ -1,18 +1,14 @@
-import { CAUSES, MIN_GIFT, takesMonthly } from '../components/give-data'
-import { OPERATING_COSTS_CENTS, isOperatingCosts } from '../../shared/operating-costs'
+import { OPERATING_COSTS_CENTS } from '../../shared/operating-costs'
+import { validateGift as validateShared, type GiftPayload as SharedPayload } from '../../shared/giving'
 
 /* ---------------------------------------------------------------------------
    What a gift is, whether it is valid, and how it gets paid.
 
-   Two consumers, the same way services/contact.ts has two:
-     - the form in sections/GiveForm.tsx, in the browser
-     - server/routes/public.ts, which turns a gift into a Stripe or PayPal
-       payment page (it loads this file by path; api/checkout.ts, the
-       earlier stand-alone handler, is no longer what serves the site)
-
-   so the rules are written once and imported by both. Nothing at the top level
-   of this module touches `window`; keep it that way, or the server cannot
-   import it.
+   The rules themselves (validateGift, which funds take monthly, the smallest
+   gift) live in shared/giving.ts, because the server runs them too: the form
+   calls validateGift before it posts, and POST /api/public/checkout calls the
+   same function on whatever arrives. This file is the browser's side: the
+   payload the form builds, and the calls that send it.
 
    ── How paying works ────────────────────────────────────────────────────
    The donor never types a card number into this site. The form posts the gift
@@ -69,31 +65,12 @@ export type Provider = 'stripe' | 'paypal'
  *  field did not exist. */
 export type Frequency = 'once' | 'monthly'
 
-export type GiftPayload = {
-  /** a fund id from CAUSES */
-  fund: string
-  /** 'once' unless the donor chose Monthly. Only the voluntary funds take it,
-   *  and only Stripe can charge it — see validateGift. */
-  frequency: Frequency
-  /** a place or appeal the donor came from, e.g. "Gaza"; display only */
-  appeal?: string
+export type GiftPayload = SharedPayload & {
   /** the appeal's slug when the gift came from one (/appeals/<slug>, or a
    *  fundraiser's appeal), so the server can count it towards that appeal */
   appealSlug?: string
   /** the fundraiser's slug when the gift came through one */
   fundraiser?: string
-  /** the donation itself, in dollars, before any operating costs */
-  amount: number
-  /** the optional contribution to operating costs, in dollars: one of
-   *  OPERATING_COSTS. Charged on top of `amount`, recorded separately. */
-  operatingCosts: number
-  provider: Provider
-  first: string
-  last: string
-  email: string
-  /** empty unless the gift is made in someone else's name */
-  behalfName: string
-  updates: boolean
   /** true keeps the donor's name off the site's recent-gifts feed and the
    *  fundraiser supporter lists; the server stores it on the gift */
   anonymous?: boolean
@@ -104,42 +81,10 @@ const cents = (v: number) => Math.round(v * 100) / 100
 export const totalOf = (p: Pick<GiftPayload, 'amount' | 'operatingCosts'>) =>
   cents(p.amount + (p.operatingCosts || 0))
 
-const EMAIL_LOOKS_RIGHT = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
-
 /** Every reason this gift cannot be taken, keyed by field. Empty means valid.
- *  The server runs exactly this, so a hand-built POST gets the same answer the
- *  form would have. */
-export function validateGift(p: GiftPayload): Record<string, string> {
-  const bad: Record<string, string> = {}
-  const cause = CAUSES.find((c) => c.id === p.fund)
-  if (!cause) bad.fund = 'Choose what this donation is for.'
-  if (!Number.isFinite(p.amount) || p.amount < MIN_GIFT)
-    bad.amount = `The smallest donation we can take is $${MIN_GIFT}.`
-  else if (p.amount > 1_000_000) bad.amount = 'For a donation this size, please call us.'
-  /* Only the listed amounts, so a hand-built POST cannot add $3.17 or $10,000
-     to the charge under a label that promises a small fixed sum. */
-  if (!isOperatingCosts(Math.round((p.operatingCosts ?? 0) * 100)))
-    bad.operatingCosts = 'Choose $2, $5, $10 or no contribution to operating costs.'
-  if (!p.first.trim()) bad.first = 'We would like to know who to thank.'
-  if (!p.last.trim()) bad.last = 'And the rest of it.'
-  if (!EMAIL_LOOKS_RIGHT.test(p.email.trim())) bad.email = 'The receipt needs a working address.'
-  if (p.provider !== 'stripe' && p.provider !== 'paypal') bad.provider = 'Choose how to pay.'
-
-  /* --- the two ways a monthly gift can be wrong ---------------------------
-     Both are checked here rather than only in the interface, because this
-     function is what the server runs: a hand-built POST asking for a monthly
-     zakat, or a monthly gift through PayPal, must be refused and not quietly
-     charged once. A gift booked as monthly and taken once is a real-money bug,
-     which is the whole reason `frequency` exists on the payload at all. */
-  if (p.frequency !== 'once' && p.frequency !== 'monthly') bad.frequency = 'Choose how often to give.'
-  else if (p.frequency === 'monthly') {
-    if (cause && !takesMonthly(cause))
-      bad.frequency = `${cause.label} is owed once, not monthly. Give it as a one-time donation.`
-    else if (p.provider === 'paypal')
-      bad.provider = 'Monthly donations are by card. PayPal can only take a one-time donation.'
-  }
-  return bad
-}
+ *  The server runs exactly this (shared/giving.ts), so a hand-built POST gets
+ *  the same answer the form would have. */
+export const validateGift = (p: GiftPayload): Record<string, string> => validateShared(p)
 
 export type CheckoutResult =
   | { kind: 'redirect'; url: string }
@@ -202,13 +147,19 @@ export type GiftStatus = {
   nextChargeAt: string | null
   bank: { accountName: string; bsb: string; accountNumber: string } | null
   failureReason: string | null
-  /** no payment provider is connected; nothing real was charged */
+  /** taken with no payment provider connected: nothing real was charged,
+   *  and the receipt is a test (SIM- number), not a tax receipt */
   simulated: boolean
+  /** PayPal took the payment and is holding it for review: it stays pending
+   *  until PayPal releases it, usually within a day or two */
+  held?: boolean
 }
 
-export async function giftStatus(id: string): Promise<GiftStatus | null> {
+/** The gift's status, by its id and the token the payment page's return
+ *  link carries; without the token the server answers "not found". */
+export async function giftStatus(id: string, token: string): Promise<GiftStatus | null> {
   try {
-    const res = await fetch(`/api/public/gifts/${encodeURIComponent(id)}/status`)
+    const res = await fetch(`/api/public/gifts/${encodeURIComponent(id)}/status?t=${encodeURIComponent(token)}`)
     return res.ok ? ((await res.json()) as GiftStatus) : null
   } catch {
     return null

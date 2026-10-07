@@ -20,16 +20,23 @@ import { fundraiserReviewedEmail } from '../../emails/templates'
 
    The unfiltered list puts pending pages first, oldest first, because that is
    the order someone should work through them in.
+
+   A page started from the public form by someone signed out is `unverified`
+   until its organiser confirms the email address (routes/public.ts). Staff
+   never see it, here or anywhere else: it is not yet anyone's page to review,
+   and the sweeps delete it if the link is never used.
 --------------------------------------------------------------------------- */
 
 const r = Router()
 r.use(requireStaff('fundraisers.approve'))
 
-const STATUSES = Object.keys(FUNDRAISER_STATUSES) as FundraiserStatus[]
+const STATUSES = (Object.keys(FUNDRAISER_STATUSES) as FundraiserStatus[]).filter((s) => s !== 'unverified')
+/** every query in this router starts from this */
+const SEEN = { status: { $ne: 'unverified' } }
 
 r.get('/', async (req, res) => {
   const { page, pageSize, skip } = paging(req.query)
-  const match: Record<string, unknown> = {}
+  const match: Record<string, unknown> = { ...SEEN }
   const status = String(req.query.status ?? '')
   if ((STATUSES as string[]).includes(status)) match.status = status
   const rx = searchRegex(req.query.q)
@@ -46,13 +53,13 @@ r.get('/', async (req, res) => {
       { $project: { _rank: 0, _pendingAge: 0 } },
     ]),
     Fundraiser.countDocuments(match),
-    Fundraiser.aggregate<{ _id: string; n: number }>([{ $group: { _id: '$status', n: { $sum: 1 } } }]),
+    Fundraiser.aggregate<{ _id: string; n: number }>([{ $match: SEEN }, { $group: { _id: '$status', n: { $sum: 1 } } }]),
   ])
   res.json({ items: out(items), total, page, pageSize, counts: Object.fromEntries(counts.map((c) => [c._id, c.n])) })
 })
 
 r.get('/:id', async (req, res) => {
-  const f = await Fundraiser.findById(req.params.id).lean()
+  const f = await Fundraiser.findOne({ _id: req.params.id, ...SEEN }).lean()
   if (!f) throw notFound('That fundraiser')
   const [owner, gifts, pagesByOwner] = await Promise.all([
     Donor.findById(f.owner).select('number firstName lastName email totalGiven giftCount firstGiftAt lastGiftAt hasActivePlan createdAt').lean(),
@@ -61,7 +68,7 @@ r.get('/:id', async (req, res) => {
       .limit(20)
       .select('number donor donorName amount designation date anonymous message')
       .lean(),
-    Fundraiser.countDocuments({ owner: f.owner }),
+    Fundraiser.countDocuments({ owner: f.owner, ...SEEN }),
   ])
   res.json({ fundraiser: out(f), owner: owner ? { ...out<object>(owner), pages: pagesByOwner } : null, gifts: out(gifts) })
 })
@@ -73,7 +80,7 @@ r.post('/:id/review', async (req, res) => {
       .refine((v) => v.decision === 'live' || (v.note && v.note.length >= 5), { message: 'Tell them what to change, or why', path: ['note'] }),
     req.body,
   )
-  const f = await Fundraiser.findById(req.params.id)
+  const f = await Fundraiser.findOne({ _id: req.params.id, ...SEEN })
   if (!f) throw notFound('That fundraiser')
   if (f.status === 'ended') throw badRequest('This fundraiser has ended, so there is nothing to review.')
   if (f.status === body.decision) throw badRequest('That is already its status.')
@@ -98,7 +105,7 @@ r.post('/:id/review', async (req, res) => {
 })
 
 r.post('/:id/end', async (req, res) => {
-  const f = await Fundraiser.findById(req.params.id)
+  const f = await Fundraiser.findOne({ _id: req.params.id, ...SEEN })
   if (!f) throw notFound('That fundraiser')
   if (f.status === 'ended') return void res.json(out(f.toObject()))
   f.status = 'ended'

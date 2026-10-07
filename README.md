@@ -86,12 +86,14 @@ one donor record and one receipt trail true.
 
 ### Deploying
 
-One process serves the API and, with `NODE_ENV=production`, the built site from
-`dist/`: `npm run build && NODE_ENV=production npm start` on AWS (EC2, ECS or App
-Runner) with `MONGODB_URI`, `JWT_SECRET`, `APP_URL`, SES SMTP, Stripe, PayPal and
-`S3_BUCKET` set. The Stripe webhook is `POST /api/webhooks/stripe`
-(`checkout.session.completed`). The Vercel handlers in `api/` predate the server and
-are superseded by it.
+Today the site is on Vercel and the API on Render (`vercel.json`, `middleware.ts`,
+`render.yaml`; CLAUDE.md has the details, including the Render address still to be
+confirmed). The API can also serve the built site itself:
+`npm run build && NODE_ENV=production npm start`, with `MONGODB_URI`, `JWT_SECRET`,
+`APP_URL`, SES SMTP, a live Stripe key and its webhook secret set. Production refuses to
+start without them unless `ALLOW_SIMULATED_PAYMENTS=1` marks it as staging. The Stripe
+webhook is `POST /api/webhooks/stripe`. The server keeps Sydney time, runs its
+background jobs under a lease in MongoDB, and shuts down cleanly on SIGTERM.
 
 ## Where things are
 
@@ -114,23 +116,16 @@ src/
     GiveModule.tsx  the amount ladder, frequency toggle, fee ask and gold button
     Reveal.tsx      fade-up as a section arrives, once, IntersectionObserver
   services/
-    contact.ts      the contact payload, its rules, and where it posts.
-                    Imported by BOTH the form and api/contact.ts — the rules
-                    have to be the same in the browser and on the server.
-    letter.ts       the same shape for the letter: one field, one rule, imported
-                    by BOTH the footer block and api/letter.ts. It borrows
+    contact.ts      the contact payload, its rules, and where it posts
+                    (POST /api/public/enquiries). The server checks the same
+                    fields with its own schema, zEnquiry in
+                    server/routes/public.ts — keep the two in step.
+    letter.ts       the same shape for the letter: one field, one rule, posted
+                    to /api/public/letter (zLetter on the server). It borrows
                     contact.ts's `looksLikeEmail` rather than keeping a
                     second opinion about what an address is.
   pages/            one file per page, flat
   sections/         one file per section of a page, named <Page><Section>.tsx
-api/
-  contact.ts        POST handler for the contact form. NOT WIRED UP — this repo
-                    builds to a static bundle and has no host. See the note at
-                    the top of the file.
-  letter.ts         POST handler for the sign-up. NOT WIRED UP either, and its
-                    header lists the three things — double opt-in, an
-                    unsubscribe link, the privacy policy — that are law rather
-                    than taste before it goes live.
 public/
   assets/
     images/         logos, field photographs, ACNC badge

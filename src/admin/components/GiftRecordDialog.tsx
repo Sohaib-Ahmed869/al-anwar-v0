@@ -107,7 +107,13 @@ export function GiftRecordDialog({
     }
   }, [preset.data, open])
 
-  const noEmail = newDonor ? !newDonor.email.trim() : donor ? isPlaceholderEmail(donor.email) || donor.email === 'No email on file' : false
+  /* a volunteer's picker shows a masked address (DonorPicker), so it says
+     outright whether there is a real one behind it */
+  const noEmail = newDonor
+    ? !newDonor.email.trim()
+    : donor
+      ? Boolean(donor.noEmail) || isPlaceholderEmail(donor.email) || donor.email === 'No email on file'
+      : false
   const cents = parseMoney(amount)
   const hasDonor = Boolean(donor || (newDonor && newDonor.firstName.trim()))
 
@@ -140,7 +146,7 @@ export function GiftRecordDialog({
       const what = `${formatMoney(r.gift.amount)} from ${name}`
       toast.success(`Saved ${what}`, {
         description: r.receiptEmailed
-          ? `Receipt ${r.gift.receipt?.number ?? ''} emailed to ${r.donor.email}.`
+          ? `Receipt ${r.gift.receipt?.number ?? ''} emailed to ${r.donor.email || r.donor.emailHint}.`
           : r.receiptSkipped === 'no-email'
             ? `Receipt ${r.gift.receipt?.number ?? ''} issued. No email on file, so it was not sent.`
             : `Receipt ${r.gift.receipt?.number ?? ''} issued, not emailed.`,

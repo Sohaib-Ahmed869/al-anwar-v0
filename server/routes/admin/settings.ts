@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import { z, type ZodType } from 'zod'
 import type { Settings } from '../../../shared/types'
-import { env, paymentsSimulated } from '../../env'
+import { env, isLiveStripeKey, paymentsSimulated } from '../../env'
 import { getSettings, saveSettings } from '../../models'
 import { audit } from '../../lib/audit'
 import { requireStaff } from '../../lib/auth'
@@ -35,7 +35,7 @@ const r = Router()
 r.use(requireStaff('settings.manage'))
 
 const realMode = (): Settings['payments']['mode'] =>
-  paymentsSimulated ? 'simulated' : env.stripe?.key.startsWith('sk_live') ? 'live' : 'test'
+  paymentsSimulated ? 'simulated' : isLiveStripeKey(env.stripe?.key) ? 'live' : 'test'
 
 const str = (max: number, msg?: string) => (msg ? z.string().trim().min(1, msg).max(max) : z.string().trim().max(max))
 
@@ -126,7 +126,9 @@ r.post('/receipt-preview', async (req, res) => {
 
 r.put('/:section', async (req, res) => {
   const section = String(req.params.section) as Section
-  if (!(section in SECTIONS)) throw badRequest('There is no such settings section.')
+  /* hasOwn, not `in`: "__proto__" and "constructor" are `in` every object,
+     and SECTIONS.__proto__ is no schema — the request used to end in a 500 */
+  if (!Object.hasOwn(SECTIONS, section)) throw badRequest('There is no such settings section.')
   const next = parse(SECTIONS[section] as ZodType<Record<string, unknown>>, req.body)
   const current = await getSettings()
   const before = current[section] as Record<string, unknown>

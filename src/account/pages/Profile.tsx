@@ -332,7 +332,7 @@ function ChangeEmailDialog({ open, onClose, current }: { open: boolean; onClose:
       description={stage === 'email' ? `You sign in with ${current} at the moment.` : <>We sent a six-digit code to <strong className="text-text">{email}</strong>. It works for 10 minutes.</>}
       footer={
         <>
-          <Button variant="secondary" onClick={stage === 'code' ? () => setStage('email') : onClose}>
+          <Button variant="secondary" onClick={stage === 'code' ? () => (setStage('email'), send.reset(), confirm.reset()) : onClose}>
             {stage === 'code' ? 'Back' : 'Cancel'}
           </Button>
           {stage === 'email' ? (
@@ -361,7 +361,10 @@ function ChangeEmailDialog({ open, onClose, current }: { open: boolean; onClose:
             <Field label="New email" error={sendErr?.fields.email ? sendErr.message : sendErr?.message}>
               <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoFocus autoComplete="email" leading={<Mail />} />
             </Field>
-            <p className="text-[12.5px] leading-relaxed text-text-3">Your old address stays linked to your account, so donations made with it still show up here.</p>
+            <p className="text-[12.5px] leading-relaxed text-text-3">
+              Donations made with your old address will still show up here, but it will no longer sign you in. We will email it to say the change was made, and
+              you will be signed out on your other devices.
+            </p>
           </>
         ) : (
           <>
@@ -381,8 +384,8 @@ function ChangeEmailDialog({ open, onClose, current }: { open: boolean; onClose:
                 placeholder="••••••"
               />
             </Field>
-            <FormError message={confirmErr && !confirmErr.fields.code ? confirmErr.message : undefined} />
-            <button type="button" onClick={() => send.mutate()} disabled={send.isPending} className="text-[13px] font-medium text-green hover:underline">
+            <FormError message={confirmErr && !confirmErr.fields.code ? confirmErr.message : sendErr?.message} />
+            <button type="button" onClick={() => (confirm.reset(), send.mutate())} disabled={send.isPending} className="text-[13px] font-medium text-green hover:underline">
               Send another code
             </button>
           </>

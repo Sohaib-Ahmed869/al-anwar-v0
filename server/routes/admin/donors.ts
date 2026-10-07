@@ -1,11 +1,12 @@
 import { Router, type Request } from 'express'
 import { Types } from 'mongoose'
 import { z } from 'zod'
-import { DESIGNATIONS, EMAIL_TOPICS, FREQUENCIES, fyOf, fyRange, type Designation, type Frequency } from '../../../shared/domain'
+import { DESIGNATIONS, EMAIL_TOPICS, FREQUENCIES, fyOf, fyRange, sydneyDay, type Designation, type Frequency } from '../../../shared/domain'
 import { centsToDecimal } from '../../../shared/money'
 import type { Donor as DonorDTO } from '../../../shared/types'
 import { audit } from '../../lib/audit'
-import { requireStaff } from '../../lib/auth'
+import { csvCell } from '../../lib/csv'
+import { requireStaff, signOutDonorEverywhere } from '../../lib/auth'
 import { fullName } from '../../lib/giving'
 import {
   badRequest, HttpError, isId, notFound, oid, out, paging, parse, searchRegex, sorting, escapeRegex, zEmail, zId,
@@ -72,7 +73,7 @@ async function donorFilter(q: ListQuery, opts: { segment?: boolean } = { segment
   const segment = String(q.segment ?? '')
   if (opts.segment && segment) and.push(segmentFilter(segment))
   if (q.designation && typeof q.designation === 'string') {
-    const list = q.designation.split(',').filter((x): x is Designation => x in DESIGNATIONS)
+    const list = q.designation.split(',').filter((x): x is Designation => Object.hasOwn(DESIGNATIONS, x))
     if (list.length) and.push({ _id: { $in: await Gift.distinct('donor', { designation: { $in: list }, status: 'succeeded' }) } })
   }
   if (q.country && typeof q.country === 'string') {
@@ -138,13 +139,9 @@ r.get('/facets', requireStaff('donors.read'), async (_req, res) => {
 
 /* ---------- export ---------- */
 
-const csvCell = (v: unknown) => {
-  const s = v == null ? '' : String(v)
-  /* a leading = + - @ would run as a formula when the file is opened in Excel */
-  const safe = /^[=+\-@]/.test(s) ? `'${s}` : s
-  return /[",\n\r]/.test(safe) ? `"${safe.replace(/"/g, '""')}"` : safe
-}
-const isoDay = (d?: Date | null) => (d ? new Date(d).toISOString().slice(0, 10) : '')
+/* the day in Sydney, as the charity's records count it — toISOString would
+   give UTC's day, the day before for anything before 10am */
+const isoDay = (d?: Date | null) => (d ? sydneyDay(d) : '')
 
 r.get('/export', requireStaff('donors.export'), async (req, res) => {
   const filter = await donorFilter(req.query)
@@ -171,7 +168,7 @@ r.get('/export', requireStaff('donors.export'), async (req, res) => {
   await audit(req, 'donor.export', `Exported ${rows.length.toLocaleString('en-AU')} donor${rows.length === 1 ? '' : 's'} to CSV`, { type: 'donor', label: 'export' }, {
     query: req.query,
   })
-  const stamp = new Date().toISOString().slice(0, 10)
+  const stamp = sydneyDay(new Date())
   res.setHeader('Content-Type', 'text/csv; charset=utf-8')
   res.setHeader('Content-Disposition', `attachment; filename="donors-${stamp}.csv"`)
   res.send('﻿' + lines.join('\r\n'))
@@ -358,7 +355,7 @@ r.get('/duplicates/compare', requireStaff('donors.merge'), async (req, res) => {
       Plan.countDocuments({ donor: d._id }),
       Plan.countDocuments({ donor: d._id, status: { $in: ['active', 'paused', 'past_due'] } }),
       Enquiry.countDocuments({ $or: [{ donor: d._id }, { email: { $in: emails } }] }),
-      Fundraiser.countDocuments({ owner: d._id }),
+      Fundraiser.countDocuments({ owner: d._id, status: { $ne: 'unverified' } }),
       EmailMessage.countDocuments({ donor: d._id }),
       Gift.find({ donor: d._id }).sort({ date: -1 }).limit(3).select('number amount date appealTitle designation status').lean(),
     ])
@@ -414,6 +411,13 @@ r.post('/merge', requireStaff('donors.merge'), async (req, res) => {
   const alt = new Set([...(p.altEmails ?? []), s.email, ...(s.altEmails ?? [])].map(lower))
   alt.delete(lower(p.email))
   p.altEmails = [...alt]
+  /* an address either donor moved their sign-in away from stays retired on
+     the survivor: whoever reads that old mailbox now must not get in through
+     the merge (finding M4). The survivor's own current address is never
+     retired — that would lock its owner out. */
+  const retired = new Set([...(p.retiredLogins ?? []), ...(s.retiredLogins ?? [])].map(lower))
+  retired.delete(lower(p.email))
+  p.retiredLogins = [...retired]
   p.tags = [...new Set([...(p.tags ?? []), ...(s.tags ?? [])])]
   p.bankAliases = [...new Set([...(p.bankAliases ?? []), ...(s.bankAliases ?? [])])]
   if (s.notes?.trim()) p.notes = [p.notes?.trim(), `From ${s.number}: ${s.notes.trim()}`].filter(Boolean).join('\n\n')
@@ -442,6 +446,10 @@ r.post('/merge', requireStaff('donors.merge'), async (req, res) => {
   }
   s.status = 'merged'
   s.mergedInto = p._id
+  /* a cookie issued to the merged record is checked against its own version
+     (lib/auth.ts currentDonor): bump it, so no session from before the merge
+     carries on into the survivor's account */
+  s.sessionVersion = (s.sessionVersion ?? 0) + 1
   await s.save()
   await Promise.all([refreshDonor(p._id), refreshDonor(s._id)])
   clearDuplicateCache()
@@ -542,7 +550,37 @@ async function loadDonor(id: string) {
   return d
 }
 
-const TZ = Intl.DateTimeFormat().resolvedOptions().timeZone
+/* the charity's own zone, named rather than taken from the machine: Render
+   runs in UTC, which put a 9am 1 July gift in the previous financial year */
+const TZ = 'Australia/Sydney'
+
+/* ---------------------------------------------------------------------------
+   A donor's Emails tab shows what the charity has written to that person:
+   receipts, notices, campaigns, replies. Some messages are never part of it:
+
+     otp                  a sign-in code. Anyone who could read it could sign
+                          in as the donor, so no staff screen ever shows one.
+     staff.invite/reset   a staff account's set-password link. These match a
+                          donor when a staff address is also on a donor record
+                          (staff who give, or an address added as an "other
+                          email"), and the link is a login.
+     compliance.reminder,
+     campaign.test        staff-only mail that happens to share an address.
+
+   The rule is applied to the list, the count and the single message, so the
+   tab can't be used to fetch one by id either.
+--------------------------------------------------------------------------- */
+const NOT_DONOR_MAIL = ['otp', 'staff.invite', 'staff.reset', 'compliance.reminder', 'campaign.test']
+const donorMail = (d: { _id: Types.ObjectId; email: string; altEmails?: string[] | null }) => ({
+  $or: [{ donor: d._id }, { to: { $in: [d.email, ...(d.altEmails ?? [])] } }],
+  template: { $nin: NOT_DONOR_MAIL },
+})
+
+/* Payment-provider ids (Stripe customer, payment method, charge) stay on the
+   server: staff screens never use them, and a copied id is one step closer to
+   a provider's dashboard. */
+const NO_PROVIDER_IDS_PLAN = '-payment.stripeCustomer -payment.stripePaymentMethod'
+const NO_PROVIDER_IDS_GIFT = '-external -checkout'
 
 r.get('/:id', requireStaff('donors.read'), async (req, res) => {
   const d = await Donor.findById(parse(zId, req.params.id)).select(PRIVATE).lean()
@@ -560,11 +598,12 @@ r.get('/:id', requireStaff('donors.read'), async (req, res) => {
       { $match: { donor: d._id, status: 'succeeded' } },
       { $group: { _id: { y: { $year: { date: '$date', timezone: TZ } }, m: { $month: { date: '$date', timezone: TZ } } }, total: { $sum: '$amount' }, count: { $sum: 1 } } },
     ]),
-    Plan.find({ donor: d._id }).sort({ status: 1, createdAt: -1 }).lean(),
-    Gift.find({ donor: d._id }).sort({ date: -1 }).limit(6).lean(),
+    Plan.find({ donor: d._id }).select(NO_PROVIDER_IDS_PLAN).sort({ status: 1, createdAt: -1 }).lean(),
+    Gift.find({ donor: d._id }).select(NO_PROVIDER_IDS_GIFT).sort({ date: -1 }).limit(6).lean(),
     Enquiry.find({ $or: [{ donor: d._id }, { email: { $in: emails } }] }).sort({ createdAt: -1 }).limit(30).lean(),
-    Fundraiser.find({ owner: d._id }).sort({ createdAt: -1 }).lean(),
-    EmailMessage.countDocuments({ $or: [{ donor: d._id }, { to: { $in: emails } }] }),
+    /* not the pages still waiting for their organiser to confirm the address */
+    Fundraiser.find({ owner: d._id, status: { $ne: 'unverified' } }).sort({ createdAt: -1 }).lean(),
+    EmailMessage.countDocuments(donorMail(d)),
     Gift.aggregate<{ total: number; count: number }>([
       { $match: { donor: d._id, status: 'succeeded', date: { $gte: from } } },
       { $group: { _id: null, total: { $sum: '$amount' }, count: { $sum: 1 } } },
@@ -678,14 +717,17 @@ r.get('/:id/gifts', requireStaff('donors.read'), async (req, res) => {
   const filter: Record<string, unknown> = { donor: oid(id) }
   if (typeof req.query.status === 'string' && req.query.status) filter.status = req.query.status
   const sort = sorting(req.query, ['date', 'amount'], { date: -1 })
-  const [items, total] = await Promise.all([Gift.find(filter).sort({ ...sort, _id: -1 }).skip(skip).limit(pageSize).lean(), Gift.countDocuments(filter)])
+  const [items, total] = await Promise.all([
+    Gift.find(filter).select(NO_PROVIDER_IDS_GIFT).sort({ ...sort, _id: -1 }).skip(skip).limit(pageSize).lean(),
+    Gift.countDocuments(filter),
+  ])
   res.json({ items: out(items), total, page, pageSize })
 })
 
 r.get('/:id/emails', requireStaff('donors.read'), async (req, res) => {
   const d = await loadDonor(String(req.params.id))
   const { page, pageSize, skip } = paging(req.query)
-  const filter = { $or: [{ donor: d._id }, { to: { $in: [d.email, ...(d.altEmails ?? [])] } }] }
+  const filter = donorMail(d)
   const [items, total] = await Promise.all([
     EmailMessage.find(filter).select('-html -text').sort({ createdAt: -1 }).skip(skip).limit(pageSize).lean(),
     EmailMessage.countDocuments(filter),
@@ -695,12 +737,20 @@ r.get('/:id/emails', requireStaff('donors.read'), async (req, res) => {
 
 r.get('/:id/emails/:emailId', requireStaff('donors.read'), async (req, res) => {
   const d = await loadDonor(String(req.params.id))
-  const m = await EmailMessage.findOne({
-    _id: parse(zId, req.params.emailId),
-    $or: [{ donor: d._id }, { to: { $in: [d.email, ...(d.altEmails ?? [])] } }],
-  }).lean()
+  const m = await EmailMessage.findOne({ _id: parse(zId, req.params.emailId), ...donorMail(d) }).lean()
   if (!m) throw notFound('That email')
   res.json(out(m))
+})
+
+/* "Sign them out everywhere": for a donor who reports a lost phone, a shared
+   computer or a stolen account. Every donor-portal session they have ends at
+   its next request (lib/auth.ts compares the session's version with the
+   record's). It changes nothing else, and they can sign in again with a code. */
+r.post('/:id/sign-out', requireStaff('donors.write'), async (req, res) => {
+  const d = await loadDonor(String(req.params.id))
+  await signOutDonorEverywhere(d._id)
+  await audit(req, 'donor.signout', `Signed ${fullName(d)} (${d.number}) out of the donor portal on every device`, { type: 'donor', id: d._id, label: d.number })
+  res.json({ ok: true })
 })
 
 r.get('/:id/activity', requireStaff('donors.read'), async (req, res) => {

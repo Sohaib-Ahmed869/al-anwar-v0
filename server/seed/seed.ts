@@ -1,6 +1,6 @@
 import mongoose, { Types } from 'mongoose'
 import bcrypt from 'bcryptjs'
-import { APPEAL_LIST } from '../../src/components/appeals-data'
+import { APPEAL_LIST } from '../../shared/appeals-catalog'
 import { fyOf, type Designation, type Frequency, type Method } from '../../shared/domain'
 import { env } from '../env'
 import {
@@ -24,10 +24,33 @@ import { advance } from '../lib/giving'
    the same bug on another. It runs only when the database has no staff, only
    outside production, and SEED_RESET=1 wipes and re-runs it.
 
-   Every staff login's password is DEMO_PASSWORD. Printed on start.
+   Every staff login's password is DEMO_PASSWORD, printed on start in
+   development and never in production.
+
+   IT MUST NEVER REACH A LIVE DEPLOY (finding C1). The password is in the
+   repo's own docs, so a demo login on the real platform is an open door —
+   the owner's included. Three locks:
+     - production seeds only with SEED_DEMO=1, and server/env.ts refuses
+       SEED_DEMO=1 unless the deploy also says it is staging
+       (ALLOW_SIMULATED_PAYMENTS=1);
+     - demoLoginsLeft() below: production that is not a demo refuses to
+       start while any active staff login still opens with DEMO_PASSWORD,
+       even after the flag is turned off — the accounts outlive the flag;
+     - go live on a fresh database.
 --------------------------------------------------------------------------- */
 
 export const DEMO_PASSWORD = 'alanwaar-demo'
+
+/** Active staff whose password is still the published demo one. Checked at
+ *  start-up in production (server/index.ts); a handful of bcrypt compares. */
+export async function demoLoginsLeft(): Promise<string[]> {
+  const staff = await Staff.find({ active: { $ne: false }, passwordHash: { $exists: true, $ne: null } }).select('+passwordHash').lean()
+  const left: string[] = []
+  for (const s of staff) {
+    if (s.passwordHash && (await bcrypt.compare(DEMO_PASSWORD, s.passwordHash))) left.push(s.email)
+  }
+  return left
+}
 
 /* ---------- a seeded random ---------- */
 let seed = 20260924
@@ -112,7 +135,8 @@ export async function seedIfEmpty() {
 }
 
 export function printLogins() {
-  console.log(`[seed] staff logins (password "${DEMO_PASSWORD}"):`)
+  /* Render keeps its logs; the password is not written into them */
+  console.log(env.isProd ? '[seed] demo staff logins (the demo password, see the README):' : `[seed] staff logins (password "${DEMO_PASSWORD}"):`)
   for (const s of STAFF) console.log(`         ${s.role.padEnd(12)} ${s.email}`)
   console.log('[seed] donor portal: sign in as amina.rahman@example.com (the code shows on screen in development)')
 }

@@ -1,4 +1,5 @@
 import { Types } from 'mongoose'
+import { env } from '../env'
 import { Appeal, Donor, Fundraiser, Gift, Plan } from '../models'
 
 /* ---------------------------------------------------------------------------
@@ -9,14 +10,22 @@ import { Appeal, Donor, Fundraiser, Gift, Plan } from '../models'
    anybody having to remember to decrement something.
 
    Call after anything that creates, moves or changes the status of a gift.
+
+   A SIMULATED gift (taken with no payment provider connected, finding C2)
+   counts in development, so a demo shows its own gift moving an appeal's bar,
+   and never in production: there it can only be a staging test, and a test
+   must not raise a public total or a donor's lifetime giving.
 --------------------------------------------------------------------------- */
+
+/** The extra filter for gifts that count towards totals and reports. */
+export const countedGift = (): Record<string, unknown> => (env.isProd ? { simulated: { $ne: true } } : {})
 
 type Id = Types.ObjectId | string | null | undefined
 
 export async function refreshDonor(id: Id) {
   if (!id) return
   const [agg] = await Gift.aggregate<{ total: number; count: number; first: Date; last: Date }>([
-    { $match: { donor: typeof id === 'string' ? new Types.ObjectId(id) : id, status: 'succeeded' } },
+    { $match: { donor: typeof id === 'string' ? new Types.ObjectId(id) : id, status: 'succeeded', ...countedGift() } },
     { $group: { _id: null, total: { $sum: '$amount' }, count: { $sum: 1 }, first: { $min: '$date' }, last: { $max: '$date' } } },
   ])
   const hasActivePlan = Boolean(await Plan.exists({ donor: id, status: { $in: ['active', 'paused', 'past_due'] } }))
@@ -38,7 +47,7 @@ export async function refreshAppeal(id: Id) {
   if (!id) return
   const oid = typeof id === 'string' ? new Types.ObjectId(id) : id
   const [agg] = await Gift.aggregate<{ total: number; donors: unknown[] }>([
-    { $match: { appeal: oid, status: 'succeeded' } },
+    { $match: { appeal: oid, status: 'succeeded', ...countedGift() } },
     { $group: { _id: null, total: { $sum: '$amount' }, donors: { $addToSet: '$donor' } } },
   ])
   await Appeal.updateOne({ _id: oid }, { $set: { raised: agg?.total ?? 0, donorCount: agg?.donors.length ?? 0 } })
@@ -48,7 +57,7 @@ export async function refreshFundraiser(id: Id) {
   if (!id) return
   const oid = typeof id === 'string' ? new Types.ObjectId(id) : id
   const [agg] = await Gift.aggregate<{ total: number; donors: unknown[] }>([
-    { $match: { fundraiser: oid, status: 'succeeded' } },
+    { $match: { fundraiser: oid, status: 'succeeded', ...countedGift() } },
     { $group: { _id: null, total: { $sum: '$amount' }, donors: { $addToSet: '$donor' } } },
   ])
   await Fundraiser.updateOne({ _id: oid }, { $set: { raised: agg?.total ?? 0, donorCount: agg?.donors.length ?? 0 } })

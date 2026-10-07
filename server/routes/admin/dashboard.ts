@@ -1,6 +1,6 @@
 import { Router, type Request } from 'express'
 import { can, type Permission, type Role } from '../../../shared/access'
-import { FREQUENCIES, fyOf, fyRange, type Frequency } from '../../../shared/domain'
+import { FREQUENCIES, ORG_TZ, fyOf, fyRange, type Frequency } from '../../../shared/domain'
 import { formatMoney } from '../../../shared/money'
 import { requireStaff } from '../../lib/auth'
 import { out } from '../../lib/http'
@@ -26,7 +26,9 @@ import { findDuplicates } from './donors'
 
 const r = Router()
 
-const TZ = Intl.DateTimeFormat().resolvedOptions().timeZone
+/* months are Sydney's, the charity's own (shared/domain.ts ORG_TZ), whatever
+   zone the database or the machine is in */
+const TZ = ORG_TZ
 const DAY = 86_400_000
 
 const roleCan = (req: Request, p: Permission) => can(req.staff!.role as Role, p)

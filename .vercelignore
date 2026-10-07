@@ -1,7 +1,5 @@
 # Vercel serves the built site only; the API runs on Render (render.yaml) and
-# vercel.json forwards /api/* to it. The old handlers in api/ would otherwise
-# become functions that shadow those paths.
-api/
+# vercel.json forwards /api/* to it.
 server/
 scripts/
 docs/

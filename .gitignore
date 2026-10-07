@@ -19,3 +19,15 @@ Thumbs.db
 
 # internal documents (proposal, client decks, findings): kept locally, not in the repo
 docs/
+
+# TypeScript build info (tsc -b writes it; nothing in the build needs it)
+*.tsbuildinfo
+
+# test output
+test-results/
+playwright-report/
+blob-report/
+coverage/
+
+# Playwright MCP browser session output
+.playwright-mcp/

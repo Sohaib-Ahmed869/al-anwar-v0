@@ -4,14 +4,11 @@ import { ORG } from '../components/org-data'
 /* ---------------------------------------------------------------------------
    What a contact message is, whether it is checked, and where it goes.
 
-   Two consumers, deliberately:
-     - the form in sections/ContactForm.tsx, in the browser
-     - api/contact.ts, on whatever eventually serves it
-
-   which is the whole reason `validate` lives here rather than in the component.
-   Validation that only runs in the browser is not validation; anything can POST
-   to an endpoint. The rules have to be the same in both places, so they are
-   written once and imported twice.
+   `validate` lives here rather than in the component so the rules are written
+   down once, apart from any markup. Validation that only runs in the browser is
+   not validation; anything can POST to an endpoint. The server checks the same
+   message with its own schema (zEnquiry in server/routes/public.ts) rather than
+   importing this file, so a rule changed here has to be changed there too.
 
    Nothing at the top level of this module touches `window`. That is what keeps
    it importable from a server — check before adding anything here.

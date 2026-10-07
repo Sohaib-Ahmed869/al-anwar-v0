@@ -1,6 +1,12 @@
 # Render Blueprint: the platform API (server/). The site itself is on Vercel,
-# which forwards /api/* here (vercel.json), so the browser sees one origin and
-# the session cookies work unchanged.
+# which forwards /api/* here (middleware.ts, with vercel.json as the fallback),
+# so the browser sees one origin and the session cookies work unchanged.
+#
+# CONFIRM THE SERVICE NAME (security finding H7). Blueprints match services by
+# name. This file says al-anwaar-api; vercel.json and middleware.ts forward to
+# al-anwaar.onrender.com. If the live service is called al-anwaar, rename it
+# here before syncing the Blueprint, or Render creates a SECOND service — a
+# second copy of the API, against the same database. Make all three agree.
 #
 # Starter, not free: the free plan sleeps when idle, and while it sleeps the
 # background jobs (regular gifts, reminders, campaign batches) stop, which the
@@ -14,11 +20,16 @@ services:
     plan: starter
     branch: main
     # tsx runs the server in production and is a dev dependency, so keep dev
-    # dependencies in the install even though NODE_ENV is production
-    buildCommand: npm ci --include=dev
+    # dependencies in the install even though NODE_ENV is production. tsx
+    # doesn't type-check, so the build does: a type error stops the deploy
+    # instead of reaching donors.
+    buildCommand: npm ci --include=dev && npm run typecheck
     startCommand: npm start
     healthCheckPath: /api/health
     autoDeploy: true
+    # SIGTERM → stop taking requests, let a running charge finish, give up the
+    # jobs lease (server/index.ts). It finishes well inside this.
+    maxShutdownDelaySeconds: 30
     # uploaded files (appeal and fundraiser photos, compliance documents) when
     # S3_BUCKET is empty; DATA_DIR points the server at this disk
     disk:
@@ -30,6 +41,9 @@ services:
         value: production
       - key: NODE_VERSION
         value: "22"
+      # the charity's clock; server/env.ts pins it too
+      - key: TZ
+        value: Australia/Sydney
       - key: DATA_DIR
         value: /var/data
       # Vercel's rewrite, then Render's own proxy
@@ -39,9 +53,30 @@ services:
         generateValue: true
       # STAGING: fills an empty database with the invented demo data and the
       # demo staff logins (password alanwaar-demo). Set to 0, and use a fresh
-      # database, before real donors arrive.
+      # database, before real donors arrive. Production refuses SEED_DEMO=1 unless
+      # ALLOW_SIMULATED_PAYMENTS=1 is also set, and once SEED_DEMO is off it refuses
+      # to start while any staff login still has the demo password (finding C1).
       - key: SEED_DEMO
         value: "1"
+      # STAGING: without this, production refuses to start until Stripe (live
+      # key and webhook secret) and SMTP are set (server/env.ts). With it,
+      # payments may be simulated — marked as such, never a real receipt —
+      # and email kept in the outbox. Remove it before real donors arrive.
+      - key: ALLOW_SIMULATED_PAYMENTS
+        value: "1"
+      # the secret Vercel's middleware adds to every /api request; set the
+      # same value on Vercel. With it set, the API refuses direct requests.
+      - key: ORIGIN_SECRET
+        sync: false
+      # two-step sign-in (an authenticator app) for owner, admin and finance:
+      # unset is ON in production. 0 turns it off, which only a staging deploy
+      # with demo logins should ever do.
+      # - key: REQUIRE_STAFF_MFA
+      #   value: "1"
+      # the key two-step sign-in secrets are sealed with; set before go-live so
+      # rotating JWT_SECRET never breaks anyone's authenticator (lib/mfa.ts)
+      - key: MFA_KEY
+        generateValue: true
 
       # required: the Atlas connection string
       - key: MONGODB_URI
@@ -50,7 +85,7 @@ services:
       - key: APP_URL
         sync: false
 
-      # optional: empty keeps email in Admin > Email log
+      # required in production (unless ALLOW_SIMULATED_PAYMENTS=1)
       - key: SMTP_HOST
         sync: false
       - key: SMTP_PORT
@@ -60,7 +95,12 @@ services:
       - key: SMTP_PASS
         sync: false
 
-      # optional: empty keeps payments simulated
+      # required in production (unless ALLOW_SIMULATED_PAYMENTS=1): a live
+      # sk_live_ key and the webhook's signing secret. PayPal is optional; if
+      # its keys are set, PAYPAL_API must be the live https://api-m.paypal.com
+      # (the default in production) and PAYPAL_WEBHOOK_ID is required: create a
+      # webhook in PayPal pointing at <site>/api/webhooks/paypal for the
+      # PAYMENT.CAPTURE.* events and paste its id here
       - key: STRIPE_SECRET_KEY
         sync: false
       - key: STRIPE_WEBHOOK_SECRET
@@ -69,8 +109,8 @@ services:
         sync: false
       - key: PAYPAL_CLIENT_SECRET
         sync: false
-      - key: PAYPAL_API
-        value: https://api-m.sandbox.paypal.com
+      - key: PAYPAL_WEBHOOK_ID
+        sync: false
 
       # optional: empty stores files on the disk above
       - key: S3_BUCKET

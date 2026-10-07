@@ -98,6 +98,8 @@ export function GiftSheet({ id, onClose }: { id: string | null; onClose: () => v
               <StatusBadge kind="gift" value={g.status} />
               <StatusBadge kind="designation" value={g.designation} />
               {g.anonymous && <Badge>Anonymous</Badge>}
+              {g.simulated && <Badge tone="amber">Test payment</Badge>}
+              {g.dispute && <Badge tone="red">Disputed</Badge>}
             </div>
           )
         }
@@ -131,7 +133,17 @@ export function GiftSheet({ id, onClose }: { id: string | null; onClose: () => v
           )
         ) : (
           <div>
-            {g.status === 'pending' && (
+            {/* A card or PayPal checkout left pending was never paid, so it is
+                not something that can be "received" — the server refuses it
+                too (finding M9). It is closed by the provider or by the
+                abandoned-checkout sweep instead. */}
+            {g.status === 'pending' && g.method !== 'bank' && (
+              <Callout tone="amber" icon={<Clock />} title="Waiting for the payment page" className="mb-6">
+                The donor opened the {g.method === 'paypal' ? 'PayPal' : 'card'} payment page and has not finished paying. If they never do, this is
+                marked as abandoned after two days.
+              </Callout>
+            )}
+            {g.status === 'pending' && g.method === 'bank' && (
               <Callout
                 tone="amber"
                 icon={<Clock />}
@@ -221,7 +233,7 @@ export function GiftSheet({ id, onClose }: { id: string | null; onClose: () => v
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium text-text">{d.donor.name}</p>
                     <p className="truncate text-[12.5px] text-text-3">
-                      {d.donor.number} · {d.donor.hasEmail ? d.donor.email : 'No email on file'}
+                      {d.donor.number} · {d.donor.hasEmail ? d.donor.email || d.donor.emailHint : 'No email on file'}
                     </p>
                     {canRead && (
                       <p className="nums mt-0.5 text-[12.5px] text-text-2">

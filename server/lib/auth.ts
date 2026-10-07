@@ -1,10 +1,12 @@
 import type { NextFunction, Request, Response } from 'express'
 import jwt from 'jsonwebtoken'
+import { Types } from 'mongoose'
 import { createHash, randomBytes, randomInt, timingSafeEqual } from 'node:crypto'
 import { can, ROLES, type Permission, type Role } from '../../shared/access'
 import { env } from '../env'
 import { Donor, Staff, type DonorDoc, type StaffDoc } from '../models'
 import { forbidden, HttpError } from './http'
+import { mfaRequired } from './mfa'
 
 /* ---------------------------------------------------------------------------
    Sessions.
@@ -16,7 +18,13 @@ import { forbidden, HttpError } from './http'
 
    Every state-changing request must also carry `X-Requested-With: aa`, which
    the portals' fetch wrapper sets and a cross-site form post cannot. That plus
-   SameSite is the CSRF defence. The Stripe webhook is the one exemption.
+   SameSite is the CSRF defence. Two requests are exempt: the Stripe webhook,
+   and the one-click unsubscribe a mail provider POSTs on the reader's behalf
+   (RFC 8058), whose token is its own authority.
+
+   Both kinds of session can be ended everywhere: each cookie carries the
+   record's sessionVersion, and bumping it (sign-out, a password or email
+   change, a role change) makes every older cookie worthless.
 --------------------------------------------------------------------------- */
 
 declare module 'express-serve-static-core' {
@@ -30,7 +38,7 @@ const STAFF_COOKIE = 'aa_staff'
 const DONOR_COOKIE = 'aa_donor'
 
 type StaffClaims = { sub: string; kind: 'staff'; v: number }
-type DonorClaims = { sub: string; kind: 'donor' }
+type DonorClaims = { sub: string; kind: 'donor'; v?: number }
 
 function setCookie(res: Response, name: string, token: string, days: number) {
   res.cookie(name, token, {
@@ -51,17 +59,33 @@ export function signInStaff(res: Response, staff: StaffDoc, remember: boolean) {
 }
 
 export function signInDonor(res: Response, donor: DonorDoc) {
-  const token = jwt.sign({ sub: donor.id, kind: 'donor' } satisfies DonorClaims, env.jwtSecret, { expiresIn: '30d' })
+  const token = jwt.sign({ sub: donor.id, kind: 'donor', v: donor.sessionVersion ?? 0 } satisfies DonorClaims, env.jwtSecret, {
+    expiresIn: '30d',
+  })
   setCookie(res, DONOR_COOKIE, token, 30)
 }
 
 export const signOutStaff = (res: Response) => res.clearCookie(STAFF_COOKIE, { path: '/' })
 export const signOutDonor = (res: Response) => res.clearCookie(DONOR_COOKIE, { path: '/' })
 
+/** End every session a donor has, on every device: signing out, a changed
+ *  sign-in email, or staff acting on a report of a stolen account. A cookie
+ *  issued to a record later merged into this one is checked against the
+ *  merged record's version (currentDonor), so those are bumped too. */
+export async function signOutDonorEverywhere(donorId: unknown) {
+  const id = new Types.ObjectId(String(donorId))
+  await Donor.updateMany({ $or: [{ _id: id }, { mergedInto: id }] }, { $inc: { sessionVersion: 1 } })
+}
+
+/** The same for a staff member. */
+export async function signOutStaffEverywhere(staffId: unknown) {
+  await Staff.updateOne({ _id: staffId }, { $inc: { sessionVersion: 1 } })
+}
+
 function verify<T>(token: string | undefined): T | null {
   if (!token) return null
   try {
-    return jwt.verify(token, env.jwtSecret) as T
+    return jwt.verify(token, env.jwtSecret, { algorithms: ['HS256'] }) as T
   } catch {
     return null
   }
@@ -73,6 +97,9 @@ export async function currentStaff(req: Request): Promise<StaffDoc | null> {
   if (!claims || claims.kind !== 'staff') return null
   const staff = await Staff.findById(claims.sub)
   if (!staff || !staff.active || (staff.sessionVersion ?? 0) !== claims.v) return null
+  /* a role that must use two-step sign-in and hasn't set it up yet is sent
+     back to sign in, where it is walked through the setup (lib/mfa.ts) */
+  if (mfaRequired(staff.role) && !staff.totpEnabled) return null
   req.staff = staff
   return staff
 }
@@ -82,6 +109,8 @@ export async function currentDonor(req: Request): Promise<DonorDoc | null> {
   const claims = verify<DonorClaims>(req.cookies?.[DONOR_COOKIE])
   if (!claims || claims.kind !== 'donor') return null
   let donor = await Donor.findById(claims.sub)
+  /* checked on the record the cookie names, before following a merge */
+  if (!donor || (donor.sessionVersion ?? 0) !== (claims.v ?? 0)) return null
   /* a donor merged into another record keeps working: they are simply the
      surviving record now */
   if (donor?.status === 'merged' && donor.mergedInto) donor = await Donor.findById(donor.mergedInto)
@@ -124,6 +153,9 @@ export const permissionsOf = (role: Role): Permission[] => [...ROLES[role].perms
 export function csrfGuard(req: Request, _res: Response, next: NextFunction) {
   if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) return next()
   if (req.path.startsWith('/webhooks/')) return next()
+  /* RFC 8058 one-click unsubscribe: Gmail and Yahoo POST it with no custom
+     header; the unguessable token in the URL is what authorises it */
+  if (req.method === 'POST' && req.path === '/public/unsubscribe/one-click') return next()
   /* the public site's forms post plain JSON too, and go through the same guard */
   if (req.get('x-requested-with') !== 'aa') throw new HttpError(403, 'Request refused.')
   next()

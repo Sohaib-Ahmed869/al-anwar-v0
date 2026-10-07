@@ -129,7 +129,11 @@ export function useFundraiser(slug: string | null | undefined): { fundraiser?: F
 }
 
 /** Sends a finished draft to the approval queue. */
-export async function submitFundraiser(d: Draft): Promise<{ ok: true } | { ok: false; message: string; fields?: Record<string, string> }> {
+/** `confirm`: the server is waiting for the organiser to confirm their email
+ *  address by the link it sent (they were not signed in as it). */
+export async function submitFundraiser(
+  d: Draft,
+): Promise<{ ok: true; confirm: boolean } | { ok: false; message: string; fields?: Record<string, string> }> {
   try {
     const res = await fetch(FUNDRAISER_ENDPOINT, {
       method: 'POST',
@@ -148,7 +152,10 @@ export async function submitFundraiser(d: Draft): Promise<{ ok: true } | { ok: f
         group: d.group.trim() || undefined,
       }),
     })
-    if (res.ok) return { ok: true }
+    if (res.ok) {
+      const done = (await res.json().catch(() => null)) as { confirm?: boolean } | null
+      return { ok: true, confirm: Boolean(done?.confirm) }
+    }
     const body = (await res.json().catch(() => null)) as { error?: { message?: string; fields?: Record<string, string> } } | null
     return {
       ok: false,
@@ -157,6 +164,22 @@ export async function submitFundraiser(d: Draft): Promise<{ ok: true } | { ok: f
     }
   } catch {
     return { ok: false, message: 'We could not reach our server. Check your connection and try again.' }
+  }
+}
+
+/** The confirmation link's page posts its token here (see pages/FundraiserConfirm.tsx). */
+export async function confirmFundraiser(token: string): Promise<{ ok: true; already: boolean } | { ok: false; message?: string }> {
+  try {
+    const res = await fetch(`${FUNDRAISER_ENDPOINT}/confirm`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'aa' },
+      body: JSON.stringify({ t: token }),
+    })
+    const body = (await res.json().catch(() => null)) as { already?: boolean; error?: { message?: string } } | null
+    if (res.ok) return { ok: true, already: Boolean(body?.already) }
+    return { ok: false, message: body?.error?.message }
+  } catch {
+    return { ok: false }
   }
 }
 
@@ -245,15 +268,16 @@ export function draftToFundraiser(d: Draft, now = new Date()): Fundraiser {
   }
 }
 
-/** Shrinks a chosen photo to at most 1400px wide as a JPEG data URL, so it fits
- *  in the request. Rejects anything that is not an image. */
+/** Shrinks a chosen photo to at most 1400px on its longer side as a JPEG data
+ *  URL, so it fits in the request (the server takes up to 1.5 MB, and checks
+ *  that the bytes really are an image). Rejects anything that is not one. */
 export function shrinkPhoto(file: File, max = 1400): Promise<string> {
   return new Promise((resolve, reject) => {
     if (!file.type.startsWith('image/')) return reject(new Error('not-image'))
     const url = URL.createObjectURL(file)
     const img = new Image()
     img.onload = () => {
-      const scale = Math.min(1, max / img.width)
+      const scale = Math.min(1, max / Math.max(img.width, img.height))
       const canvas = document.createElement('canvas')
       canvas.width = Math.round(img.width * scale)
       canvas.height = Math.round(img.height * scale)

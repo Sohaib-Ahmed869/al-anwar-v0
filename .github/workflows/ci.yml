@@ -1,0 +1,93 @@
+# ---------------------------------------------------------------------------
+# Every push and pull request: typecheck, the import boundaries, the unit and
+# API tests, a production build, then the browser tests against that build.
+#
+# Node 22, as render.yaml runs in production.
+#
+# Nothing here needs a secret or a service. The API tests and the browser
+# tests start their own in-memory MongoDB (mongodb-memory-server) with no
+# email and simulated payments, exactly as on a developer's machine. The
+# MongoDB binary and the Playwright browser are cached, keyed on their
+# versions, so a normal run downloads neither.
+# ---------------------------------------------------------------------------
+name: CI
+
+on:
+  push:
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  # the version mongodb-memory-server 11.3 downloads by default; pinned here so
+  # the cache key below names the binary actually in the cache
+  MONGOMS_VERSION: 8.2.6
+  MONGOMS_DOWNLOAD_DIR: ${{ github.workspace }}/.cache/mongodb-binaries
+  PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/.cache/ms-playwright
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Cache the MongoDB binary
+        uses: actions/cache@v4
+        with:
+          path: .cache/mongodb-binaries
+          key: mongodb-${{ runner.os }}-${{ env.MONGOMS_VERSION }}
+
+      - name: Cache the Playwright browser
+        id: pw-cache
+        uses: actions/cache@v4
+        with:
+          path: .cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('node_modules/@playwright/test/package.json') }}
+
+      - name: Typecheck (client, server, tests)
+        run: npm run typecheck
+
+      - name: Import boundaries (server/ and shared/ never import src/)
+        run: npm run check:imports
+
+      - name: Unit and API tests
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      - name: Install the Playwright browser
+        if: steps.pw-cache.outputs.cache-hit != 'true'
+        run: npx playwright install --with-deps chromium
+
+      - name: Install the browser's system libraries
+        if: steps.pw-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps chromium
+
+      - name: Browser tests (against the production build)
+        run: npm run test:e2e
+        env:
+          E2E_MODE: dist
+
+      - name: Upload the Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 14

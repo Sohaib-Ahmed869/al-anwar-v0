@@ -40,7 +40,10 @@ const metaLabel = (k: string) => META_LABELS[k] ?? k.replace(/[_-]+/g, ' ').repl
 
 export function EnquiryThread({ id, className }: { id: string; className?: string }) {
   const qc = useQueryClient()
-  const { user } = useStaff()
+  const { user, can } = useStaff()
+  /* a volunteer handles enquiries without donors.read: they see who the donor
+     is, but not their giving, and there is no record page for them to open */
+  const readsDonors = can('donors.read')
   const confirm = useConfirm()
   const key = ['admin', 'enquiries', 'detail', id]
   const q = useQuery({ queryKey: key, queryFn: () => api.get<EnquiryDetail>(`/admin/enquiries/${id}`) })
@@ -215,13 +218,19 @@ export function EnquiryThread({ id, className }: { id: string; className?: strin
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-medium text-text">{donor.name}</p>
               <p className="nums truncate text-[12.5px] text-text-3">
-                {donor.number} · {donor.giftCount ? `${formatMoney(donor.totalGiven)} over ${donor.giftCount} ${donor.giftCount === 1 ? 'donation' : 'donations'}` : 'No donations yet'}
-                {donor.hasActivePlan ? ' · gives regularly' : ''}
+                {donor.number}
+                {readsDonors
+                  ? ` · ${donor.giftCount ? `${formatMoney(donor.totalGiven ?? 0)} over ${donor.giftCount} ${donor.giftCount === 1 ? 'donation' : 'donations'}` : 'No donations yet'}${donor.hasActivePlan ? ' · gives regularly' : ''}`
+                  : donor.emailHint
+                    ? ` · ${donor.emailHint}`
+                    : ''}
               </p>
             </div>
-            <Link to={`/admin/donors/${donor.id}`} className="inline-flex items-center gap-1 rounded-lg px-2 py-1.5 text-[13px] font-medium text-green hover:bg-green-50">
-              Open <ArrowUpRight className="size-3.5" />
-            </Link>
+            {readsDonors && (
+              <Link to={`/admin/donors/${donor.id}`} className="inline-flex items-center gap-1 rounded-lg px-2 py-1.5 text-[13px] font-medium text-green hover:bg-green-50">
+                Open <ArrowUpRight className="size-3.5" />
+              </Link>
+            )}
             <IconButton
               size="sm"
               label="Take off this donor’s record"

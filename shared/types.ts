@@ -122,6 +122,11 @@ export type Gift = {
   enteredByName?: string
   notes?: string
   failureReason?: string
+  /** taken while no payment provider was connected: no money moved, and its
+   *  receipt (a SIM- number) is a test, not a tax receipt */
+  simulated?: boolean
+  /** the donor's bank disputed the payment (a chargeback), from Stripe */
+  dispute?: { at: ISODate; reason?: string }
   createdAt: ISODate
 }
 

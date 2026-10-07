@@ -5,9 +5,10 @@ import { env } from '../../env'
 import { Staff, type StaffDoc } from '../../models'
 import { audit } from '../../lib/audit'
 import { newToken, requireStaff, sha256 } from '../../lib/auth'
+import { resetStaffMfa } from '../../lib/mfa'
 import { sendEmail } from '../../lib/email'
 import { badRequest, forbidden, HttpError, notFound, out, parse, zEmail } from '../../lib/http'
-import { staffInviteEmail } from '../../emails/templates'
+import { passwordResetEmail, staffInviteEmail } from '../../emails/templates'
 
 /* ---------------------------------------------------------------------------
    /api/admin/staff — who can sign in to the portals, and as what.
@@ -120,6 +121,37 @@ r.post('/:id/deactivate', async (req, res) => {
   await s.save()
   await audit(req, 'staff.deactivate', `Switched off ${s.name}'s login; they were signed out everywhere`, { type: 'staff', id: s._id, label: s.name })
   res.json(shape(s))
+})
+
+/* Resetting someone's two-step sign-in, for a person who lost their phone
+   and their recovery codes. Owner only, and never your own: it removes the
+   second factor on an account, which is exactly what someone holding a stolen
+   password would want, so it is the one staff action an administrator can't
+   take. The account is signed out everywhere, its password is cleared, and a
+   reset link goes to the person's own address: they set a new password and
+   then a new app from that link (lib/mfa.ts, routes/auth.ts). */
+r.post('/:id/reset-mfa', async (req, res) => {
+  if (req.staff!.role !== 'owner') throw forbidden('Only an owner can reset two-step sign-in.')
+  const s = await load(String(req.params.id))
+  if (s.id === req.staff!.id) throw badRequest('You cannot reset your own two-step sign-in. Use a recovery code, or ask another owner.')
+  await resetStaffMfa(s._id)
+  /* The password goes too, and a reset link goes to their own address: the
+     next sign-in sets up a new app, and that must be done by whoever reads
+     their mailbox — not by whoever might have learnt the old password (the
+     reason the app is being reset is often that something was lost). */
+  const token = newToken()
+  await Staff.updateOne(
+    { _id: s._id },
+    { $set: { tokenHash: sha256(token), tokenExpires: new Date(Date.now() + 3_600_000) }, $unset: { passwordHash: 1 } },
+  )
+  const sent = await sendEmail(s.email, passwordResetEmail(s.name, `${env.appUrl}/admin/reset?token=${token}`))
+  await audit(
+    req,
+    'staff.mfa_reset',
+    `Reset ${s.name}'s two-step sign-in and password; they were signed out everywhere and ${sent.ok ? 'emailed a link' : 'need a new reset link (the email did not go)'} to set both up again`,
+    { type: 'staff', id: s._id, label: s.name },
+  )
+  res.json(shape(await load(String(s._id))))
 })
 
 r.post('/:id/reactivate', async (req, res) => {

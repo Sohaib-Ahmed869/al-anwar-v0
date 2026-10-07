@@ -75,6 +75,7 @@ export function Popover({
   className,
   open,
   onOpenChange,
+  keepFocus,
 }: {
   trigger: ReactNode
   children: ReactNode
@@ -82,12 +83,22 @@ export function Popover({
   className?: string
   open?: boolean
   onOpenChange?: (v: boolean) => void
+  /** leave focus on the trigger when the popover opens. For a search box whose
+   *  results drop down under it: otherwise focus jumps into the list as the
+   *  person types, and the next space bar presses the first button in it */
+  keepFocus?: boolean
 }) {
   return (
     <RPopover.Root open={open} onOpenChange={onOpenChange}>
       <RPopover.Trigger asChild>{trigger}</RPopover.Trigger>
       <RPopover.Portal>
-        <RPopover.Content align={align} sideOffset={6} collisionPadding={12} className={cn(surface, 'p-3', className)}>
+        <RPopover.Content
+          align={align}
+          sideOffset={6}
+          collisionPadding={12}
+          onOpenAutoFocus={keepFocus ? (e) => e.preventDefault() : undefined}
+          className={cn(surface, 'p-3', className)}
+        >
           {children}
         </RPopover.Content>
       </RPopover.Portal>

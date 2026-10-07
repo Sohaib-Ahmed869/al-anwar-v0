@@ -11,22 +11,27 @@ import { Avatar, cn } from '../../portal/ui'
    read from the action log, and a compact "3h" age for inbox rows.
 --------------------------------------------------------------------------- */
 
-/** What gifts/plans/enquiries detail endpoints send about the person. */
+/** What gifts/plans/enquiries detail endpoints send about the person. Staff
+ *  without donors.read (a volunteer) get only who it is: no email (a masked
+ *  `emailHint` instead), phone or giving — see donorFor() in
+ *  server/routes/admin/gifts.ts. */
 export type DonorSummary = {
   id: string
   number: string
   name: string
   firstName: string
   lastName: string
-  /** '' when the record only has a placeholder address */
-  email: string
+  /** '' when the record only has a placeholder address; absent when masked */
+  email?: string
+  /** "a•••@example.com", when the address is masked */
+  emailHint?: string
   hasEmail: boolean
   phone?: string
-  totalGiven: number
-  giftCount: number
+  totalGiven?: number
+  giftCount?: number
   firstGiftAt?: string
   lastGiftAt?: string
-  hasActivePlan: boolean
+  hasActivePlan?: boolean
 }
 
 /** A donor record entered without an email carries a placeholder on the

@@ -20,10 +20,22 @@ import { AuthLayout } from './AuthLayout'
 
    The code boxes take a paste of the whole code, move on as each digit lands,
    go back on Backspace, and submit themselves on the sixth — and they use
-   autocomplete="one-time-code" so iOS offers the code from Mail.
+   autocomplete="one-time-code" so iOS offers the code from Mail. They clear
+   after every wrong code, not just the first.
+
+   Google or Facebook can send a donor here (?link=google&email=…) when the
+   address they carry already belongs to a record: the provider is linked
+   only once an emailed code proves the mailbox (server/routes/auth.ts), so the
+   page says so and starts with that address filled in.
+
+   The server limits codes per address (five an hour) and wrong codes per
+   day; those refusals arrive as errors from "Send another code" and are
+   shown on the code screen too.
 --------------------------------------------------------------------------- */
 
 type Providers = { google: boolean; facebook: boolean; devCodes: boolean }
+
+const PROVIDER_NAME: Record<string, string> = { google: 'Google', facebook: 'Facebook' }
 
 export function DonorLogin() {
   const [params] = useSearchParams()
@@ -32,10 +44,12 @@ export function DonorLogin() {
   const session = useSession()
   const qc = useQueryClient()
   const nav = useNavigate()
-  const [email, setEmail] = useState('')
+  const linking = PROVIDER_NAME[params.get('link') ?? '']
+  const [email, setEmail] = useState(() => params.get('email') ?? '')
   const [stage, setStage] = useState<'email' | 'code'>('email')
   const [devCode, setDevCode] = useState<string | undefined>()
   const [cooldown, setCooldown] = useState(0)
+  const [wrongCodes, setWrongCodes] = useState(0)
   const providers = useQuery({ queryKey: ['providers'], queryFn: () => api.get<Providers>('/auth/providers'), staleTime: Infinity })
 
   useEffect(() => {
@@ -58,6 +72,7 @@ export function DonorLogin() {
       qc.setQueryData<SessionResponse>(SESSION_KEY, (old) => ({ staff: old?.staff ?? null, donor: r.donor }))
       nav(r.created ? '/account/profile?welcome=1' : target, { replace: true })
     },
+    onError: () => setWrongCodes((n) => n + 1),
   })
 
   if (session.isLoading) return <FullPageSpinner />
@@ -74,6 +89,11 @@ export function DonorLogin() {
           <p className="mt-2 text-[14.5px] leading-relaxed text-text-2">
             Every donation and receipt, your regular donations — and your tax statement at the end of June. Enter the email you give with.
           </p>
+          {linking && (
+            <Callout tone="teal" className="mt-6">
+              You already have an account with this email. Enter the code we send to it to sign in, and {linking} will be linked so it works next time.
+            </Callout>
+          )}
           {params.get('error') === 'oauth' && (
             <Callout tone="amber" className="mt-6">
               That sign-in did not go through. Try again, or use your email.
@@ -126,7 +146,7 @@ export function DonorLogin() {
         </>
       ) : (
         <>
-          <button type="button" onClick={() => (setStage('email'), verify.reset())} className="mb-8 inline-flex items-center gap-1.5 text-[13px] font-medium text-text-2 hover:text-text">
+          <button type="button" onClick={() => (setStage('email'), verify.reset(), send.reset())} className="mb-8 inline-flex items-center gap-1.5 text-[13px] font-medium text-text-2 hover:text-text">
             <ArrowLeft className="size-4" /> Use a different email
           </button>
           <h1 className="text-[28px] font-semibold tracking-[-0.02em] text-text">Check your email</h1>
@@ -139,9 +159,9 @@ export function DonorLogin() {
             </Callout>
           )}
           <div className="mt-8">
-            <CodeInput disabled={verify.isPending} invalid={Boolean(verifyErr)} onComplete={(c) => verify.mutate(c)} />
+            <CodeInput disabled={verify.isPending} invalid={Boolean(verifyErr)} resetKey={wrongCodes} onComplete={(c) => verify.mutate(c)} />
             <div className="mt-3 min-h-5">
-              <FormError message={verifyErr?.message} />
+              <FormError message={verifyErr?.message ?? sendErr?.message} />
             </div>
           </div>
           <Button variant="primary" size="lg" className="mt-2 w-full" loading={verify.isPending} disabled>
@@ -159,18 +179,19 @@ export function DonorLogin() {
   )
 }
 
-function CodeInput({ onComplete, disabled, invalid }: { onComplete: (c: string) => void; disabled?: boolean; invalid?: boolean }) {
+function CodeInput({ onComplete, disabled, invalid, resetKey }: { onComplete: (c: string) => void; disabled?: boolean; invalid?: boolean; resetKey: number }) {
   const [digits, setDigits] = useState<string[]>(Array(6).fill(''))
   const refs = useRef<(HTMLInputElement | null)[]>([])
   useEffect(() => {
     refs.current[0]?.focus()
   }, [])
+  /* every wrong code clears the boxes, including a second one in a row */
   useEffect(() => {
-    if (invalid) {
+    if (resetKey > 0) {
       setDigits(Array(6).fill(''))
       refs.current[0]?.focus()
     }
-  }, [invalid])
+  }, [resetKey])
 
   const set = (i: number, v: string) => {
     const clean = v.replace(/\D/g, '')

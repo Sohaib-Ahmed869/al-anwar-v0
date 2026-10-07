@@ -202,7 +202,7 @@ export function StaffShell({ portal, groups, badgesQuery, actions = [], searchPa
         </>
       )}
       <MenuItem icon={<KeyRound />} onSelect={() => setPwOpen(true)}>
-        Change password
+        Password and sign-in
       </MenuItem>
       <MenuItem icon={<ExternalLink />} onSelect={() => window.open('/', '_blank')}>
         View the website

@@ -1,6 +1,9 @@
 import { Router, type Request } from 'express'
+import { sydneyDay } from '../../../shared/domain'
 import { AuditEvent } from '../../models'
 import { requireStaff } from '../../lib/auth'
+import { audit } from '../../lib/audit'
+import { sendCsv, type CsvRow } from '../../lib/csv'
 import { escapeRegex, isId, oid, out, paging, searchRegex } from '../../lib/http'
 
 /* ---------------------------------------------------------------------------
@@ -61,24 +64,22 @@ r.get('/actors', async (_req, res) => {
   res.json(rows.filter((r) => r._id).map((r) => ({ id: String(r._id), name: r.name, count: r.n })))
 })
 
-const csvCell = (v: unknown) => {
-  const s = String(v ?? '')
-  return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s
-}
-
+/* The export is itself written to the log, as the compliance portal's copy
+   is: up to 100,000 events with IP addresses and donor names leaving the
+   building is exactly the kind of thing an auditor asks "who did that?" of.
+   Cells go through lib/csv.ts, because a summary quotes names and titles a
+   donor typed, and "=HYPERLINK(…)" is a valid first name on the website. */
 r.get('/export', async (req, res) => {
   const rows = await AuditEvent.find(filterOf(req)).sort({ at: -1 }).limit(100_000).lean()
   const fmt = new Intl.DateTimeFormat('en-AU', { timeZone: 'Australia/Sydney', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })
-  const lines = [
-    ['When (Sydney)', 'Who', 'Kind', 'Action', 'Summary', 'Record type', 'Record', 'IP address'].join(','),
-    ...rows.map((e) =>
-      [fmt.format(e.at), e.actor?.name, e.actor?.kind, e.action, e.summary, e.entity?.type, e.entity?.label, e.ip].map(csvCell).join(','),
-    ),
+  const lines: CsvRow[] = [
+    ['When (Sydney)', 'Who', 'Kind', 'Action', 'Summary', 'Record type', 'Record', 'IP address'],
+    ...rows.map((e) => [fmt.format(e.at), e.actor?.name, e.actor?.kind, e.action, e.summary, e.entity?.type, e.entity?.label, e.ip]),
   ]
-  const stamp = new Date().toISOString().slice(0, 10)
-  res.setHeader('Content-Type', 'text/csv; charset=utf-8')
-  res.setHeader('Content-Disposition', `attachment; filename="al-anwaar-activity-${stamp}.csv"`)
-  res.send('﻿' + lines.join('\r\n'))
+  await audit(req, 'audit.export', `Exported ${rows.length.toLocaleString('en-AU')} action-log event${rows.length === 1 ? '' : 's'} to CSV`, { type: 'audit', label: 'export' }, {
+    query: req.query,
+  })
+  sendCsv(res, `al-anwaar-activity-${sydneyDay(new Date())}.csv`, lines)
 })
 
 export default r

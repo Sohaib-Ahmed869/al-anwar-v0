@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { format } from 'date-fns'
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
-  Activity, ArrowRight, Copy, CreditCard, EyeOff, HandCoins, Inbox, Landmark, Mail, MailX, MapPin, MoreHorizontal, Pencil, Phone,
+  Activity, ArrowRight, Copy, CreditCard, EyeOff, HandCoins, Inbox, Landmark, LogOut, Mail, MailX, MapPin, MoreHorizontal, Pencil, Phone,
   Plus, Repeat, Search, Undo2, Users, X,
 } from 'lucide-react'
 import { DESIGNATIONS, EMAIL_TOPICS, FREQUENCIES, METHODS, fyLabel, type EmailTopic } from '../../../shared/domain'
@@ -51,6 +51,13 @@ export default function DonorDetail() {
   const d = q.data?.donor
   const s = q.data?.summary
   useDocumentTitle(d ? donorName(d) : 'Donor', 'Al-Anwaar admin')
+
+  /* for a lost phone or a stolen account: every donor-portal session ends */
+  const signOut = useMutation({
+    mutationFn: () => api.post<{ ok: true }>(`/admin/donors/${id}/sign-out`),
+    onSuccess: () => toast.success('Signed out of the donor portal on every device'),
+    onError: (e) => toast.error(errorMessage(e)),
+  })
 
   const patch = useMutation({
     mutationFn: (body: Partial<Donor>) => api.patch<Donor>(`/admin/donors/${id}`, body),
@@ -164,6 +171,14 @@ export default function DonorDetail() {
                   <MenuSeparator />
                   <MenuItem icon={<Search />} onSelect={() => nav(`/admin/donors/duplicates?donor=${d.id}`)}>
                     Look for duplicates
+                  </MenuItem>
+                </>
+              )}
+              {can('donors.write') && d.status !== 'merged' && (
+                <>
+                  <MenuSeparator />
+                  <MenuItem icon={<LogOut />} onSelect={() => signOut.mutate()}>
+                    Sign out of the donor portal everywhere
                   </MenuItem>
                 </>
               )}

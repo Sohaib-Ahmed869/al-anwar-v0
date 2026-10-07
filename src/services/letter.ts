@@ -5,24 +5,23 @@ import { ORG } from '../components/org-data'
 /* ---------------------------------------------------------------------------
    What joining the letter is, whether it is checked, and where it goes.
 
-   Built the same way services/contact.ts is, and for the same reason: two
-   consumers —
-
-     - components/Letter.tsx, the block at the top of the footer, in the browser
-     - api/letter.ts, on whatever eventually serves it
-
-   — so the rules are written once here and imported twice. Validation that only
-   runs in the browser is not validation; anything can POST to an endpoint.
+   Built the same way services/contact.ts is: the rule lives here, apart from
+   components/Letter.tsx, the block at the top of the footer. Validation that
+   only runs in the browser is not validation; anything can POST to an
+   endpoint, so the server checks the address again (zLetter in
+   server/routes/public.ts) and the two have to agree.
 
    Nothing at the top level of this module touches `window`, which is what keeps
    it importable from a server. Check that before adding anything here.
 
    ── Where it posts ──────────────────────────────────────────────────────
-   ENDPOINT is the platform API (server/routes/public.ts), which puts the
-   address on the supporter list with the letter switched on — a new record if
-   we have never met, the existing one if we have. If ENDPOINT is ever emptied,
-   `submit` hands a one-line message to the writer's own email client and says
-   so on screen. It does NOT show a tick.
+   ENDPOINT is the platform API (server/routes/public.ts), which emails the
+   address a link to confirm it (double opt-in) and changes nothing else; the
+   link opens /letter/confirm, whose button calls confirmLetter() below, and
+   only then is the address put on the list. The server answers the same for
+   every address, so this cannot be used to learn who is a supporter. If
+   ENDPOINT is ever emptied, `submit` hands a one-line message to the writer's
+   own email client and says so on screen. It does NOT show a tick.
 
    That distinction is carried over from the contact form deliberately. An
    address typed into a box that goes nowhere is worse than no box at all: the
@@ -116,4 +115,20 @@ export async function submit(payload: LetterPayload): Promise<Joined> {
   )}&body=${encodeURIComponent(requestBody(payload))}`
 
   return { ok: true, via: 'mail' }
+}
+
+/** The confirmation link's page posts its token here. */
+export async function confirmLetter(token: string): Promise<{ ok: true } | { ok: false; message?: string }> {
+  try {
+    const res = await fetch(`${ENDPOINT}/confirm`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'aa' },
+      body: JSON.stringify({ t: token }),
+    })
+    if (res.ok) return { ok: true }
+    const body = (await res.json().catch(() => null)) as { error?: { message?: string } } | null
+    return { ok: false, message: body?.error?.message }
+  } catch {
+    return { ok: false }
+  }
 }

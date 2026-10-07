@@ -35,6 +35,12 @@ const exporting = requireStaff('reports.export')
 
 const TZ = 'Australia/Sydney'
 
+/* A gift taken while payments were simulated (staging, development) moved no
+   money: it is not income, its receipt is not a tax receipt, and it must never
+   reach the bookkeeper's Xero file. Every report and export below leaves it
+   out. `$ne: true` also matches gifts saved before the field existed. */
+const REAL = { simulated: { $ne: true } }
+
 function range(q: Request['query']) {
   const parseDay = (v: unknown) => {
     const s = String(v ?? '')
@@ -89,7 +95,7 @@ function label(group: Group, key: string | null, title?: string | null) {
 async function income(q: Request['query']) {
   const { from, to } = range(q)
   const group = (GROUPS as readonly string[]).includes(String(q.group)) ? (q.group as Group) : 'appeal'
-  const match = { status: 'succeeded', date: { $gte: from, $lt: to } }
+  const match = { status: 'succeeded', ...REAL, date: { $gte: from, $lt: to } }
   const groupKey = group === 'month' ? monthKey : `$${group}`
   const [rows, [totals], series] = await Promise.all([
     Gift.aggregate<{ _id: string | null; title?: string; amount: number; fees: number; count: number; donors: number }>([
@@ -145,7 +151,7 @@ r.get('/income.csv', exporting, async (req, res) => {
 
 async function receipts(q: Request['query'], all = false) {
   const { from, to } = range(q)
-  const match = { 'receipt.number': { $exists: true, $ne: null }, 'receipt.issuedAt': { $gte: from, $lt: to } }
+  const match = { 'receipt.number': { $exists: true, $ne: null }, ...REAL, 'receipt.issuedAt': { $gte: from, $lt: to } }
   const { page, pageSize, skip } = paging(q, { pageSize: 25, max: 100 })
   const [[sum], byMonth, items, total] = await Promise.all([
     Gift.aggregate<{ count: number; total: number; emailed: number; resent: number; refunded: number }>([
@@ -236,11 +242,11 @@ r.get('/donors', async (req, res) => {
 
   const [giving, byStateRaw] = await Promise.all([
     Gift.aggregate<{ _id: unknown; months: string[] }>([
-      { $match: { status: 'succeeded', date: { $lt: to } } },
+      { $match: { status: 'succeeded', ...REAL, date: { $lt: to } } },
       { $group: { _id: '$donor', months: { $addToSet: monthKey } } },
     ]),
     Gift.aggregate<{ _id: string | null; donors: number; amount: number }>([
-      { $match: { status: 'succeeded', date: { $gte: from, $lt: to } } },
+      { $match: { status: 'succeeded', ...REAL, date: { $gte: from, $lt: to } } },
       { $group: { _id: '$donor', amount: { $sum: '$amount' } } },
       { $lookup: { from: Donor.collection.name, localField: '_id', foreignField: '_id', as: 'd', pipeline: [{ $project: { 'address.state': 1 } }] } },
       { $group: { _id: { $first: '$d.address.state' }, donors: { $sum: 1 }, amount: { $sum: '$amount' } } },
@@ -325,7 +331,7 @@ async function xeroRows(q: Request['query'], limit?: number) {
   const methods = String(q.methods ?? '')
     .split(',')
     .filter((m): m is Method => (METHOD_KEYS as string[]).includes(m))
-  const match: Record<string, unknown> = { status: 'succeeded', date: { $gte: from, $lt: to } }
+  const match: Record<string, unknown> = { status: 'succeeded', ...REAL, date: { $gte: from, $lt: to } }
   if (methods.length) match.method = { $in: methods }
   const [gifts, [sum], byAccount] = await Promise.all([
     Gift.find(match)

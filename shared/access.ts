@@ -76,7 +76,12 @@ export const ROLES = {
   volunteer: {
     label: 'Volunteer',
     blurb: 'Enters donations taken at events. Sees no exports and no compliance.',
-    perms: ['donors.read', 'gifts.create', 'enquiries.manage'],
+    /* No donors.read. That permission opens the donor list, 200 records a page
+       with phones, addresses, notes and lifetime giving, which a volunteer at
+       an event table has no use for. Finding the donor for a cash gift goes
+       through /api/admin/lookup instead: five name-only matches at a time,
+       email masked (server/routes/admin/lookup.ts). */
+    perms: ['gifts.create', 'enquiries.manage'],
   },
 } as const satisfies Record<string, { label: string; blurb: string; perms: readonly Permission[] }>
 

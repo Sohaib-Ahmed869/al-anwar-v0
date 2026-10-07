@@ -147,6 +147,7 @@ r.post('/:id/send', async (req, res) => {
     throw badRequest('Nobody in this audience can be emailed right now, so nothing was sent.')
   }
   const n = await startSending(c._id, (c.segment ?? {}) as Segment)
+  if (n === null) throw badRequest('This campaign has already gone out.')
   await Campaign.updateOne({ _id: c._id }, { $unset: { scheduledAt: 1 } })
   await audit(req, 'campaign.send', `Started sending “${c.name}” to ${n} donors`, { type: 'campaign', id: c._id, label: c.name }, { recipients: n })
   void processCampaignQueue()

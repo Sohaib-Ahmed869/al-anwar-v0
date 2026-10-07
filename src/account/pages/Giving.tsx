@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { HandHeart, Repeat, SearchX } from 'lucide-react'
-import { DESIGNATIONS, DESIGNATION_KEYS, METHODS, METHOD_KEYS, fyLabel, fyRange, type Designation, type Method } from '../../../shared/domain'
+import { DESIGNATIONS, DESIGNATION_KEYS, METHODS, METHOD_KEYS, fyLabel, type Designation, type Method } from '../../../shared/domain'
 import { api } from '../../portal/api'
 import { formatDay, plural } from '../../portal/format'
 import {
@@ -42,8 +42,9 @@ export default function Giving() {
   const [open, setOpen] = useState<MyGift | null>(null)
 
   /* ?fy= from an older link becomes that year's dates */
-  const legacy = !s.range && Number(s.fy) > 2000 ? fyRange(Number(s.fy)) : null
-  const dates = legacy ? { from: isoDay(legacy.from), to: isoDay(new Date(legacy.to.getTime() - 1)) } : resolveRange(s.range, s.from, s.to)
+  const legacyFy = !s.range && Number(s.fy) > 2000 ? Number(s.fy) : null
+  const legacy = legacyFy !== null
+  const dates = legacyFy !== null ? { from: `${legacyFy - 1}-07-01`, to: `${legacyFy}-06-30` } : resolveRange(s.range, s.from, s.to)
   const params = { from: dates?.from ?? '', to: dates?.to ?? '', designation: s.designation, method: s.method, q: s.q, sort: s.sort, page: s.page, pageSize: 20 }
   const list = useQuery({
     queryKey: keys.gifts(params),

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { MailPlus, MoreHorizontal, Power, PowerOff, Send, ShieldCheck, UserPlus } from 'lucide-react'
+import { KeyRound, MailPlus, MoreHorizontal, Power, PowerOff, Send, ShieldCheck, UserPlus } from 'lucide-react'
 import type { Role } from '../../../shared/access'
 import type { StaffUser } from '../../../shared/types'
 import { api, errorMessage } from '../../portal/api'
@@ -22,7 +22,10 @@ import { StaffInviteDialog, StaffRoleDialog } from '../components/StaffDialogs'
    row, and nothing on an owner's row unless you are an owner.
 --------------------------------------------------------------------------- */
 
-type Row = StaffUser & { updatedAt?: string }
+/* totpEnabled comes with each row from GET /admin/staff: whether the person
+   has two-step sign-in set up, so an owner can reset it for someone who lost
+   their phone and their recovery codes */
+type Row = StaffUser & { updatedAt?: string; totpEnabled?: boolean }
 type ListResponse = { items: Row[] }
 
 const statusOf = (s: StaffUser) => (!s.active ? 'off' : s.passwordSet ? 'active' : 'invited')
@@ -52,10 +55,20 @@ export default function Staff() {
     onError: (e) => toast.error(errorMessage(e)),
   })
 
+  /* owner only, never your own row: the server refuses anything else */
+  const resetMfa = useMutation({
+    mutationFn: (s: Row) => api.post<Row>(`/admin/staff/${s.id}/reset-mfa`),
+    onSuccess: (s) => {
+      qc.invalidateQueries({ queryKey: ['admin', 'staff'] })
+      toast.success(`${s.name}’s two-step sign-in was reset, and they were signed out`)
+    },
+    onError: (e) => toast.error(errorMessage(e)),
+  })
+
   const canTouch = (s: StaffUser) => s.id !== me?.id && (me?.role === 'owner' || s.role !== 'owner')
   const activeCount = list.data?.items.filter((s) => s.active).length ?? 0
 
-  const menu = (s: StaffUser) =>
+  const menu = (s: Row) =>
     canTouch(s) ? (
       <div onClick={(e) => e.stopPropagation()}>
         <Menu
@@ -73,6 +86,24 @@ export default function Staff() {
           {s.active && !s.passwordSet && (
             <MenuItem icon={<Send />} onSelect={() => act.mutate({ s, action: 'resend-invite' })}>
               Send the invitation again
+            </MenuItem>
+          )}
+          {me?.role === 'owner' && s.totpEnabled && (
+            <MenuItem
+              icon={<KeyRound />}
+              onSelect={async () => {
+                if (
+                  await confirm({
+                    title: `Reset ${s.name}’s two-step sign-in?`,
+                    body: 'Only for someone who has lost both their phone and their recovery codes. They are signed out everywhere and set up their authenticator app again at their next sign-in. Check it is really them first, by phone or in person.',
+                    confirmLabel: 'Reset two-step sign-in',
+                    tone: 'danger',
+                  })
+                )
+                  resetMfa.mutate(s)
+              }}
+            >
+              Reset two-step sign-in
             </MenuItem>
           )}
           <MenuSeparator />

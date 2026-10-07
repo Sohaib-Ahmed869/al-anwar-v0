@@ -15,9 +15,14 @@ import { keys, useTitle, type MyFundraiser } from '../components/data'
    shown when they asked for changes, with Edit right there. A live page gets
    its share link front and centre — that is what a fundraiser is for — using
    the phone's own share sheet where there is one.
+
+   A page started on the public site while signed out waits for its organiser
+   to confirm the email address. Being signed in here proves the same thing,
+   so such a page offers "Send for approval" in place of the emailed link.
 --------------------------------------------------------------------------- */
 
 const EXPLAIN: Record<FundraiserStatus, string> = {
+  unverified: 'Not sent yet — it was started on our website, and we are waiting for you to confirm your email address. Send it for approval here, or use the link we emailed you.',
   pending: 'Awaiting approval — the team reads every page before it goes public. It usually takes a working day, and we will email you.',
   live: 'Live — anyone with the link can give, and every donation counts towards the appeal.',
   changes: 'The team has asked for a few changes before it goes public. Edit the page and it comes straight back to them.',
@@ -68,6 +73,15 @@ function FundraiserCard({ f }: { f: MyFundraiser }) {
     mutationFn: () => api.post(`/me/fundraisers/${f.id}/end`),
     onSuccess: () => {
       toast.success('Your fundraiser has ended', { description: 'Thank you — everything it raised has gone to the appeal.' })
+      qc.invalidateQueries({ queryKey: keys.all })
+    },
+    onError: (e) => toast.error(errorMessage(e)),
+  })
+
+  const send = useMutation({
+    mutationFn: () => api.post(`/me/fundraisers/${f.id}/confirm`),
+    onSuccess: () => {
+      toast.success('Sent for approval', { description: 'The team reads every page before it goes public. We will email you.' })
       qc.invalidateQueries({ queryKey: keys.all })
     },
     onError: (e) => toast.error(errorMessage(e)),
@@ -144,6 +158,11 @@ function FundraiserCard({ f }: { f: MyFundraiser }) {
       )}
 
       <div className="mt-auto flex flex-wrap items-center gap-2 px-5 py-4 sm:px-6">
+        {f.status === 'unverified' && (
+          <Button variant="primary" icon={<Check />} loading={send.isPending} onClick={() => send.mutate()}>
+            Send for approval
+          </Button>
+        )}
         {editable && (
           <ButtonLink to={`/account/fundraisers/${f.id}`} variant={f.status === 'changes' ? 'primary' : 'secondary'} icon={<Pencil />}>
             Edit page
@@ -154,7 +173,7 @@ function FundraiserCard({ f }: { f: MyFundraiser }) {
             View page <ExternalLink className="size-4" />
           </a>
         )}
-        {(f.status === 'live' || f.status === 'pending' || f.status === 'changes') && (
+        {(f.status === 'live' || f.status === 'pending' || f.status === 'changes' || f.status === 'unverified') && (
           <Button
             variant="ghost"
             className="ml-auto text-text-3 hover:text-red"

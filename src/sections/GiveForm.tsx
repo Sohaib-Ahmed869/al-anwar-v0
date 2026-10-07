@@ -37,7 +37,7 @@ import Reveal, { useInView } from '../components/Reveal'
 import { ArrowRight, Check, HandHeart, Lock } from '../components/icons'
 import { ORG } from '../components/org-data'
 import SectionHead, { BREAKOUT, SECTION_Y } from '../components/SectionHead'
-import { OPERATING_COSTS, startCheckout, type Frequency, type Provider } from '../services/give'
+import { OPERATING_COSTS, startCheckout, validateGift, type Frequency, type GiftPayload, type Provider } from '../services/give'
 
 /* ---------------------------------------------------------------------------
    /give, section 2 of 3: the form. Everything else on the page is there to
@@ -347,8 +347,7 @@ function GiveFormReady({ fundraiser }: { fundraiser: Fundraiser | undefined }) {
   }
 
   const pay = async () => {
-    setStatus({ kind: 'busy' })
-    const result = await startCheckout({
+    const payload: GiftPayload = {
       fund: cause.id,
       appeal: appeal ?? undefined,
       /* only while the form is still giving to that appeal: changing the fund
@@ -365,7 +364,25 @@ function GiveFormReady({ fundraiser }: { fundraiser: Fundraiser | undefined }) {
       behalfName: donor.behalf ? donor.behalfName : '',
       updates: donor.updates,
       anonymous: Boolean(donor.anonymous),
-    })
+    }
+    /* The same rules the server applies (shared/giving.ts), run here first so
+       a gift it would refuse is caught before the round trip. A problem with
+       the donor's details takes them back to that step with the field marked;
+       anything else is said under the button. */
+    const bad = validateGift(payload)
+    const field = (['first', 'last', 'email'] as const).find((k) => bad[k])
+    if (field) {
+      setErrors({ [field]: bad[field] })
+      go(1)
+      return
+    }
+    const message = Object.values(bad)[0]
+    if (message) {
+      setStatus({ kind: 'failed', message })
+      return
+    }
+    setStatus({ kind: 'busy' })
+    const result = await startCheckout(payload)
     if (result.kind === 'redirect') window.location.assign(result.url)
     else setStatus(result)
   }

@@ -2,6 +2,7 @@ import { Router } from 'express'
 import { requireStaff } from '../../lib/auth'
 import dashboard from './dashboard'
 import search from './search'
+import lookup from './lookup'
 import donors from './donors'
 import gifts from './gifts'
 import plans from './plans'
@@ -23,6 +24,7 @@ const r = Router()
 r.use(requireStaff())
 r.use('/dashboard', dashboard)
 r.use('/search', search)
+r.use('/lookup', lookup)
 r.use('/donors', donors)
 r.use('/gifts', gifts)
 r.use('/plans', plans)

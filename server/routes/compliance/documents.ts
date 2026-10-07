@@ -7,6 +7,7 @@ import { requireStaff } from '../../lib/auth'
 import { audit } from '../../lib/audit'
 import { badRequest, escapeRegex, HttpError, isId, notFound, out, paging, parse } from '../../lib/http'
 import { getFile, newKey, putFile } from '../../lib/storage'
+import { fileHeaders, looksLike, typeOf } from '../../lib/filetypes'
 import { LibraryDocument, Staff, type LibraryDocumentDoc } from '../../models'
 
 /* ---------------------------------------------------------------------------
@@ -29,11 +30,6 @@ const r = Router()
 const MAX_BYTES = 20 * 1024 * 1024
 const ALLOWED = new Set(['.pdf', '.doc', '.docx', '.xls', '.xlsx', '.csv', '.txt', '.rtf', '.odt', '.ods', '.ppt', '.pptx', '.png', '.jpg', '.jpeg', '.webp', '.md'])
 
-const MIME: Record<string, string> = {
-  '.pdf': 'application/pdf', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp',
-  '.txt': 'text/plain', '.md': 'text/plain', '.csv': 'text/csv',
-}
-
 /* multer's own errors ("File too large") become the portal's plain-English 400s */
 function single(req: Request, res: Response, next: NextFunction) {
   multer({ storage: multer.memoryStorage(), limits: { fileSize: MAX_BYTES, files: 1 } }).single('file')(req, res, (err: unknown) => {
@@ -49,9 +45,15 @@ function takeFile(req: Request) {
   if (!f) throw badRequest('Choose a file to upload.', { file: 'Choose a file to upload.' })
   const ext = extname(f.originalname).toLowerCase()
   if (!ALLOWED.has(ext)) throw badRequest('That kind of file cannot go in the library.', { file: 'PDF, Word, Excel, PowerPoint, text or image files only.' })
-  /* the browser's idea of the type is kept, unless it is missing or vague */
-  const mime = f.mimetype && f.mimetype !== 'application/octet-stream' ? f.mimetype : (MIME[ext] ?? 'application/octet-stream')
-  return { buffer: f.buffer, name: f.originalname.replace(/[\\/]/g, '_').slice(0, 200), size: f.size, mime }
+  /* the type is the server's, from the extension (lib/filetypes.ts), and the
+     first bytes have to agree with it. What the browser claimed is ignored:
+     an uploader chooses that freely, and "policy.pdf" sent as text/html would
+     otherwise be stored and served as a page on this origin. */
+  if (!looksLike(ext, f.buffer))
+    throw badRequest('That file is not what its name says it is.', {
+      file: `This does not look like a real ${ext} file. Save it again from the program that made it.`,
+    })
+  return { buffer: f.buffer, name: f.originalname.replace(/[\\/]/g, '_').slice(0, 200), size: f.size, mime: typeOf(ext) }
 }
 
 const bool = z.preprocess((v) => v === true || v === 'true' || v === '1' || v === 'on', z.boolean())
@@ -164,14 +166,10 @@ r.get('/:id/file', async (req, res) => {
     throw new HttpError(404, 'The file for this version is missing from storage.')
   }
   await audit(req, 'document.download', `Opened ${d.title} v${v.n}`, { type: 'document', id: d._id, label: d.title }, { version: v.n })
-  const disposition = req.query.download === '1' ? 'attachment' : 'inline'
-  const ascii = v.fileName.replace(/[^\x20-\x7e]/g, '_').replace(/"/g, "'")
-  res.setHeader('Content-Type', v.mime || 'application/octet-stream')
-  res.setHeader('Content-Length', String(body.length))
-  res.setHeader('Content-Disposition', `${disposition}; filename="${ascii}"; filename*=UTF-8''${encodeURIComponent(v.fileName)}`)
-  res.setHeader('X-Content-Type-Options', 'nosniff')
-  res.setHeader('Cache-Control', 'private, no-store')
-  res.send(body)
+  /* the type is worked out again from the file name, never the stored mime,
+     so a version uploaded before the check above is served safely too */
+  fileHeaders(res, v.fileName, body, { cache: 'private, no-store', download: req.query.download === '1' })
+  res.end(body)
 })
 
 /* ---------- writes ---------- */

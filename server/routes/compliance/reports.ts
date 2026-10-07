@@ -3,6 +3,7 @@ import { COUNTRIES, DESIGNATIONS, DOCUMENT_CATEGORIES, fyLabel, fyOf, fyRange } 
 import { REGISTERS } from '../../../shared/registers'
 import { AuditEvent, getSettings, Gift, LibraryDocument, Obligation, RegisterEntry } from '../../models'
 import { entryTitle, entryView } from './registers'
+import { audit } from '../../lib/audit'
 import { obligationView } from './obligations'
 
 /* ---------------------------------------------------------------------------
@@ -20,6 +21,12 @@ import { obligationView } from './obligations'
 --------------------------------------------------------------------------- */
 
 const r = Router()
+
+/* A gift taken while payments were simulated (staging, or development) moved
+   no money, so it is not income and its receipt is not a tax receipt: it is
+   left out of every figure here and of the evidence pack. `$ne: true` also
+   matches gifts saved before the field existed. */
+const REAL = { simulated: { $ne: true } }
 const TZ = 'Australia/Sydney'
 
 function fyFrom(req: Request) {
@@ -46,14 +53,14 @@ async function yearsAvailable() {
 
 const paid = (fy: number) => {
   const { from, to } = fyRange(fy)
-  return { status: 'succeeded', date: { $gte: from, $lt: to } }
+  return { status: 'succeeded', ...REAL, date: { $gte: from, $lt: to } }
 }
 
 /* ---------- the reports ---------- */
 async function receipts(fy: number) {
   const { from, to } = fyRange(fy)
   const rows = await Gift.aggregate<{ _id: string; count: number; amount: number; resent: number }>([
-    { $match: { 'receipt.number': { $exists: true, $ne: null }, 'receipt.issuedAt': { $gte: from, $lt: to } } },
+    { $match: { 'receipt.number': { $exists: true, $ne: null }, ...REAL, 'receipt.issuedAt': { $gte: from, $lt: to } } },
     {
       $group: {
         _id: { $dateToString: { date: '$receipt.issuedAt', format: '%Y-%m', timezone: TZ } },
@@ -193,9 +200,13 @@ r.get('/actions', async (req, res) => {
   res.json(await actions(fyFrom(req)))
 })
 
-/* ---------- the year-end evidence pack ---------- */
+/* ---------- the year-end evidence pack ----------
+   Every register, the calendar, the document list and the year's income in
+   one response. It is the largest single read the compliance portal makes,
+   so it goes in the audit trail like the CSV exports do. */
 r.get('/pack', async (req, res) => {
   const fy = fyFrom(req)
+  await audit(req, 'report.export', `Generated the ${fyLabel(fy)} evidence pack`, { type: 'report', label: 'pack' }, { fy })
   const { from, to } = fyRange(fy)
   const [settings, entries, obligations, docs, inc, rec, ctry] = await Promise.all([
     getSettings(),

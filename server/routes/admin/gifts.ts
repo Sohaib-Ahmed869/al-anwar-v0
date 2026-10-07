@@ -1,12 +1,13 @@
 import { Router, type Request } from 'express'
 import { z } from 'zod'
-import { DESIGNATIONS, DESIGNATION_KEYS, GIFT_STATUSES, METHODS, type Designation } from '../../../shared/domain'
+import { DESIGNATIONS, DESIGNATION_KEYS, GIFT_STATUSES, METHODS, fyLabel, fyOf, type Designation } from '../../../shared/domain'
 import { centsToDecimal, formatMoney } from '../../../shared/money'
 import { Appeal, AuditEvent, Donor, Gift, Plan, nextDonorNumber } from '../../models'
 import { audit } from '../../lib/audit'
+import { sendCsv } from '../../lib/csv'
 import { requireStaff, requireStaffAny, staffCan } from '../../lib/auth'
-import { findOrCreateDonor, fullName, issueReceipt, recordGift } from '../../lib/giving'
-import { badRequest, isId, notFound, oid, out, paging, parse, searchRegex, sorting, zCents, zId } from '../../lib/http'
+import { findOrCreateDonor, fullName, issueReceipt, recordGift, refundGift } from '../../lib/giving'
+import { badRequest, HttpError, isId, notFound, oid, out, paging, parse, searchRegex, sorting, zCents, zId } from '../../lib/http'
 import { refreshForGift } from '../../lib/stats'
 
 /* ---------------------------------------------------------------------------
@@ -27,7 +28,20 @@ import { refreshForGift } from '../../lib/stats'
    later adds a real address, "Resend receipt" works as normal.
 
    Refunds only RECORD that money went back: payments are returned in Stripe
-   or the bank, and the page says so before anyone presses the button.
+   or the bank, and the page says so before anyone presses the button. A
+   refund done in Stripe is recorded by the webhook through the same
+   refundGift(), so doing both changes nothing the second time.
+
+   ONCE, EVEN WHEN CLICKED TWICE (finding M9). "Received" and "Refund" are each
+   one conditional update — pending bank pledge → succeeded, succeeded →
+   refunded — so a double click, or a second member of staff on the same gift,
+   finds nothing left to change. "Received" is for bank transfers only: a card
+   or PayPal checkout that was never paid is not money that arrived.
+
+   NO PROVIDER IDS (finding H2). Every gift this router returns leaves out its
+   Stripe and PayPal ids, the checkout bookkeeping and the thank-you token —
+   giftView() below — and a volunteer looking up a donor for gift entry gets a
+   name and a masked email, not the record.
 --------------------------------------------------------------------------- */
 
 const r = Router()
@@ -61,11 +75,13 @@ function giftFilter(req: Request): Filter {
   const from = localDay(q.from)
   const to = localDay(q.to)
   if (from || to) f.date = { ...(from ? { $gte: from } : {}), ...(to ? { $lt: to } : {}) }
-  const methods = list(q.method).filter((m) => m in METHODS)
+  /* Object.hasOwn, not `in`: "__proto__" and "constructor" are `in` every
+     object, and must not pass as a method or a status (finding L6) */
+  const methods = list(q.method).filter((m) => Object.hasOwn(METHODS, m))
   if (methods.length) f.method = { $in: methods }
-  const des = list(q.designation).filter((d) => d in DESIGNATIONS)
+  const des = list(q.designation).filter((d) => Object.hasOwn(DESIGNATIONS, d))
   if (des.length) f.designation = { $in: des }
-  const st = list(q.status).filter((s) => s in GIFT_STATUSES)
+  const st = list(q.status).filter((s) => Object.hasOwn(GIFT_STATUSES, s))
   if (st.length) f.status = { $in: st }
   const appeals = list(q.appeal).filter(isId)
   if (appeals.length) f.appeal = { $in: appeals.map(oid) }
@@ -105,6 +121,23 @@ type DonorLike = {
   hasActivePlan?: boolean | null
 }
 
+/** A gift as staff see it: without provider ids, the checkout's own
+ *  bookkeeping, or the thank-you page's token. */
+export function giftView(g: { toObject?: () => unknown } | Record<string, unknown>) {
+  const o = out<Record<string, unknown>>('toObject' in g && typeof g.toObject === 'function' ? g.toObject() : g)
+  delete o.external
+  delete o.checkout
+  delete o.publicToken
+  return o
+}
+
+/** "amina.rahman@example.com" → "a•••@example.com": enough to tell two
+ *  Mohammed Khans apart at an event table, not enough to email anyone. */
+const maskEmail = (email: string) => {
+  const [user, domain] = email.split('@')
+  return domain ? `${user.charAt(0)}•••@${domain}` : ''
+}
+
 export const donorSummary = (x: DonorLike | null | undefined) => {
   if (!x) return null
   return {
@@ -124,13 +157,24 @@ export const donorSummary = (x: DonorLike | null | undefined) => {
   }
 }
 
+/** The donor summary this person may see. Someone who may enter a gift but not
+ *  read donor records (a volunteer) gets who it is and nothing about their
+ *  contact details or giving — on every route that answers with a donor, or
+ *  recording a gift would hand back the very address the lookup masked. */
+export const donorFor = (req: Request, x: DonorLike | null | undefined) => {
+  const s = donorSummary(x)
+  if (!s || staffCan(req, 'donors.read')) return s
+  const hint = s.hasEmail ? maskEmail(s.email) : ''
+  return { id: s.id, number: s.number, name: s.name, firstName: s.firstName, lastName: s.lastName, hasEmail: s.hasEmail, emailHint: hint }
+}
+
 /* ---------- list ---------- */
 r.get('/', requireStaffAny('gifts.read', 'gifts.create'), async (req, res) => {
   const { page, pageSize, skip } = paging(req.query)
   const sort = sorting(req.query, ['date', 'amount', 'createdAt'], { date: -1 })
   const f = giftFilter(req)
   const [items, total, agg] = await Promise.all([
-    Gift.find(f).sort({ ...sort, _id: -1 }).skip(skip).limit(pageSize).select('-external').lean(),
+    Gift.find(f).sort({ ...sort, _id: -1 }).skip(skip).limit(pageSize).select('-external -checkout').lean(),
     Gift.countDocuments(f),
     Gift.aggregate<{ amount: number }>([
       { $match: { $and: [f, { status: 'succeeded' }] } },
@@ -149,22 +193,19 @@ r.get('/', requireStaffAny('gifts.read', 'gifts.create'), async (req, res) => {
   })
 })
 
-/* ---------- CSV of the current filter ---------- */
-const csvCell = (v: unknown) => {
-  const s = v == null ? '' : String(v)
-  return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s
-}
-
+/* ---------- CSV of the current filter ----------
+   Built with lib/csv.ts, which neutralises a cell that would run as a formula
+   in Excel (a donor named "=HYPERLINK(…)", finding M13). */
 r.get('/export', requireStaff('gifts.read', 'reports.export'), async (req, res) => {
   const f = giftFilter(req)
-  const gifts = await Gift.find(f).sort({ date: -1 }).select('-external').lean()
+  const gifts = await Gift.find(f).sort({ date: -1 }).select('-external -checkout').lean()
   const donors = await Donor.find({ _id: { $in: [...new Set(gifts.map((g) => String(g.donor)))].map(oid) } })
     .select('number email')
     .lean()
   const byId = new Map(donors.map((d) => [String(d._id), d]))
   const header = [
     'Donation', 'Date', 'Donor number', 'Donor', 'Email', 'Amount', 'Operating costs contribution', 'Designation', 'Method', 'Status',
-    'Appeal', 'Country', 'Receipt', 'Reference', 'Source', 'Entered by', 'Anonymous', 'Notes',
+    'Appeal', 'Country', 'Receipt', 'Reference', 'Source', 'Entered by', 'Anonymous', 'Test payment', 'Notes',
   ]
   const rows = gifts.map((g) => {
     const d = byId.get(String(g.donor))
@@ -186,15 +227,12 @@ r.get('/export', requireStaff('gifts.read', 'reports.export'), async (req, res) 
       g.source,
       g.enteredByName ?? '',
       g.anonymous ? 'Yes' : 'No',
+      g.simulated ? 'Yes' : 'No',
       g.notes ?? '',
     ]
   })
-  const csv = [header, ...rows].map((row) => row.map(csvCell).join(',')).join('\r\n')
   await audit(req, 'gift.export', `Exported ${gifts.length.toLocaleString('en-AU')} donations to CSV`, { type: 'gift', label: 'CSV export' })
-  const stamp = ymd(new Date())
-  res.setHeader('Content-Type', 'text/csv; charset=utf-8')
-  res.setHeader('Content-Disposition', `attachment; filename="gifts-${stamp}.csv"`)
-  res.send('﻿' + csv)
+  sendCsv(res, `gifts-${ymd(new Date())}.csv`, [header, ...rows])
 })
 
 /* ---------- a donor, for "record a gift for this person" links ----------
@@ -204,7 +242,7 @@ r.get('/donor/:id', requireStaff('gifts.create'), async (req, res) => {
   let d = isId(req.params.id) ? await Donor.findById(req.params.id).lean() : null
   while (d?.status === 'merged' && d.mergedInto) d = await Donor.findById(d.mergedInto).lean()
   if (!d) throw notFound('That donor')
-  res.json({ donor: donorSummary(d) })
+  res.json({ donor: donorFor(req, d) })
 })
 
 /* ---------- one gift ---------- */
@@ -217,7 +255,7 @@ r.get('/:id', requireStaffAny('gifts.read', 'gifts.create'), async (req, res) =>
     g.plan ? Plan.findById(g.plan).select('number status amount frequency kind nextChargeAt payment.brand payment.last4').lean() : null,
     AuditEvent.find({ 'entity.type': 'gift', 'entity.id': g._id }).sort({ at: -1 }).limit(50).lean(),
   ])
-  res.json({ gift: out(g), donor: donorSummary(donor), plan: plan ? out(plan) : null, events: out(events) })
+  res.json({ gift: giftView(g), donor: donorFor(req, donor), plan: plan ? out(plan) : null, events: out(events) })
 })
 
 /* ---------- record a cash, cheque, event or transfer gift ---------- */
@@ -308,8 +346,8 @@ r.post('/offline', requireStaff('gifts.create'), async (req, res) => {
     req,
   )
   res.status(201).json({
-    gift: out(gift.toObject()),
-    donor: donorSummary(await Donor.findById(donor._id).lean()),
+    gift: giftView(gift),
+    donor: donorFor(req, await Donor.findById(donor._id).lean()),
     donorCreated,
     receiptEmailed: Boolean(gift.receipt?.emailedAt),
     receiptSkipped: noEmail ? 'no-email' : b.sendReceipt ? null : 'declined',
@@ -332,7 +370,7 @@ r.post('/:id/resend-receipt', requireStaff('gifts.read'), async (req, res) => {
   await audit(req, 'gift.receipt_resent', `Emailed receipt ${gift.receipt?.number} for ${gift.number} to ${fullName(donor)} (${donor.email})`, {
     type: 'gift', id: gift._id, label: gift.number,
   })
-  res.json({ gift: out(gift.toObject()), to: donor.email })
+  res.json({ gift: giftView(gift), to: donor.email })
 })
 
 /* ---------- correct a gift ---------- */
@@ -367,6 +405,14 @@ r.patch('/:id', requireStaff('gifts.manage'), async (req, res) => {
     const cur = new Date(gift.date)
     if (d.toDateString() !== cur.toDateString()) {
       if (d.getTime() > Date.now()) throw badRequest('Some details need another look.', { date: 'A donation cannot be dated in the future' })
+      /* a receipt's number carries its financial year, and the donor's tax
+         statement is by financial year: moving a receipted gift into another
+         year would leave the two disagreeing (finding L10) */
+      if (gift.receipt?.number && fyOf(d) !== fyOf(cur)) {
+        throw badRequest('Some details need another look.', {
+          date: `Receipt ${gift.receipt.number} belongs to ${fyLabel(fyOf(cur))}. Keep the date in that year, or refund this donation and record it again.`,
+        })
+      }
       changes.push(`date ${cur.toLocaleDateString('en-AU')} → ${d.toLocaleDateString('en-AU')}`)
       gift.date = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 12)
     }
@@ -375,7 +421,7 @@ r.patch('/:id', requireStaff('gifts.manage'), async (req, res) => {
     changes.push('notes updated')
     gift.notes = b.notes || undefined
   }
-  if (!changes.length) return void res.json({ gift: out(gift.toObject()), changed: false })
+  if (!changes.length) return void res.json({ gift: giftView(gift), changed: false })
 
   await gift.save()
   await refreshForGift(gift)
@@ -383,39 +429,36 @@ r.patch('/:id', requireStaff('gifts.manage'), async (req, res) => {
   await audit(req, 'gift.update', `Corrected ${gift.number} from ${gift.donorName}: ${changes.join('; ')}`, {
     type: 'gift', id: gift._id, label: gift.number,
   })
-  res.json({ gift: out(gift.toObject()), changed: true })
+  res.json({ gift: giftView(gift), changed: true })
 })
 
 /* ---------- refund ---------- */
 r.post('/:id/refund', requireStaff('gifts.manage'), async (req, res) => {
   const { reason } = parse(z.object({ reason: z.string().trim().min(3, 'Say briefly why, for the record').max(500) }), req.body)
-  const gift = await Gift.findById(req.params.id)
-  if (!gift) throw notFound('That donation')
-  if (gift.status !== 'succeeded') throw badRequest('Only a paid donation can be refunded.')
-  gift.status = 'refunded'
-  const stamp = new Date().toLocaleDateString('en-AU')
-  gift.notes = [gift.notes, `Refunded ${stamp} by ${req.staff!.name}: ${reason}`].filter(Boolean).join('\n')
-  await gift.save()
-  await refreshForGift(gift)
-  await audit(req, 'gift.refund', `Refunded ${formatMoney(gift.amount)} donation ${gift.number} from ${gift.donorName}: ${reason}`, {
-    type: 'gift', id: gift._id, label: gift.number,
-  })
-  res.json({ gift: out(gift.toObject()) })
+  if (!isId(req.params.id) || !(await Gift.exists({ _id: req.params.id }))) throw notFound('That donation')
+  const gift = await refundGift(req.params.id, { reason, by: req.staff!.name }, req)
+  if (!gift) throw new HttpError(409, 'Only a paid donation can be refunded, and this one is not (it may have been refunded already).')
+  res.json({ gift: giftView(gift) })
 })
 
 /* ---------- a pending bank pledge that arrived, marked by hand ---------- */
 r.post('/:id/received', requireStaff('gifts.manage'), async (req, res) => {
   const b = parse(z.object({ date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(), sendReceipt: z.boolean().optional().default(true) }), req.body)
-  const gift = await Gift.findById(req.params.id)
-  if (!gift) throw notFound('That donation')
-  if (gift.status !== 'pending') throw badRequest('Only a donation awaiting its transfer can be marked as received.')
+  if (!isId(req.params.id)) throw notFound('That donation')
   const d = b.date ? localDay(b.date)! : new Date()
   if (d.getTime() > Date.now()) throw badRequest('Some details need another look.', { date: 'The money cannot arrive in the future' })
-  gift.status = 'succeeded'
-  gift.date = b.date ? new Date(d.getFullYear(), d.getMonth(), d.getDate(), 12) : d
-  await gift.save()
+  const gift = await Gift.findOneAndUpdate(
+    { _id: req.params.id, status: 'pending', method: 'bank' },
+    { $set: { status: 'succeeded', date: b.date ? new Date(d.getFullYear(), d.getMonth(), d.getDate(), 12) : d } },
+    { returnDocument: 'after' },
+  )
+  if (!gift) {
+    if (!(await Gift.exists({ _id: req.params.id }))) throw notFound('That donation')
+    throw new HttpError(409, 'Only a bank transfer that is still awaited can be marked as received. This one is not (it may have been marked already).')
+  }
   const donor = await Donor.findById(gift.donor).select('email')
-  await issueReceipt(gift, { email: b.sendReceipt && !isPlaceholder(donor?.email) })
+  const send = b.sendReceipt && !isPlaceholder(donor?.email)
+  await issueReceipt(gift, { email: send, suppress: !b.sendReceipt })
   await refreshForGift(gift)
   await audit(
     req,
@@ -423,7 +466,7 @@ r.post('/:id/received', requireStaff('gifts.manage'), async (req, res) => {
     `Marked ${formatMoney(gift.amount)} bank transfer ${gift.number} from ${gift.donorName} as received${gift.reference ? ` (ref ${gift.reference})` : ''}`,
     { type: 'gift', id: gift._id, label: gift.number },
   )
-  res.json({ gift: out(gift.toObject()), receiptEmailed: Boolean(gift.receipt?.emailedAt) })
+  res.json({ gift: giftView(gift), receiptEmailed: Boolean(gift.receipt?.emailedAt) })
 })
 
 export default r

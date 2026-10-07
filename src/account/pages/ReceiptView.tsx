@@ -31,6 +31,15 @@ export default function ReceiptView() {
         <Callout tone="red">{errorMessage(q.error)}</Callout>
       ) : r && g ? (
         <div className="space-y-8">
+          {/* a gift taken while payments were simulated (finding C2): said in
+              print as well as on screen, so a printed copy can never pass for a
+              tax receipt */}
+          {g.simulated && (
+            <p role="note" className="rounded-lg border-2 border-[#a63a1c] px-4 py-3 text-[13.5px] leading-relaxed font-semibold text-[#a63a1c]">
+              TEST RECEIPT — no money was taken. This donation was made while online payments were in test mode. It is not a tax receipt
+              and cannot be used for a tax return.
+            </p>
+          )}
           <Letterhead
             org={r.org}
             title="Tax receipt"

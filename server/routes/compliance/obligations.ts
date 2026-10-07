@@ -1,7 +1,7 @@
 import { Router, type Request } from 'express'
 import { z } from 'zod'
 import { addMonths, differenceInCalendarDays } from 'date-fns'
-import { OBLIGATION_CATEGORIES, RECURRENCES, type Recurrence } from '../../../shared/domain'
+import { OBLIGATION_CATEGORIES, RECURRENCES, sydneyDay, type Recurrence } from '../../../shared/domain'
 import { requireStaff } from '../../lib/auth'
 import { audit } from '../../lib/audit'
 import { badRequest, isId, notFound, oid, out, paging, parse, zId } from '../../lib/http'
@@ -207,7 +207,7 @@ r.delete('/:id', requireStaff('compliance.write'), async (req, res) => {
   const o = await load(req.params.id)
   if (o.status === 'done') throw badRequest('A completed item is part of the record and cannot be deleted. Reopen it first if it was marked done by mistake.')
   await o.deleteOne()
-  await audit(req, 'obligation.delete', `Deleted ${o.title} (due ${o.dueDate.toISOString().slice(0, 10)}) from the statutory calendar`, {
+  await audit(req, 'obligation.delete', `Deleted ${o.title} (due ${sydneyDay(o.dueDate)}) from the statutory calendar`, {
     type: 'obligation', id: o._id, label: o.title,
   })
   res.status(204).end()
@@ -256,7 +256,7 @@ r.post('/:id/complete', requireStaff('compliance.write'), async (req, res) => {
     req,
     'obligation.complete',
     `Marked ${o.title} as done${o.evidence.length ? ` with ${o.evidence.length} evidence document${o.evidence.length === 1 ? '' : 's'}` : ''}${
-      next ? `; the next one is due ${next.dueDate.toISOString().slice(0, 10)}` : ''
+      next ? `; the next one is due ${sydneyDay(next.dueDate)}` : ''
     }`,
     { type: 'obligation', id: o._id, label: o.title },
   )

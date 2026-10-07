@@ -4,6 +4,7 @@ import { Search, UserPlus, X } from 'lucide-react'
 import type { Appeal, Donor, Page } from '../../../shared/types'
 import { api } from '../../portal/api'
 import { formatMoney } from '../../portal/format'
+import { useCan } from '../../portal/session'
 import { Avatar, Popover, Select, Spinner, cn, useDebounced } from '../../portal/ui'
 
 /* ---------------------------------------------------------------------------
@@ -14,10 +15,24 @@ import { Avatar, Popover, Select, Spinner, cn, useDebounced } from '../../portal
    because at an event table the person in front of you is often not in the
    system yet — and sending the volunteer to another screen loses the gift.
 
-   Reads GET /api/admin/donors?q=…&pageSize=8 (Page<Donor>).
+   Who sees what depends on the role. Staff who may read the donor list get
+   GET /api/admin/donors?q=…&pageSize=8, the full row with lifetime giving. A
+   volunteer has no donors.read (shared/access.ts) and gets the narrow
+   GET /api/admin/lookup/donors instead: five matches at most, from three
+   characters, with the email masked and no totals. Either way the picked
+   donor has the same shape; from the lookup, `email` holds the masked hint
+   and `noEmail` says whether there is a real address behind it.
 --------------------------------------------------------------------------- */
 
-export type PickedDonor = Pick<Donor, 'id' | 'firstName' | 'lastName' | 'email' | 'number'> & Partial<Donor>
+export type PickedDonor = Pick<Donor, 'id' | 'firstName' | 'lastName' | 'email' | 'number'> &
+  Partial<Donor> & {
+    /** from the lookup: true when the record has no real email address */
+    noEmail?: boolean
+    /** from the lookup: the suburb, to tell two people of the same name apart */
+    suburb?: string | null
+  }
+
+type LookupRow = { id: string; number: string; firstName: string; lastName: string; emailHint: string; noEmail: boolean; suburb: string | null }
 
 export function DonorPicker({
   value,
@@ -36,10 +51,17 @@ export function DonorPicker({
   const [open, setOpen] = useState(false)
   const [q, setQ] = useState('')
   const dq = useDebounced(q.trim(), 200)
+  const full = useCan('donors.read')
+  const minLength = full ? 2 : 3
   const results = useQuery({
-    queryKey: ['donor-picker', dq],
-    queryFn: () => api.get<Page<Donor>>('/admin/donors', { q: dq, pageSize: 8 }),
-    enabled: open && dq.length >= 2,
+    queryKey: ['donor-picker', full, dq],
+    queryFn: async (): Promise<{ items: PickedDonor[] }> =>
+      full
+        ? api.get<Page<Donor>>('/admin/donors', { q: dq, pageSize: 8 })
+        : api.get<{ items: LookupRow[] }>('/admin/lookup/donors', { q: dq }).then((r) => ({
+            items: r.items.map(({ emailHint, ...d }) => ({ ...d, email: emailHint })),
+          })),
+    enabled: open && dq.length >= minLength,
     staleTime: 15_000,
   })
 
@@ -51,7 +73,7 @@ export function DonorPicker({
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-medium text-text">{name}</p>
           <p className="truncate text-[12.5px] text-text-3">
-            {value.number} · {value.email}
+            {value.number} · {value.noEmail ? 'No email on file' : value.email}
           </p>
         </div>
         <button type="button" onClick={() => onChange(null)} className="grid size-8 place-items-center rounded-lg text-text-3 hover:bg-ink/5 hover:text-text" aria-label="Choose a different donor">
@@ -63,8 +85,9 @@ export function DonorPicker({
 
   return (
     <Popover
-      open={open && q.trim().length >= 2}
+      open={open && q.trim().length >= minLength}
       onOpenChange={setOpen}
+      keepFocus
       className="w-[var(--radix-popover-trigger-width)] p-1"
       trigger={
         <div className="relative">
@@ -105,10 +128,10 @@ export function DonorPicker({
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-sm font-medium text-text">{name}</span>
                 <span className="block truncate text-[12.5px] text-text-3">
-                  {d.number} · {d.email}
+                  {[d.number, d.noEmail ? 'No email' : d.email, d.suburb].filter(Boolean).join(' · ')}
                 </span>
               </span>
-              <span className="nums shrink-0 text-[12.5px] text-text-2">{formatMoney(d.totalGiven, { whole: true })}</span>
+              {d.totalGiven !== undefined && <span className="nums shrink-0 text-[12.5px] text-text-2">{formatMoney(d.totalGiven, { whole: true })}</span>}
             </button>
           )
         })}

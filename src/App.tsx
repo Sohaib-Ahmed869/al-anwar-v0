@@ -19,6 +19,8 @@ import Ramadan from './pages/Ramadan'
 import DhulHijjah from './pages/DhulHijjah'
 import Give from './pages/Give'
 import ThankYou from './pages/ThankYou'
+import LetterConfirm from './pages/LetterConfirm'
+import FundraiserConfirm from './pages/FundraiserConfirm'
 import WhereItGoes from './pages/WhereItGoes'
 import GetInvolved from './pages/GetInvolved'
 import Events from './pages/Events'
@@ -57,6 +59,7 @@ export default function App() {
 
         <Route path="give" element={<Give />} />
         <Route path="thank-you" element={<ThankYou />} />
+        <Route path="letter/confirm" element={<LetterConfirm />} />
 
         <Route path="where-it-goes" element={<WhereItGoes />} />
         <Route path="get-involved" element={<GetInvolved />} />
@@ -68,6 +71,7 @@ export default function App() {
         <Route path="become-a-partner" element={<BecomePartner />} />
         <Route path="fundraisers" element={<Fundraisers />} />
         <Route path="fundraisers/start" element={<FundraiserStart />} />
+        <Route path="fundraisers/confirm" element={<FundraiserConfirm />} />
         <Route path="fundraisers/:slug" element={<Fundraiser />} />
 
         <Route path="about" element={<About />} />

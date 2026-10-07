@@ -2,12 +2,17 @@
    Registers and the audit trail export on the server (they may be larger
    than the page and the export is logged); the reports are aggregates the
    browser already holds, so they are written here. Same rules as the
-   server's CSV: a BOM for Excel, quotes where needed, and a leading
-   apostrophe on anything Excel would run as a formula. */
+   server's CSV (server/lib/csv.ts, which explains the rule): a BOM for
+   Excel, quotes where needed, and a leading apostrophe on any text Excel
+   would run as a formula — anything starting = + - @, a tab, CR or LF, or
+   their full-width forms — unless the cell is a plain number like -12.50. */
+
+const FORMULA = /^[=+\-@\t\r\n＝＋－＠]/
+const NUMERIC = /^-?\d+(\.\d+)?$/
 
 function cell(v: unknown) {
   let s = v === null || v === undefined ? '' : String(v)
-  if (/^[=+@]/.test(s) || /^-[^\d]/.test(s)) s = `'${s}`
+  if (FORMULA.test(s) && !NUMERIC.test(s)) s = `'${s}`
   return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s
 }
 

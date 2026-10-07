@@ -1,6 +1,7 @@
 import type { NextFunction, Request, Response } from 'express'
 import mongoose from 'mongoose'
 import { z, type ZodType } from 'zod'
+import { alert } from './alert'
 
 /* The few things every route needs: a way to fail with a status, a way to
    validate a body into a typed value, paging, and turning lean documents into
@@ -33,7 +34,22 @@ export function parse<T>(schema: ZodType<T>, input: unknown): T {
   throw new HttpError(400, 'Some details need another look.', fields)
 }
 
-export function errorHandler(err: unknown, _req: Request, res: Response, _next: NextFunction) {
+/* Errors from express.json() itself, before any route runs: a body over the
+   size limit (a fundraiser photo that is too big) is a 413 the form can
+   explain, and a body that isn't valid JSON is the caller's mistake, a 400.
+   Both used to fall through to a 500. */
+type ParserError = { type?: string; status?: number; expose?: boolean }
+
+export function errorHandler(err: unknown, req: Request, res: Response, _next: NextFunction) {
+  const pe = err as ParserError
+  if (pe?.type === 'entity.too.large') {
+    res.status(413).json({ error: { message: 'That upload is too large.', fields: { photo: 'Choose a smaller photo (under 1.5 MB).' } } })
+    return
+  }
+  if (!(err instanceof HttpError) && pe?.expose && typeof pe.status === 'number' && pe.status >= 400 && pe.status < 500) {
+    res.status(pe.status === 413 ? 413 : 400).json({ error: { message: 'The request could not be read.' } })
+    return
+  }
   if (err instanceof HttpError) {
     res.status(err.status).json({ error: { message: err.message, fields: err.fields } })
     return
@@ -52,7 +68,10 @@ export function errorHandler(err: unknown, _req: Request, res: Response, _next: 
     res.status(409).json({ error: { message: 'Something with those details already exists.' } })
     return
   }
-  console.error('[api]', err)
+  /* a webhook answered 5xx means a payment we have not recorded; Stripe
+     retries, but someone should know */
+  if (req.originalUrl.startsWith('/api/webhooks')) alert('webhook', `${req.method} ${req.originalUrl} failed`, err)
+  else console.error('[api]', err)
   res.status(500).json({ error: { message: 'Something went wrong on our side. Please try again.' } })
 }
 
@@ -115,6 +134,9 @@ export function searchRegex(q: unknown): RegExp | undefined {
   return s ? new RegExp(escapeRegex(s), 'i') : undefined
 }
 
+/** The visitor's address, for the audit log: Express's req.ip, which reads
+ *  X-Forwarded-For only as far back as the proxies we trust (TRUST_PROXY).
+ *  The left-most entry it used to take is whatever the caller chose to send. */
 export function clientIp(req: Request) {
-  return (req.headers['x-forwarded-for'] as string | undefined)?.split(',')[0]?.trim() || req.socket.remoteAddress || ''
+  return req.ip || req.socket.remoteAddress || ''
 }

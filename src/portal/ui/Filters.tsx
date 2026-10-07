@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from 'react'
 import { Calendar, Check, ChevronDown, X } from 'lucide-react'
 import { format, startOfMonth, subDays, subMonths, startOfYear } from 'date-fns'
-import { fyOf, fyRange, fyLabel } from '../../../shared/domain'
+import { fyOf, fyLabel } from '../../../shared/domain'
 import { Popover } from './Menu'
 import { Button } from './Button'
 import { Input } from './Field'
@@ -100,8 +100,10 @@ export function datePresets(now = new Date()) {
     { key: '30d', label: 'Last 30 days', range: { from: iso(subDays(now, 29)), to: tomorrow } },
     { key: 'month', label: 'This month', range: { from: iso(startOfMonth(now)), to: tomorrow } },
     { key: 'lastmonth', label: 'Last month', range: { from: iso(startOfMonth(subMonths(now, 1))), to: iso(startOfMonth(now)) } },
-    { key: 'fy', label: `This financial year (${fyLabel(fy)})`, range: { from: iso(fyRange(fy).from), to: tomorrow } },
-    { key: 'lastfy', label: `Last financial year (${fyLabel(fy - 1)})`, range: { from: iso(fyRange(fy - 1).from), to: iso(fyRange(fy - 1).to) } },
+    /* the financial year is Sydney's (shared/domain.ts), named by its dates
+       rather than formatted from an instant in the browser's own zone */
+    { key: 'fy', label: `This financial year (${fyLabel(fy)})`, range: { from: `${fy - 1}-07-01`, to: tomorrow } },
+    { key: 'lastfy', label: `Last financial year (${fyLabel(fy - 1)})`, range: { from: `${fy - 2}-07-01`, to: `${fy - 1}-07-01` } },
     { key: 'year', label: 'This calendar year', range: { from: iso(startOfYear(now)), to: tomorrow } },
     { key: '12m', label: 'Last 12 months', range: { from: iso(subMonths(now, 12)), to: tomorrow } },
   ]

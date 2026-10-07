@@ -5,9 +5,16 @@ import { OPERATING_COSTS_LABEL } from '../../shared/operating-costs'
 import { EMAIL_COLORS, button, callout, esc, facts, layout, muted, p, renderLightMarkdown, url } from './layout'
 
 /* ---------------------------------------------------------------------------
-   Every email the platform sends, one function each. Each returns
-   { subject, html, preheader } and nothing else — sending, logging and the
-   outbox are lib/email.ts's job.
+   Every email the platform sends, one function each. Each returns an Email
+   and nothing else — sending, logging and the outbox are lib/email.ts's job.
+
+   SECRETS NEVER REACH THE EMAIL LOG. Admin → Email log and a donor's Emails
+   tab show what was sent, to staff who must not be able to sign in as the
+   person it was sent to. So an email that carries a secret — a sign-in code,
+   a password-reset or invitation link — also carries `logged`: the same
+   message with the secret taken out, which is what lib/email.ts stores. The
+   real one goes to the mail server and nowhere else. The code is also kept
+   out of the subject line, which inbox previews and the log list both show.
 
    The receipt is the one with rules: it must carry the organisation's name,
    ABN, the DGR statement, the amount, the date and a unique number, and say
@@ -15,7 +22,19 @@ import { EMAIL_COLORS, button, callout, esc, facts, layout, muted, p, renderLigh
    before the first live donation.
 --------------------------------------------------------------------------- */
 
-export type Email = { subject: string; html: string; template: string }
+export type Email = {
+  subject: string
+  html: string
+  template: string
+  /** what the email log stores instead, when the real message carries a
+   *  secret (a code, a link with a token in it); see the header above */
+  logged?: { subject: string; html: string }
+  /** extra mail headers, e.g. List-Unsubscribe on campaigns */
+  headers?: Record<string, string>
+}
+
+/** shown in the log where a secret was */
+export const REDACTED = '••••••'
 
 const day = (d: Date | string) =>
   new Date(d).toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' })
@@ -173,19 +192,18 @@ ${line('Total', formatMoney(total, { exact: true }), { strong: true, rule: 'tota
 }
 
 export function otpEmail(code: string): Email {
-  return {
-    template: 'otp',
-    subject: `${code} is your Al-Anwaar sign-in code`,
-    html: layout({
-      preheader: `Your code is ${code}. It works for 10 minutes.`,
+  const subject = 'Your Al-Anwaar sign-in code'
+  const html = (c: string) =>
+    layout({
+      preheader: 'Your code works for 10 minutes.',
       heading: 'Your sign-in code',
       body: [
         p('Enter this code to open your account. It works for the next 10 minutes.'),
-        `<div style="margin:6px 0 22px;font:600 34px/1 'SFMono-Regular',Menlo,Consolas,monospace;letter-spacing:.3em;color:#191C1B;">${esc(code)}</div>`,
+        `<div style="margin:6px 0 22px;font:600 34px/1 'SFMono-Regular',Menlo,Consolas,monospace;letter-spacing:.3em;color:#191C1B;">${esc(c)}</div>`,
         muted('If you did not ask for this, you can ignore it — nobody can get in without the code.'),
       ].join(''),
-    }),
-  }
+    })
+  return { template: 'otp', subject, html: html(code), logged: { subject, html: html(REDACTED) } }
 }
 
 type PlanLike = {
@@ -328,36 +346,38 @@ export function bankTransferEmail(
   }
 }
 
+/** the button, or in the logged copy a note where the button was */
+const secretButton = (label: string, link: string | null) =>
+  link ? button(label, link) : muted(`[${esc(label)} — the link is left out of the email log]`)
+
 export function staffInviteEmail(name: string, inviter: string, link: string): Email {
-  return {
-    template: 'staff.invite',
-    subject: `${inviter} added you to the Al-Anwaar admin portal`,
-    html: layout({
+  const subject = `${inviter} added you to the Al-Anwaar admin portal`
+  const html = (l: string | null) =>
+    layout({
       preheader: 'Set a password to get started.',
       heading: `Welcome, ${name}`,
       body: [
         p(`${esc(inviter)} has given you a login to the Al-Anwaar admin portal. Choose a password to finish setting it up.`),
-        button('Set my password', link),
+        secretButton('Set my password', l),
         muted('The link works for 7 days. If you were not expecting this, you can ignore it.'),
       ].join(''),
-    }),
-  }
+    })
+  return { template: 'staff.invite', subject, html: html(link), logged: { subject, html: html(null) } }
 }
 
 export function passwordResetEmail(name: string, link: string): Email {
-  return {
-    template: 'staff.reset',
-    subject: 'Reset your Al-Anwaar password',
-    html: layout({
+  const subject = 'Reset your Al-Anwaar password'
+  const html = (l: string | null) =>
+    layout({
       preheader: 'The link works for one hour.',
       heading: `Reset your password, ${name}`,
       body: [
         p('Someone — hopefully you — asked to reset the password for this account.'),
-        button('Choose a new password', link),
+        secretButton('Choose a new password', l),
         muted('The link works for one hour. If you did not ask for this, your password has not changed.'),
       ].join(''),
-    }),
-  }
+    })
+  return { template: 'staff.reset', subject, html: html(link), logged: { subject, html: html(null) } }
 }
 
 export function obligationReminderEmail(
@@ -392,7 +412,8 @@ export function fundraiserReviewedEmail(
     status === 'live' ? 'Your fundraiser is live' : status === 'changes' ? 'A few changes to your fundraiser' : 'About your fundraiser'
   return {
     template: `fundraiser.${status}`,
-    subject: `${heading}: ${f.title}`,
+    /* the title is the fundraiser's own words; the subject stays ours */
+    subject: heading,
     html: layout({
       heading: status === 'live' ? `It is live, ${firstName}` : heading,
       body: [
@@ -410,10 +431,13 @@ export function fundraiserReviewedEmail(
   }
 }
 
-export function enquiryReplyEmail(name: string, subject: string, body: string, staffName: string): Email {
+export function enquiryReplyEmail(name: string, _subject: string, body: string, staffName: string): Email {
   return {
     template: 'enquiry.reply',
-    subject: subject.startsWith('Re:') ? subject : `Re: ${subject}`,
+    /* the enquiry's subject was typed by whoever filled in the form, about
+       any address; echoing it made the reply a way to put words of their
+       choosing in an Al-Anwaar subject line. It stays in the thread. */
+    subject: 'Re: your message to Al-Anwaar',
     html: layout({
       heading: `Hello ${name}`,
       body: renderLightMarkdown(body) + muted(`— ${esc(staffName)}, Al-Anwaar`),
@@ -421,21 +445,47 @@ export function enquiryReplyEmail(name: string, subject: string, body: string, s
   }
 }
 
+/* ---------------------------------------------------------------------------
+   CAMPAIGNS: MERGE FIELDS GO IN LAST
+
+   A donor's name is whatever was typed into a checkout or a bank pledge —
+   by anyone, about any address. It used to be pasted into the campaign body
+   before the markdown was rendered, so a "first name" of
+   `[Your receipt](https://evil.example)` came out of the renderer as a real
+   link, in a genuine Al-Anwaar email, to a real donor. Now the body is
+   rendered with placeholders standing in for the fields, and the escaped
+   names are put back afterwards, where they can only ever be text. In the
+   subject the names are reduced to plain words (no brackets, no URLs), since
+   a subject has no escaping to lean on.
+--------------------------------------------------------------------------- */
+
+const FIRST = '\u0000FIRST\u0000'
+const LAST = '\u0000LAST\u0000'
+const mergeMarkers = (s: string) => s.replace(/\{\{\s*firstName\s*\}\}/g, FIRST).replace(/\{\{\s*lastName\s*\}\}/g, LAST)
+/** a name as it may appear in a subject line: letters, marks, spaces and the
+ *  punctuation names actually use, nothing that could read as a link */
+export const plainName = (s: string) =>
+  s.replace(/https?:\/\/\S*/gi, '').replace(/[^\p{L}\p{M}\p{N}' .-]/gu, '').replace(/\s+/g, ' ').trim().slice(0, 60)
+
 export function campaignEmail(
   c: { subject: string; preheader?: string | null; body: string },
   donor: { firstName: string; lastName: string },
-  unsubscribeUrl: string,
+  unsubscribe: string | { pageUrl: string; headers: Record<string, string> },
 ): Email {
-  const merged = c.body.replace(/\{\{\s*firstName\s*\}\}/g, donor.firstName).replace(/\{\{\s*lastName\s*\}\}/g, donor.lastName)
-  const subject = c.subject.replace(/\{\{\s*firstName\s*\}\}/g, donor.firstName)
+  const first = plainName(donor.firstName)
+  const last = plainName(donor.lastName)
+  const subject = mergeMarkers(c.subject).replaceAll(FIRST, first).replaceAll(LAST, last).trim()
+  const body = renderLightMarkdown(mergeMarkers(c.body)).replaceAll(FIRST, esc(donor.firstName)).replaceAll(LAST, esc(donor.lastName))
+  const links = typeof unsubscribe === 'string' ? { pageUrl: unsubscribe, headers: undefined } : unsubscribe
   return {
     template: 'campaign',
     subject,
     html: layout({
       preheader: c.preheader ?? undefined,
       heading: subject,
-      body: renderLightMarkdown(merged),
-      unsubscribeUrl,
+      body,
+      unsubscribeUrl: links.pageUrl,
     }),
+    headers: links.headers,
   }
 }

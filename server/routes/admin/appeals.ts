@@ -8,6 +8,7 @@ import { audit } from '../../lib/audit'
 import { requireStaff, requireStaffAny, staffCan } from '../../lib/auth'
 import { badRequest, HttpError, notFound, out, paging, parse, searchRegex, sorting, zDate } from '../../lib/http'
 import { newKey, putFile } from '../../lib/storage'
+import { photoType } from '../../lib/filetypes'
 
 /* ---------------------------------------------------------------------------
    /api/admin/appeals — the appeals the website shows and gifts count towards.
@@ -106,7 +107,8 @@ r.get('/:id', manage, async (req, res) => {
       { $group: { _id: '$designation', total: { $sum: '$amount' }, count: { $sum: 1 } } },
       { $sort: { total: -1 } },
     ]),
-    Fundraiser.find({ appeal: a._id }).sort({ raised: -1 }).select('title slug ownerName status raised target donorCount').lean(),
+    /* an unverified page (routes/public.ts) is not anyone's yet: staff never see it */
+    Fundraiser.find({ appeal: a._id, status: { $ne: 'unverified' } }).sort({ raised: -1 }).select('title slug ownerName status raised target donorCount').lean(),
     Gift.aggregate<{ total: number; count: number }>([
       { $match: { appeal: a._id, status: 'succeeded', date: { $gte: new Date(Date.now() - 30 * DAY) } } },
       { $group: { _id: null, total: { $sum: '$amount' }, count: { $sum: 1 } } },
@@ -146,7 +148,9 @@ const zAppeal = z.object({
   slug: zSlug.optional(),
   summary: z.string().trim().max(400, 'Keep the summary under 400 characters').optional(),
   story: z.string().max(20_000).optional(),
-  country: z.string({ error: 'Choose a country' }).refine((c) => c in COUNTRIES, 'Choose a country'),
+  /* an enum of the table's own keys: `c in COUNTRIES` also let through
+     inherited names like "constructor" */
+  country: z.enum(Object.keys(COUNTRIES) as [string, ...string[]], { error: 'Choose a country' }),
   where: z.string().trim().max(120).optional().nullable(),
   causes: z.array(z.string().trim().min(1).max(40)).max(12).optional(),
   zakatEligible: z.boolean().optional(),
@@ -277,10 +281,12 @@ r.post('/:id/image', manage, async (req, res) => {
   await receive(req, res)
   const f = req.file
   if (!f) throw badRequest('Choose a photo to upload.')
-  const ext = IMAGE_TYPES[f.mimetype]
-  if (!ext) throw new HttpError(415, 'Use a JPG, PNG or WebP photo.')
-  const key = newKey('images', `photo${ext}`)
-  await putFile(key, f.buffer, f.mimetype)
+  /* the type comes from the bytes, not the browser's label: a file that
+     isn't really a JPEG, PNG or WebP is refused whatever it claims to be */
+  const photo = photoType(f.buffer)
+  if (!IMAGE_TYPES[f.mimetype] || !photo) throw new HttpError(415, 'Use a JPG, PNG or WebP photo.')
+  const key = newKey('images', `photo${photo.ext}`)
+  await putFile(key, f.buffer, photo.mime)
   a.image = `/api/files/${key}`
   await a.save()
   await audit(req, 'appeal.image', `Changed the photo on “${a.title}”`, { type: 'appeal', id: a._id, label: label(a) })

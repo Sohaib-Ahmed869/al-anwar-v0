@@ -8,6 +8,7 @@ import { audit } from '../../lib/audit'
 import { sendEmail } from '../../lib/email'
 import { advance } from '../../lib/giving'
 import { HttpError, isId, notFound, out, parse, zCents } from '../../lib/http'
+import { limiter } from '../../lib/ratelimit'
 import { brandOf, cardUpdateSession } from '../../lib/payments'
 import { chargePlan } from '../../lib/plans'
 import { refreshDonor } from '../../lib/stats'
@@ -210,7 +211,17 @@ function luhn(num: string) {
   return sum % 10 === 0
 }
 
-r.post('/:id/card', async (req, res) => {
+/* A few card changes per plan in a quarter of an hour is plenty for a real
+   person; more is someone working through card numbers (finding L11). */
+const cardLimit = limiter({
+  name: 'donor-plan-card',
+  windowMs: 15 * 60_000,
+  limit: 6,
+  keyGenerator: (req) => `plan:${String(req.params.id)}`,
+  message: 'You have tried a few cards in a short time. Please wait a little and try again, or get in touch.',
+})
+
+r.post('/:id/card', cardLimit, async (req, res) => {
   const p = await ownPlan(req)
   requireLive(p)
   const donor = me(req)
@@ -251,7 +262,7 @@ r.post('/:id/card', async (req, res) => {
     p.set('failure', { count: 0 })
     p.nextChargeAt = new Date()
     await p.save()
-    const result = await chargePlan(p, req)
+    const result = await chargePlan(p, req, { retryNow: true })
     charge = result.ok ? { ok: true } : { ok: false, error: result.error }
   }
   const fresh = (await Plan.findById(p._id))!

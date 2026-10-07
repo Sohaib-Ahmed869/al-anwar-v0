@@ -40,11 +40,26 @@ const DonorSchema = new Schema(
     /* sign in with Google / Facebook */
     oauth: { google: String, facebook: String },
     lastLoginAt: Date,
+    /* bumped to end every session this donor has (signing out, changing the
+       sign-in email, or staff signing them out); lib/auth.ts compares it
+       with the `v` in the cookie */
+    sessionVersion: { type: Number, default: 0 },
+    /* addresses this donor used to sign in with and moved away from. They
+       stay in altEmails so gifts made with them still land here, but they no
+       longer open the account: whoever holds the old mailbox now is not
+       necessarily the donor. */
+    retiredLogins: { type: [String], default: [] },
   },
   { timestamps: true },
 )
 
 DonorSchema.index({ email: 1 })
+/* one live record per address. A merged record keeps its old email, so the
+   rule covers active records only; two first-time checkouts racing each other
+   now get one donor, and lib/giving.ts findOrCreateDonor retries on the
+   duplicate-key error. The plain index above stays for lookups that don't
+   filter on status. */
+DonorSchema.index({ email: 1 }, { name: 'email_active_unique', unique: true, partialFilterExpression: { status: 'active' } })
 DonorSchema.index({ altEmails: 1 })
 DonorSchema.index({ status: 1, lastGiftAt: -1 })
 
