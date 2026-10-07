@@ -16,3 +16,6 @@ Thumbs.db
 
 # local dev database and uploaded files
 .data
+
+# internal documents (proposal, client decks, findings): kept locally, not in the repo
+docs/
