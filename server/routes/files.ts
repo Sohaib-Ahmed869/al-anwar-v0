@@ -41,6 +41,9 @@ async function send(res: Response, folder: string, file: string, cache: string) 
     throw notFound('That file')
   }
   fileHeaders(res, file, body, { cache })
+  /* public photos appear in emails and in the admin's sandboxed email
+     previews (an opaque origin), so they may be loaded from anywhere */
+  res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin')
   res.end(body)
 }
 

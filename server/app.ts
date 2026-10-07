@@ -57,12 +57,18 @@ export function createApp() {
      with them the rate limits, stay per visitor */
   app.set('trust proxy', env.trustProxy)
   app.disable('x-powered-by')
-  app.use(helmet({ contentSecurityPolicy: false, crossOriginEmbedderPolicy: false }))
+  /* Cross-Origin-Resource-Policy is set by hand, not by helmet's blanket
+     same-origin: the site's images (/assets) and the public photos
+     (/api/files) are loaded from emails and from the sandboxed email previews
+     in the admin portal — an opaque origin, which same-origin blocks. The
+     API's own answers stay same-origin. */
+  app.use(helmet({ contentSecurityPolicy: false, crossOriginEmbedderPolicy: false, crossOriginResourcePolicy: false }))
   /* the API allows nothing; the site's own policy is set where it is served,
      below. A route that sends something else (a file, the unsubscribe page)
      sets its own. */
   app.use('/api', (_req, res, next) => {
     res.setHeader('Content-Security-Policy', API_CSP)
+    res.setHeader('Cross-Origin-Resource-Policy', 'same-origin')
     next()
   })
 

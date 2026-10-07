@@ -149,6 +149,18 @@ describe('API headers (M15)', () => {
     expect(res.headers.get('content-security-policy')).toContain("default-src 'none'")
     expect(res.headers.get('content-security-policy')).toContain("frame-ancestors 'none'")
     expect(res.headers.get('x-content-type-options')).toBe('nosniff')
+    expect(res.headers.get('cross-origin-resource-policy')).toBe('same-origin')
+  })
+
+  it('public photos may be loaded from anywhere — emails and the sandboxed email previews', async () => {
+    /* an uploaded photo, as an appeal or fundraiser upload stores one: a 1×1 PNG */
+    const { newKey, putFile } = await import('../../server/lib/storage')
+    const key = newKey('images', 'photo.png')
+    const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==', 'base64')
+    await putFile(key, png, 'image/png')
+    const res = await front().get(`/api/files/${key}`)
+    expect(res.status).toBe(200)
+    expect(res.headers.get('cross-origin-resource-policy')).toBe('cross-origin')
   })
 })
 

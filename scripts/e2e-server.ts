@@ -27,6 +27,13 @@ import { MongoMemoryServer } from 'mongodb-memory-server'
 
 process.env.RUN_JOBS = '0'
 const PORT = Number(process.env.E2E_PORT || 5191)
+/* The site's own address, which emails use for their links and images (the
+   logo in every email preview the admin pages show). setup-env.ts sets the
+   development address, :5190 — fine when a developer's `npm run dev` happens
+   to be running, a refused connection on CI, where nothing is. Pointing it
+   at this server makes every emailed link and image load from the app under
+   test. E2E_APP_URL overrides it (e.g. to check that a broken one is caught). */
+process.env.APP_URL = process.env.E2E_APP_URL || `http://127.0.0.1:${PORT}`
 const MODE = process.env.E2E_MODE === 'dist' ? 'dist' : 'vite'
 
 async function main() {
