@@ -6,7 +6,7 @@
   "outputDirectory": "dist",
   "rewrites": [
     {
-      "source": "/api/:path*",
+      "source": "/api/:path*", 
       "destination": "https://al-anwaar.onrender.com/api/:path*"
     },
     {
