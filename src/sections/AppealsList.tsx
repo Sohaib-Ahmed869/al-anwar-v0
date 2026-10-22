@@ -2,7 +2,7 @@ import { useLayoutEffect, useRef } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
 import AppealTile from '../components/AppealTile'
-import { KEEP_SCROLL } from '../components/Layout'
+import { KEEP_SCROLL } from '../components/ScrollManager'
 import Reveal from '../components/Reveal'
 import SectionHead, { BREAKOUT, SECTION_Y } from '../components/SectionHead'
 import {

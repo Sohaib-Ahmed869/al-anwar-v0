@@ -96,9 +96,6 @@ export function StaffShell({ portal, groups, badgesQuery, actions = [], searchPa
   useEffect(() => {
     setMoreOpen(false)
   }, [loc.pathname])
-  useEffect(() => {
-    window.scrollTo(0, 0)
-  }, [loc.pathname])
 
   const badges = useQuery({
     queryKey: badgesQuery?.key ?? ['no-badges'],

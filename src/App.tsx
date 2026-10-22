@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import Layout from './components/Layout'
+import ScrollManager from './components/ScrollManager'
 
 /* The three portals are their own chunks: a visitor reading an appeal never
    downloads the admin portal, and the portals bring their own shells, so they
@@ -39,6 +40,8 @@ import NotFound from './pages/NotFound'
 
 export default function App() {
   return (
+    <>
+    <ScrollManager />
     <Routes>
       <Route path="account/*" element={portal(<AccountApp />)} />
       <Route path="admin/*" element={portal(<AdminApp />)} />
@@ -86,5 +89,6 @@ export default function App() {
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>
+    </>
   )
 }

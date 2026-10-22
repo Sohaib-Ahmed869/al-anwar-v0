@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 
 import Reveal from '../components/Reveal'
+import { Tiles } from '../components/Brand'
 import SectionHead, { BREAKOUT, SECTION_Y } from '../components/SectionHead'
 import { ArrowRight, Check } from '../components/icons'
 import { PARTNERS, PLACES } from '../components/where-data'
@@ -54,6 +55,16 @@ export default function WherePlaces() {
                       i === 0 ? 'bg-grad-lagoon-x text-paper' : 'border border-line bg-paper'
                     }`}
                   >
+                    {/* the lead place carries the tiles, tone on tone and fading
+                        up from its foot, as the brand's texture (client's ask,
+                        22 October 2026) */}
+                    {i === 0 && (
+                      <Tiles
+                        className="-z-10 bg-ink/[0.14]"
+                        fade="linear-gradient(to top, #000 0%, rgba(0,0,0,.6) 35%, transparent 75%)"
+                        style={{ '--tile': '150px' } as React.CSSProperties}
+                      />
+                    )}
                     <p
                       className={`font-script text-[clamp(21px,1.8vw,26px)] leading-none ${
                         i === 0 ? 'text-gold-pale' : 'text-green'

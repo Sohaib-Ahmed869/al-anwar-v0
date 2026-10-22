@@ -144,8 +144,8 @@ Donor: `amina.rahman@example.com`; in development the code is shown on screen.
   Outfit for Neulis Neue, Noto Kufi Arabic). When the licensed files arrive, add them
   there and name them first in the `--font-*` tokens.
 - Keep the brand elements in their roles and SPARING: the tiles appear only in the footer,
-  the portals' sidebar, the sign-in panel, the home zakat band and, faintly, at the foot of
-  each photo hero (HeroBrand) — not behind pages, not in panels (the client found that too
+  the portals' sidebar, the sign-in panel, the home zakat band, the lead place card on
+  /where-it-goes and, faintly, at the foot of each photo hero (HeroBrand) — not behind pages, not in panels (the client found that too
   much); the outlined mark appears only in the home
   hero and the sign-in panel;
   gradients are `bg-grad-*` utilities (domes for moments, bands for panels).

@@ -1,4 +1,3 @@
-import { useEffect } from 'react'
 import { Logo } from '../../components/Brand'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
@@ -35,9 +34,6 @@ export function AccountShell() {
   const loc = useLocation()
   const nav = useNavigate()
   const qc = useQueryClient()
-  useEffect(() => {
-    window.scrollTo(0, 0)
-  }, [loc.pathname])
   if (!donor) return null
   const name = `${donor.firstName} ${donor.lastName}`.trim()
 
