@@ -16,7 +16,14 @@ export default defineConfig({
     strictPort: true,
     // The platform API (server/) runs on 4600 in development; `npm run dev`
     // starts both. Same origin as far as the browser is concerned, so the
-    // session cookies just work.
-    proxy: { '/api': 'http://127.0.0.1:4600' },
+    // session cookies just work. API_PROXY_TARGET points it elsewhere instead,
+    // e.g. the live site (`npm run dev:live`), which forwards on to Render.
+    proxy: {
+      '/api': {
+        target: process.env.API_PROXY_TARGET || 'http://127.0.0.1:4600',
+        changeOrigin: true,
+        secure: true,
+      },
+    },
   },
 })

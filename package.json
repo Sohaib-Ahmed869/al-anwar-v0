@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "concurrently -k -n web,api -c green,cyan \"vite\" \"tsx watch --clear-screen=false server/index.ts\"",
     "dev:web": "vite",
+    "dev:live": "API_PROXY_TARGET=https://al-anwaar.vercel.app vite",
     "dev:api": "tsx watch --clear-screen=false server/index.ts",
     "build": "tsc --noEmit && tsc --noEmit -p server && vite build",
     "typecheck": "tsc --noEmit && tsc --noEmit -p server && tsc --noEmit -p tests",
