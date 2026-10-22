@@ -370,7 +370,7 @@ export function GiftRecordDialog({
                   onClick={() => setDesignation(k)}
                   className={cn(
                     'h-10 truncate rounded-[10px] px-1.5 text-[13px] font-medium ring-1 ring-inset transition-colors pointer-coarse:h-11',
-                    on ? 'bg-green-50 text-green ring-2 ring-green' : 'bg-paper text-text ring-line hover:ring-[#c9c9c2]',
+                    on ? 'bg-green-50 text-green ring-2 ring-green' : 'bg-paper text-text ring-line hover:ring-[#dccdb2]',
                   )}
                 >
                   {DESIGNATIONS[k].short}

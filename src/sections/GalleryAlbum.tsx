@@ -199,7 +199,7 @@ export default function GalleryAlbum() {
 
             <div className="gutter mx-auto flex w-full max-w-page flex-wrap items-end justify-between gap-x-s4 gap-y-s2 py-s3">
               <div>
-                <p className="font-display text-[clamp(20px,1.8vw,26px)] font-semibold tracking-[-0.02em]">{current.title}</p>
+                <p className="font-display text-[clamp(20px,1.8vw,26px)] tracking-[-0.02em]">{current.title}</p>
                 <p className="mt-1 text-[14.5px] text-paper/70">
                   {whereOf(current)}
                   {current.when && `, ${current.when}`}

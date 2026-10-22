@@ -3,7 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom'
 
 import Reveal, { useInView } from '../components/Reveal'
 import SectionHead, { BREAKOUT, SECTION_Y } from '../components/SectionHead'
-import { MasjidMark } from '../components/Ornament'
+import { BrandGlyph } from '../components/Ornament'
 import { ArrowRight, Box, Building, Check, Globe, Mail, Phone } from '../components/icons'
 import { BECOME, PARTNER_TYPES } from '../components/partners-data'
 import { ORG } from '../components/org-data'
@@ -32,7 +32,7 @@ import {
 --------------------------------------------------------------------------- */
 
 const ICONS: Record<string, (p: { className?: string }) => ReactNode> = {
-  masjid: MasjidMark,
+  masjid: BrandGlyph,
   building: Building,
   box: Box,
   globe: Globe,
@@ -61,7 +61,7 @@ export function BecomeHero() {
     <section
       data-overlay-hero=""
       aria-labelledby="become-title"
-      className="relative isolate mt-[calc(var(--header-h)*-1)] overflow-hidden bg-teal"
+      className="relative isolate mt-[calc(var(--header-h)*-1)] overflow-hidden bg-grad-deep-x"
     >
       <div aria-hidden="true" className="absolute inset-0">
         <img
@@ -79,7 +79,7 @@ export function BecomeHero() {
         <div className="absolute inset-0 bg-teal/[0.7]" />
         <div className="absolute inset-y-0 left-0 hidden w-[42%] border-r border-paper/15 bg-paper/[0.06] md:block" />
         <div className="absolute inset-0 opacity-70" style={SCREEN} />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_45%,rgba(0,40,44,0.45)_100%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_45%,rgba(8,38,42,0.45)_100%)]" />
       </div>
 
       <div className="relative gutter mx-auto flex min-h-[clamp(520px,78svh,800px)] max-w-page flex-col justify-end pt-[calc(var(--header-h)+40px)] pb-[clamp(36px,6vh,64px)]">
@@ -90,7 +90,7 @@ export function BecomeHero() {
             </p>
             <h1
               id="become-title"
-              className="mt-s2 font-display text-[clamp(40px,5.6vw,84px)] leading-[0.98] font-semibold tracking-[-0.04em] text-paper [text-shadow:0_2px_30px_rgba(0,40,44,0.35)]"
+              className="mt-s2 font-display text-[clamp(40px,5.6vw,84px)] leading-[0.98] tracking-[-0.04em] text-paper [text-shadow:0_2px_30px_rgba(8,38,42,0.35)]"
               style={rise(140)}
             >
               <span className="block">{H.titleLead}</span>
@@ -107,7 +107,7 @@ export function BecomeHero() {
             <button
               type="button"
               onClick={toForm}
-              className="group inline-flex min-h-[44px] items-center gap-3 font-display text-[clamp(18px,1.5vw,22px)] font-semibold tracking-[-0.015em] text-paper transition-colors duration-200 ease-brand hover:text-gold-pale"
+              className="group inline-flex min-h-[44px] items-center gap-3 font-display text-[clamp(18px,1.5vw,22px)] tracking-[-0.015em] text-paper transition-colors duration-200 ease-brand hover:text-gold-pale"
             >
               {H.start}
               <span
@@ -144,7 +144,7 @@ export function BecomeExpect() {
                 >
                   0{i + 1}
                 </span>
-                <p className="mt-s3 font-display text-[19px] leading-snug font-semibold tracking-[-0.014em]">{step.title}</p>
+                <p className="mt-s3 font-display text-[19px] leading-snug tracking-[-0.014em]">{step.title}</p>
                 <p className="mt-1.5 max-w-[30ch] text-[15px] leading-relaxed text-text-2">{step.body}</p>
               </Reveal>
             </li>
@@ -163,11 +163,11 @@ export function BecomeTrade() {
         <Reveal variant="clip" className={`h-full lg:-ml-[min(72px,max(0px,calc((100vw_-_100%)/2_-_24px)))]`}>
           <div className="flex h-full flex-col rounded-2xl border border-line p-s3 sm:p-s4 lg:p-[clamp(32px,3.2vw,52px)]">
             <p className="font-script text-[clamp(26px,2.4vw,34px)] leading-none text-green">{G.eyebrow}</p>
-            <h2 className="mt-2 font-display text-[clamp(24px,2.3vw,32px)] leading-[1.1] font-semibold tracking-[-0.02em]">{G.giveTitle}</h2>
+            <h2 className="mt-2 font-display text-[clamp(24px,2.3vw,32px)] leading-[1.1] tracking-[-0.02em]">{G.giveTitle}</h2>
             <ul className="mt-s4 grid gap-s2">
               {G.give.map((item, i) => (
                 <li key={item} className="flex gap-s2 border-t border-line pt-s2">
-                  <span aria-hidden="true" className="nums mt-px w-6 shrink-0 font-display text-[15px] font-semibold text-teal">
+                  <span aria-hidden="true" className="nums mt-px w-6 shrink-0 font-display text-[15px] text-teal">
                     0{i + 1}
                   </span>
                   <p className="text-[15.5px] leading-relaxed text-text-2">{item}</p>
@@ -177,10 +177,9 @@ export function BecomeTrade() {
           </div>
         </Reveal>
         <Reveal variant="clip" delay={90} className="h-full lg:-mr-[min(72px,max(0px,calc((100vw_-_100%)/2_-_24px)))]">
-          <div className="relative isolate flex h-full flex-col overflow-hidden rounded-2xl bg-teal p-s3 text-paper sm:p-s4 lg:p-[clamp(32px,3.2vw,52px)]">
-            <MasjidMark className="pointer-events-none absolute -right-[6%] -bottom-[10%] -z-10 size-[clamp(200px,22vw,320px)] text-paper/[0.07]" />
+          <div className="relative isolate flex h-full flex-col overflow-hidden rounded-2xl bg-grad-lagoon-x p-s3 text-paper sm:p-s4 lg:p-[clamp(32px,3.2vw,52px)]">
             <p className="font-script text-[clamp(26px,2.4vw,34px)] leading-none text-gold-pale">In return</p>
-            <h2 className="mt-2 font-display text-[clamp(24px,2.3vw,32px)] leading-[1.1] font-semibold tracking-[-0.02em]">{G.getTitle}</h2>
+            <h2 className="mt-2 font-display text-[clamp(24px,2.3vw,32px)] leading-[1.1] tracking-[-0.02em]">{G.getTitle}</h2>
             <ul className="mt-s4 grid gap-s2">
               {G.get.map((item) => (
                 <li key={item} className="flex gap-s2 border-t border-paper/15 pt-s2">
@@ -273,7 +272,7 @@ export function BecomeForm() {
                   <span className="inline-flex size-12 items-center justify-center rounded-full bg-teal text-paper">
                     <Mail className="h-5 w-5" />
                   </span>
-                  <p className="mt-s3 font-display text-[clamp(24px,2.2vw,30px)] leading-snug font-semibold tracking-[-0.02em]">
+                  <p className="mt-s3 font-display text-[clamp(24px,2.2vw,30px)] leading-snug tracking-[-0.02em]">
                     {F.handedOff.title}
                   </p>
                   <p className="mt-s2 max-w-[56ch] text-[15.5px] leading-relaxed text-text-2">
@@ -396,10 +395,9 @@ export function BecomeForm() {
           </Reveal>
 
           <Reveal variant="clip" delay={90} className="h-full">
-            <aside className="relative isolate flex h-full flex-col overflow-hidden rounded-2xl bg-teal p-s3 text-paper sm:p-s4 lg:p-[clamp(32px,3.2vw,48px)]">
-              <MasjidMark className="pointer-events-none absolute -right-[6%] -bottom-[8%] -z-10 size-[clamp(200px,22vw,320px)] text-paper/[0.07]" />
+            <aside className="relative isolate flex h-full flex-col overflow-hidden rounded-2xl bg-grad-lagoon-x p-s3 text-paper sm:p-s4 lg:p-[clamp(32px,3.2vw,48px)]">
               <p className="font-script text-[clamp(24px,2.2vw,30px)] leading-none text-gold-pale">{F.panel.eyebrow}</p>
-              <h3 className="mt-2 font-display text-[clamp(22px,2vw,28px)] leading-[1.15] font-semibold tracking-[-0.02em]">
+              <h3 className="mt-2 font-display text-[clamp(22px,2vw,28px)] leading-[1.15] tracking-[-0.02em]">
                 {F.panel.title}
               </h3>
               <ul className="mt-s3 grid gap-s2">

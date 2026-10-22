@@ -1,3 +1,4 @@
+import { HeroBrand } from '../components/Brand'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 
@@ -304,8 +305,9 @@ export default function HomeHero() {
         {/* Top for the header, foot for the controls, and from md up a second
             pass from the left where the words sit. rgba of --color-ink, which a
             gradient cannot take as a variable. */}
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(21,26,24,0.74)_0%,rgba(21,26,24,0.30)_24%,rgba(21,26,24,0.42)_52%,rgba(21,26,24,0.82)_80%,rgba(21,26,24,0.96)_100%)]" />
-        <div className="absolute inset-0 hidden bg-[linear-gradient(95deg,rgba(21,26,24,0.82)_0%,rgba(21,26,24,0.40)_42%,transparent_70%)] md:block" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,38,42,0.74)_0%,rgba(8,38,42,0.30)_24%,rgba(8,38,42,0.42)_52%,rgba(8,38,42,0.82)_80%,rgba(8,38,42,0.96)_100%)]" />
+        <div className="absolute inset-0 hidden bg-[linear-gradient(95deg,rgba(8,38,42,0.82)_0%,rgba(8,38,42,0.40)_42%,transparent_70%)] md:block" />
+        <HeroBrand outline />
       </div>
 
       {/* ---------- what is on top of it ---------- */}
@@ -330,7 +332,7 @@ export default function HomeHero() {
                 >
                   {shown.note}
                 </p>
-                <h2 className="mt-s2 font-display text-[clamp(31px,4.2vw,54px)] leading-[1.05] font-semibold tracking-[-0.022em] text-paper [text-wrap:balance] [text-shadow:0_2px_30px_rgba(0,0,0,0.5)]">
+                <h2 className="mt-s2 font-display text-[clamp(31px,4.2vw,54px)] leading-[1.05] tracking-[-0.022em] text-paper [text-wrap:balance] [text-shadow:0_2px_30px_rgba(0,0,0,0.5)]">
                   {/* a word at a time, replayed per slide (the block is keyed) */}
                   <Words text={shown.title} play="load" delay={160} step={70} />
                 </h2>

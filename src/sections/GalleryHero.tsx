@@ -1,4 +1,4 @@
-import { MasjidMark } from '../components/Ornament'
+import { HeroBrand } from '../components/Brand'
 import { ArrowRight } from '../components/icons'
 import { GALLERY_HERO as HERO, PHOTOS, whereOf } from '../components/gallery-data'
 
@@ -57,13 +57,13 @@ export default function GalleryHero() {
     <section
       data-overlay-hero=""
       aria-labelledby="gallery-title"
-      className="relative isolate mt-[calc(var(--header-h)*-1)] overflow-hidden bg-teal text-paper"
+      className="relative isolate mt-[calc(var(--header-h)*-1)] overflow-hidden bg-grad-deep-x text-paper"
     >
-      <MasjidMark className="pointer-events-none absolute -bottom-[10%] -left-[6%] -z-10 size-[clamp(320px,38vw,620px)] text-paper/[0.05]" />
       <div
         aria-hidden="true"
         className="absolute inset-0 -z-10 bg-[radial-gradient(90%_80%_at_85%_20%,rgba(255,255,255,0.08)_0%,transparent_60%)]"
       />
+      <HeroBrand z="-z-10" />
 
       <div className="gutter mx-auto grid max-w-page items-center gap-x-s5 gap-y-s5 pt-[calc(var(--header-h)+clamp(40px,6vw,72px))] pb-[clamp(56px,7vw,96px)] lg:min-h-[clamp(620px,88svh,860px)] lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
         <div>
@@ -72,7 +72,7 @@ export default function GalleryHero() {
           </p>
           <h1
             id="gallery-title"
-            className="mt-s2 font-display text-[clamp(42px,5.4vw,80px)] leading-[0.98] font-semibold tracking-[-0.04em]"
+            className="mt-s2 font-display text-[clamp(42px,5.4vw,80px)] leading-[0.98] tracking-[-0.04em]"
             style={rise(140)}
           >
             <span className="block">{HERO.titleLead}</span>

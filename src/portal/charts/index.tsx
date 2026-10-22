@@ -15,18 +15,20 @@ import { cn } from '../ui/cn'
    never colour alone. Assign in this order and never cycle; past five series
    the rest folds into "Other" in OTHER gray.
 
-   The brand's own green (#2F6B5A) is too grey to hold a categorical slot
-   (chroma below the floor), so series 1 is a brighter step of the same hue;
-   single-series charts, which need no separation, keep the brand green.
+   Re-validated for the 2026 brand on its off-white card (#fffbf4). The
+   brand's teal (#006770) is too grey to hold a categorical slot (chroma 0.08,
+   below the floor), so series 1 is a brighter step of the same hue (#00909c)
+   and the order changed to keep green away from red for protan readers;
+   single-series charts, which need no separation, keep the brand teal.
 
    One axis per chart, always. Text is ink, never the series colour.
 --------------------------------------------------------------------------- */
 
-export const SERIES = ['#1a7f5a', '#d1850a', '#5b4bb0', '#0a8fa3', '#c94f2c'] as const
-export const OTHER = '#9aa09e'
-export const BRAND = '#2f6b5a'
-const GRID = '#ebebe7'
-const AXIS = '#8a908e'
+export const SERIES = ['#00909c', '#d1850a', '#1a7f5a', '#5b4bb0', '#c94f2c'] as const
+export const OTHER = '#8aa3a3'
+export const BRAND = '#006770'
+const GRID = '#efe4d0'
+const AXIS = '#6f8788'
 
 export const seriesColor = (i: number) => (i < SERIES.length ? SERIES[i] : OTHER)
 
@@ -113,7 +115,7 @@ export function MoneyAreaChart({
             <XAxis dataKey={xKey} tickFormatter={formatX} tickLine={false} axisLine={false} tick={{ fill: AXIS, fontSize: 12 }} dy={6} minTickGap={16} />
             <YAxis tickFormatter={(v) => formatMoneyShort(v)} tickLine={false} axisLine={false} tick={{ fill: AXIS, fontSize: 12 }} width={56} />
             <Tooltip
-              cursor={{ stroke: '#c9c9c2', strokeWidth: 1 }}
+              cursor={{ stroke: '#dccdb2', strokeWidth: 1 }}
               content={({ active, payload, label }) =>
                 active && payload?.length ? (
                   <TooltipBox
@@ -174,7 +176,7 @@ export function MoneyColumnChart({
             <XAxis dataKey={xKey} tickFormatter={formatX} tickLine={false} axisLine={false} tick={{ fill: AXIS, fontSize: 12 }} dy={6} minTickGap={8} />
             <YAxis tickFormatter={(v) => formatMoneyShort(v)} tickLine={false} axisLine={false} tick={{ fill: AXIS, fontSize: 12 }} width={56} />
             <Tooltip
-              cursor={{ fill: 'rgba(20,26,24,.04)' }}
+              cursor={{ fill: 'rgba(8,38,42,.04)' }}
               content={({ active, payload, label }) =>
                 active && payload?.length ? (
                   <TooltipBox

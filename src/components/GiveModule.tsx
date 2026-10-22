@@ -745,8 +745,8 @@ export default function GiveModule({ causes, onChange, className = '' }: Props) 
                       labelled ? 'min-h-[100px]' : 'min-h-[64px]'
                     } ${
                       on
-                        ? 'border-green bg-green-pale shadow-[inset_0_0_0_1px_var(--color-green),0_14px_28px_-20px_rgba(47,107,90,0.9)]'
-                        : 'border-line bg-paper hover:-translate-y-0.5 hover:border-green/45 hover:shadow-[0_12px_22px_-16px_rgba(20,26,24,0.55)]'
+                        ? 'border-green bg-green-pale shadow-[inset_0_0_0_1px_var(--color-green),0_14px_28px_-20px_rgba(0,103,112,0.9)]'
+                        : 'border-line bg-paper hover:-translate-y-0.5 hover:border-green/45 hover:shadow-[0_12px_22px_-16px_rgba(8,38,42,0.55)]'
                     }`}
                   >
                     <span className="flex w-full items-start justify-between gap-1">
@@ -980,7 +980,7 @@ export default function GiveModule({ causes, onChange, className = '' }: Props) 
             <Link
               to={href}
               state={{ donor }}
-              className="group relative mt-s2 flex min-h-[60px] w-full items-center justify-center gap-2.5 overflow-hidden rounded-[14px] bg-gold px-6 text-[16.5px] font-semibold tracking-[-0.006em] text-ink shadow-gold transition-[transform,box-shadow,background-color,color] duration-200 ease-brand hover:-translate-y-[1.5px] hover:bg-gold-dark hover:text-paper hover:shadow-gold-lg active:translate-y-0"
+              className="group relative mt-s2 flex min-h-[60px] w-full items-center justify-center gap-2.5 overflow-hidden rounded-[14px] bg-gold px-6 text-[16.5px] font-semibold tracking-[-0.006em] text-ink shadow-gold transition-[transform,box-shadow,background-color,color] duration-200 ease-brand hover:-translate-y-[1.5px] hover:bg-gold-dark hover:text-ink hover:shadow-gold-lg active:translate-y-0"
             >
               <span
                 aria-hidden="true"

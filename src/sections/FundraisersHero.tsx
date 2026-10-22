@@ -1,3 +1,4 @@
+import { HeroBrand } from '../components/Brand'
 import { Link } from 'react-router-dom'
 
 import { fundraiserGiveHref, fundraiserPhoto } from '../components/FundraiserCard'
@@ -71,8 +72,9 @@ export default function FundraisersHero() {
           className="absolute inset-0 h-full w-full object-cover"
           style={{ objectPosition: photo.position }}
         />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(21,26,24,0.74)_0%,rgba(21,26,24,0.34)_26%,rgba(21,26,24,0.46)_60%,rgba(21,26,24,0.9)_100%)]" />
-        <div className="absolute inset-0 hidden bg-[linear-gradient(95deg,rgba(21,26,24,0.84)_0%,rgba(21,26,24,0.42)_44%,transparent_72%)] md:block" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,38,42,0.74)_0%,rgba(8,38,42,0.34)_26%,rgba(8,38,42,0.46)_60%,rgba(8,38,42,0.9)_100%)]" />
+        <div className="absolute inset-0 hidden bg-[linear-gradient(95deg,rgba(8,38,42,0.84)_0%,rgba(8,38,42,0.42)_44%,transparent_72%)] md:block" />
+        <HeroBrand />
       </div>
 
       <div className="relative flex min-h-[calc(72svh-var(--strip-h))] flex-col pt-[var(--header-h)]">
@@ -87,7 +89,7 @@ export default function FundraisersHero() {
             </p>
             <h1
               id="fundraisers-title"
-              className="mt-s2 font-display text-[clamp(34px,4.6vw,60px)] leading-[1.04] font-semibold tracking-[-0.022em] text-paper [text-wrap:balance] [text-shadow:0_2px_30px_rgba(0,0,0,0.5)]"
+              className="mt-s2 font-display text-[clamp(34px,4.6vw,60px)] leading-[1.04] tracking-[-0.022em] text-paper [text-wrap:balance] [text-shadow:0_2px_30px_rgba(0,0,0,0.5)]"
             >
               <Words text={`${H.titleLead} ${H.titleMark}`} play="load" delay={160} step={70} />
             </h1>
@@ -126,7 +128,7 @@ export default function FundraisersHero() {
                     className={`flex flex-col-reverse ${i > 0 ? 'border-l border-paper/15 pl-s2 sm:pl-s3' : ''}`}
                   >
                     <dt className="mt-1 text-[12.5px] leading-snug text-paper/65">{s.label}</dt>
-                    <dd className="nums font-display text-[clamp(20px,2vw,28px)] leading-none font-bold tracking-[-0.02em] text-paper">
+                    <dd className="nums font-display text-[clamp(20px,2vw,28px)] leading-none tracking-[-0.02em] text-paper">
                       {s.value}
                     </dd>
                   </div>
@@ -144,7 +146,7 @@ export default function FundraisersHero() {
               <p className="font-script text-[clamp(24px,2vw,30px)] leading-none text-gold-pale">
                 Help finish this one
               </p>
-              <h2 className="mt-2 font-display text-[clamp(24px,2.2vw,32px)] leading-[1.1] font-semibold tracking-[-0.02em] text-balance">
+              <h2 className="mt-2 font-display text-[clamp(24px,2.2vw,32px)] leading-[1.1] tracking-[-0.02em] text-balance">
                 {featured.title}
               </h2>
               <p className="mt-s2 text-[14.5px] leading-[1.5] text-paper/80">
@@ -154,7 +156,7 @@ export default function FundraisersHero() {
 
               <div className="mt-s3">
                 <div className="flex items-end justify-between gap-s2">
-                  <p className="nums font-display text-[clamp(36px,3.2vw,50px)] leading-none font-bold tracking-[-0.03em]">
+                  <p className="nums font-display text-[clamp(36px,3.2vw,50px)] leading-none tracking-[-0.03em]">
                     {money(featured.raised)}
                   </p>
                   <p className="nums pb-1 text-[13px] text-paper/75">of {money(featured.goal)}</p>
@@ -185,7 +187,7 @@ export default function FundraisersHero() {
                 </Link>
                 <Link
                   to={fundraiserGiveHref(featured)}
-                  className="group inline-flex min-h-[50px] items-center gap-2 rounded-[10px] bg-gold px-5 text-[15px] font-semibold text-ink transition-colors duration-200 ease-brand hover:bg-gold-dark hover:text-paper sm:px-6 sm:text-[16px]"
+                  className="group inline-flex min-h-[50px] items-center gap-2 rounded-[10px] bg-gold px-5 text-[15px] font-semibold text-ink transition-colors duration-200 ease-brand hover:bg-gold-dark hover:text-ink sm:px-6 sm:text-[16px]"
                 >
                   Donate now
                   <ArrowRight className="h-4 w-4 transition-transform duration-200 ease-brand group-hover:translate-x-0.5" />

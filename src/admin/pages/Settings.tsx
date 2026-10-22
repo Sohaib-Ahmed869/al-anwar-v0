@@ -161,7 +161,7 @@ export default function Settings() {
               <div className="min-w-0">
                 <p className="mb-1.5 text-[12.5px] font-medium text-text-2">A sample receipt, as Amina would get it</p>
                 {receiptHtml.data ? (
-                  <iframe title="Sample receipt" sandbox="" srcDoc={receiptHtml.data.html} className="h-[560px] w-full rounded-xl bg-[#F5F5F2] ring-1 ring-line" />
+                  <iframe title="Sample receipt" sandbox="" srcDoc={receiptHtml.data.html} className="h-[560px] w-full rounded-xl bg-[#FFF5E4] ring-1 ring-line" />
                 ) : (
                   <Skeleton className="h-[560px] w-full rounded-xl" />
                 )}

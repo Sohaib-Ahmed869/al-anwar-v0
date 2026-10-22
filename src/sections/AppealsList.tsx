@@ -314,7 +314,7 @@ export default function AppealsList() {
                   <p className="font-script text-[clamp(22px,2vw,28px)] leading-none text-green">
                     Nothing open here yet
                   </p>
-                  <p className="mt-s2 font-display text-[clamp(26px,3vw,40px)] leading-[1.08] font-semibold tracking-[-0.02em] text-balance">
+                  <p className="mt-s2 font-display text-[clamp(26px,3vw,40px)] leading-[1.08] tracking-[-0.02em] text-balance">
                     No {asked} are open right now.
                   </p>
                   <p className="mt-s2 max-w-[48ch] text-[15.5px] leading-relaxed text-text-2">

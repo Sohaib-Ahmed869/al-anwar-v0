@@ -2,7 +2,6 @@ import type { ReactNode } from 'react'
 
 import Reveal, { useInView } from '../components/Reveal'
 import SectionHead, { BREAKOUT, SECTION_Y } from '../components/SectionHead'
-import { MasjidMark } from '../components/Ornament'
 import { BookOpen, Box, Calendar, HandHeart, Users, Van } from '../components/icons'
 import { ROLES, STEPS, WHY } from '../components/volunteer-data'
 
@@ -53,7 +52,7 @@ export function VolunteerWhy() {
                     <p className="mt-s4 font-script text-[clamp(24px,2vw,30px)] leading-none text-green transition-colors duration-300 group-hover:text-gold-pale">
                       {item.kind}
                     </p>
-                    <h3 className="mt-2 font-display text-[clamp(20px,1.8vw,24px)] leading-[1.18] font-semibold tracking-[-0.018em] text-balance transition-colors duration-300 group-hover:text-paper">
+                    <h3 className="mt-2 font-display text-[clamp(20px,1.8vw,24px)] leading-[1.18] tracking-[-0.018em] text-balance transition-colors duration-300 group-hover:text-paper">
                       {item.title}
                     </h3>
                     <p className="mt-s2 text-[15px] leading-relaxed text-text-2 transition-colors duration-300 group-hover:text-paper/80">
@@ -84,12 +83,9 @@ export function VolunteerRoles() {
                 <Reveal variant="clip" delay={i * 80} className="h-full">
                   <article
                     className={`relative isolate flex h-full flex-col overflow-hidden rounded-2xl p-s3 ${
-                      skill ? 'bg-teal text-paper' : 'border border-line'
+                      skill ? 'bg-grad-lagoon-x text-paper' : 'border border-line'
                     }`}
                   >
-                    {skill && (
-                      <MasjidMark className="pointer-events-none absolute -right-[14%] -bottom-[10%] -z-10 size-[180px] text-paper/[0.07]" />
-                    )}
                     <span
                       aria-hidden="true"
                       className={`flex size-12 items-center justify-center rounded-full ${
@@ -105,7 +101,7 @@ export function VolunteerRoles() {
                     >
                       {role.kind}
                     </p>
-                    <h3 className="mt-2 font-display text-[clamp(21px,1.8vw,25px)] leading-tight font-semibold tracking-[-0.018em]">
+                    <h3 className="mt-2 font-display text-[clamp(21px,1.8vw,25px)] leading-tight tracking-[-0.018em]">
                       {role.title}
                     </h3>
                     <p className={`mt-s2 mb-s3 text-[14.5px] leading-relaxed ${skill ? 'text-paper/85' : 'text-text-2'}`}>
@@ -155,7 +151,7 @@ export function VolunteerSteps() {
                 >
                   0{i + 1}
                 </span>
-                <p className="mt-s3 font-display text-[19px] leading-snug font-semibold tracking-[-0.014em]">
+                <p className="mt-s3 font-display text-[19px] leading-snug tracking-[-0.014em]">
                   {step.title}
                 </p>
                 <p className="mt-1.5 max-w-[30ch] text-[15px] leading-relaxed text-text-2">{step.body}</p>

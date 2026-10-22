@@ -2,7 +2,6 @@ import { Link } from 'react-router-dom'
 import type { ReactNode } from 'react'
 
 import { ArrowRight } from './icons'
-import { MasjidMark } from './Ornament'
 import { DIARY_HEAD, askAbout, dateParts, dayOf, longDate, placeOf, type CharityEvent } from './event-data'
 
 /* ---------------------------------------------------------------------------
@@ -40,7 +39,7 @@ export function DatePlate({ event, className = '' }: { event: CharityEvent; clas
       className={`flex w-[68px] shrink-0 flex-col items-center rounded-xl bg-paper py-2 text-center shadow-[0_8px_24px_-12px_rgba(0,0,0,0.35)] ${className}`}
     >
       <span className="text-[11px] font-semibold tracking-[0.12em] text-text-3 uppercase">{weekday}</span>
-      <span className="nums font-display text-[30px] leading-[1.05] font-bold tracking-[-0.03em] text-teal">
+      <span className="nums font-display text-[30px] leading-[1.05] tracking-[-0.03em] text-teal">
         {day}
       </span>
       <span className="text-[12px] font-semibold tracking-[0.08em] text-text uppercase">{month}</span>
@@ -57,7 +56,7 @@ export function EventFeature({ event, label }: { event: CharityEvent; label?: st
 
   return (
     <article className="grid overflow-hidden rounded-2xl border border-line bg-paper lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
-      <div className="relative isolate aspect-[16/10] overflow-hidden bg-teal lg:aspect-auto lg:min-h-[440px]">
+      <div className="relative isolate aspect-[16/10] overflow-hidden bg-grad-lagoon-x lg:aspect-auto lg:min-h-[440px]">
         {event.photo ? (
           <img
             src={`/assets/images/${event.photo}-1600.jpg`}
@@ -72,11 +71,10 @@ export function EventFeature({ event, label }: { event: CharityEvent; label?: st
         ) : (
           /* no photograph: the date itself, large on teal */
           <div aria-hidden="true" className="absolute inset-0 flex flex-col justify-end p-s3 text-paper sm:p-s4 lg:p-[clamp(32px,3vw,48px)]">
-            <MasjidMark className="pointer-events-none absolute -right-[6%] -bottom-[14%] -z-10 size-[clamp(220px,30vw,420px)] text-paper/[0.07]" />
             <span className="font-script text-[clamp(22px,2vw,30px)] leading-none text-gold-pale">
               {dateParts(event).weekday}
             </span>
-            <span className="nums mt-1 font-display text-[clamp(88px,11vw,168px)] leading-[0.85] font-bold tracking-[-0.05em]">
+            <span className="nums mt-1 font-display text-[clamp(88px,11vw,168px)] leading-[0.85] tracking-[-0.05em]">
               {dateParts(event).day}
             </span>
             <span className="mt-s2 text-[clamp(15px,1.3vw,19px)] font-semibold tracking-[0.14em] text-paper/80 uppercase">
@@ -92,7 +90,7 @@ export function EventFeature({ event, label }: { event: CharityEvent; label?: st
         <p className={`${label ? 'mt-s2' : ''} text-[12px] font-semibold tracking-[0.12em] text-text-3 uppercase`}>
           {event.kind}
         </p>
-        <h3 className="mt-2 font-display text-[clamp(26px,2.6vw,38px)] leading-[1.08] font-semibold tracking-[-0.022em] text-balance">
+        <h3 className="mt-2 font-display text-[clamp(26px,2.6vw,38px)] leading-[1.08] tracking-[-0.022em] text-balance">
           {event.name}
         </h3>
         <p className="mt-s2 max-w-[48ch] text-[15.5px] leading-[1.55] text-text-2">{event.blurb}</p>
@@ -131,7 +129,7 @@ export function EventRow({ event }: { event: CharityEvent }) {
 
       <span className="min-w-0 flex-1">
         <span className="block text-[11.5px] font-semibold tracking-[0.12em] text-text-3 uppercase">{event.kind}</span>
-        <span className="mt-1 block font-display text-[clamp(19px,1.7vw,24px)] leading-[1.15] font-semibold tracking-[-0.018em] text-text transition-colors duration-200 ease-brand group-hover:text-teal">
+        <span className="mt-1 block font-display text-[clamp(19px,1.7vw,24px)] leading-[1.15] tracking-[-0.018em] text-text transition-colors duration-200 ease-brand group-hover:text-teal">
           {event.name}
         </span>
         <span className="mt-1 block text-[14px] text-text-2">

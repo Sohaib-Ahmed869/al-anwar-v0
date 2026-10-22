@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { GradientDomes } from './Brand'
 
 /* ---------------------------------------------------------------------------
    The compact band at the top of a working page — /give and /appeals, where
@@ -17,11 +18,14 @@ export default function PageBand({ title, children }: { title: string; children?
     <section
       data-overlay-hero=""
       aria-labelledby="page-title"
-      className="relative isolate mt-[calc(var(--header-h)*-1)] overflow-hidden bg-ink text-paper"
+      className="relative isolate mt-[calc(var(--header-h)*-1)] overflow-hidden bg-grad-deep-x text-paper"
     >
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 -z-10 bg-[radial-gradient(90%_140%_at_15%_0%,rgba(47,107,90,0.36)_0%,transparent_62%)]"
+      {/* The guide's dark page (p. 15): the deep gradient, with the gradient
+          domes standing at its foot. */}
+      <GradientDomes
+        pick={[0, 2, 5]}
+        className="absolute right-[clamp(24px,9vw,160px)] bottom-[-18%] -z-10 hidden lg:flex"
+        domeClass="w-[clamp(40px,3.6vw,58px)]"
       />
 
       <div className="gutter mx-auto max-w-page pt-[calc(var(--header-h)+clamp(28px,5vh,56px))] pb-[clamp(28px,5vh,52px)]">
@@ -44,7 +48,7 @@ export default function PageBand({ title, children }: { title: string; children?
 
       <div
         aria-hidden="true"
-        className="h-px bg-[linear-gradient(90deg,transparent,rgba(200,155,44,.5),rgba(47,107,90,.5),transparent)]"
+        className="h-[3px] bg-[linear-gradient(90deg,var(--color-gold),var(--color-teal-mid)_45%,transparent_90%)]"
       />
     </section>
   )

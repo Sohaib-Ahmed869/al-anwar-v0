@@ -68,8 +68,8 @@ export function Field({
 export const controlClass = (invalid?: boolean, className?: string) =>
   cn(
     'w-full min-w-0 rounded-[10px] bg-paper text-[16px] text-text sm:text-sm',
-    'ring-1 ring-inset ring-line shadow-[0_1px_2px_rgba(20,26,24,.04)] placeholder:text-text-3',
-    'transition-[box-shadow,background-color] duration-150 hover:ring-[#cdcdc6]',
+    'ring-1 ring-inset ring-line shadow-[0_1px_2px_rgba(8,38,42,.04)] placeholder:text-text-3',
+    'transition-[box-shadow,background-color] duration-150 hover:ring-[#dccdb2]',
     'focus:outline-none focus-visible:outline-none focus:ring-2 focus:ring-green/70',
     'disabled:cursor-not-allowed disabled:bg-paper-2 disabled:text-text-3',
     /* :read-only also matches every <select>, so it is scoped to text fields */
@@ -222,7 +222,7 @@ export function Switch({
       disabled={disabled}
       className={cn(
         'relative inline-flex h-6 w-10 shrink-0 items-center rounded-full transition-colors duration-200',
-        'data-[state=checked]:bg-green data-[state=unchecked]:bg-[#d6d6cf] disabled:opacity-50',
+        'data-[state=checked]:bg-green data-[state=unchecked]:bg-[#dccdb2] disabled:opacity-50',
       )}
     >
       <RSwitch.Thumb className="block size-5 translate-x-0.5 rounded-full bg-white shadow-[0_1px_3px_rgba(0,0,0,.2)] transition-transform duration-200 ease-[var(--ease-brand)] data-[state=checked]:translate-x-[18px]" />
@@ -267,7 +267,7 @@ export function Checkbox({
       aria-label={ariaLabel}
       onClick={(e) => e.stopPropagation()}
       className={cn(
-        'grid size-[18px] shrink-0 place-items-center rounded-[5px] bg-paper ring-1 ring-inset ring-[#c9c9c2] transition-colors',
+        'grid size-[18px] shrink-0 place-items-center rounded-[5px] bg-paper ring-1 ring-inset ring-[#dccdb2] transition-colors',
         'hover:ring-green/60 data-[state=checked]:bg-green data-[state=checked]:ring-green',
         'data-[state=indeterminate]:bg-green data-[state=indeterminate]:ring-green disabled:opacity-50',
         className,
@@ -324,7 +324,7 @@ export function Segmented<T extends string>({
             className={cn(
               'inline-flex shrink-0 items-center gap-1.5 rounded-lg font-medium whitespace-nowrap transition-all duration-150',
               size === 'sm' ? 'h-7 px-2.5 text-[12.5px]' : 'h-9 px-3 text-[13px] pointer-coarse:h-10',
-              on ? 'bg-paper text-text shadow-[0_1px_2px_rgba(20,26,24,.1),0_0_0_1px_rgba(20,26,24,.04)]' : 'text-text-2 hover:text-text',
+              on ? 'bg-paper text-text shadow-[0_1px_2px_rgba(8,38,42,.1),0_0_0_1px_rgba(8,38,42,.04)]' : 'text-text-2 hover:text-text',
             )}
           >
             {o.label}
@@ -367,7 +367,7 @@ export function ChoiceCards<T extends string>({
             className={cn(
               'flex min-h-12 flex-col items-start justify-center rounded-xl px-3.5 py-2.5 text-left transition-all duration-150',
               'ring-1 ring-inset disabled:cursor-not-allowed disabled:opacity-45',
-              on ? 'bg-green-50 ring-2 ring-green' : 'bg-paper ring-line hover:ring-[#c9c9c2]',
+              on ? 'bg-green-50 ring-2 ring-green' : 'bg-paper ring-line hover:ring-[#dccdb2]',
             )}
           >
             <span className={cn('text-sm font-medium', on ? 'text-green' : 'text-text')}>{o.label}</span>

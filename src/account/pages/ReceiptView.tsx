@@ -51,11 +51,11 @@ export default function ReceiptView() {
           />
 
           <div className="grid gap-6 sm:grid-cols-2 print:grid-cols-2">
-            <AddressBlock label="Received with thanks from" name={r.donor.name} address={r.donor.address} extra={<p className="mt-1 text-[12px] text-[#6b7371]">Supporter number {r.donor.number}</p>} />
+            <AddressBlock label="Received with thanks from" name={r.donor.name} address={r.donor.address} extra={<p className="mt-1 text-[12px] text-[#3f5b5d]">Supporter number {r.donor.number}</p>} />
             <div className="sm:text-right print:text-right">
-              <p className="text-[10.5px] font-semibold tracking-[.08em] text-[#6b7371] uppercase">Amount received</p>
-              <p className="nums mt-1 font-serif text-[40px] leading-none text-[#1d4a3e]">{formatMoney(total, { exact: true })}</p>
-              <p className="mt-1.5 text-[12.5px] text-[#4d5553]">on {formatDateLong(g.date)}</p>
+              <p className="text-[10.5px] font-semibold tracking-[.08em] text-[#3f5b5d] uppercase">Amount received</p>
+              <p className="nums mt-1 font-display text-[40px] leading-none text-[#006770]">{formatMoney(total, { exact: true })}</p>
+              <p className="mt-1.5 text-[12.5px] text-[#3f5b5d]">on {formatDateLong(g.date)}</p>
             </div>
           </div>
 
@@ -75,8 +75,8 @@ export default function ReceiptView() {
               )
                 .filter((x): x is [string, string] => Boolean(x))
                 .map(([k, v]) => (
-                  <tr key={k} className="border-b border-[#e3e4e0]">
-                    <th scope="row" className="w-[42%] py-2.5 pr-4 text-left font-normal text-[#4d5553]">
+                  <tr key={k} className="border-b border-[#efe4d0]">
+                    <th scope="row" className="w-[42%] py-2.5 pr-4 text-left font-normal text-[#3f5b5d]">
                       {k}
                     </th>
                     <td className="nums py-2.5 text-right">{v}</td>
@@ -86,19 +86,19 @@ export default function ReceiptView() {
                 <th scope="row" className="pt-3 pr-4 text-left text-[14px] font-semibold">
                   Total tax-deductible donation
                 </th>
-                <td className="nums border-t-2 border-[#1b1f1e] pt-3 text-right text-[15px] font-semibold">{formatMoney(total, { exact: true })}</td>
+                <td className="nums border-t-2 border-[#08262a] pt-3 text-right text-[15px] font-semibold">{formatMoney(total, { exact: true })}</td>
               </tr>
             </tbody>
           </table>
 
           <div className="space-y-5 break-inside-avoid">
             <DgrStatement org={r.org} footer={r.receipts.footer} />
-            <p className="font-serif text-[15px] leading-relaxed text-[#2c3432] italic">May Allah accept it from you and put barakah in what remains.</p>
+            <p className="font-serif text-[15px] leading-relaxed text-[#0d3337] italic">May Allah accept it from you and put barakah in what remains.</p>
             <div>
               <p className="font-serif text-[15px]">{r.receipts.signatory}</p>
-              <p className="text-[11.5px] text-[#6b7371]">{r.receipts.signatoryTitle}</p>
+              <p className="text-[11.5px] text-[#3f5b5d]">{r.receipts.signatoryTitle}</p>
             </div>
-            <p className="text-[11px] text-[#8a908e]">Keep this receipt for your tax records. It is a copy of the receipt emailed to {r.donor.email}.</p>
+            <p className="text-[11px] text-[#6f8788]">Keep this receipt for your tax records. It is a copy of the receipt emailed to {r.donor.email}.</p>
           </div>
         </div>
       ) : null}

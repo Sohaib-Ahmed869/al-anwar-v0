@@ -101,7 +101,7 @@ export default function AppealBody({
                       to={`${giveHref(appeal)}&amount=${a.value}`}
                       className="group relative flex h-full min-h-[210px] flex-col overflow-hidden rounded-2xl bg-paper p-s3 ring-1 ring-line transition-[background-color,color,box-shadow] duration-300 ease-brand hover:bg-teal hover:text-paper hover:ring-teal lg:p-s4"
                     >
-                      <span className="nums font-display text-[clamp(44px,4.4vw,64px)] leading-none font-bold tracking-[-0.03em]">
+                      <span className="nums font-display text-[clamp(44px,4.4vw,64px)] leading-none tracking-[-0.03em]">
                         {money(a.value)}
                       </span>
                       <span className="mt-s2 text-[17px] leading-snug text-text-2 transition-colors duration-300 group-hover:text-paper/85">

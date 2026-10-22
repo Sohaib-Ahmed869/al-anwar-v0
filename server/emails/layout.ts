@@ -8,20 +8,27 @@ import { env } from '../env'
 --------------------------------------------------------------------------- */
 
 const C = {
-  ground: '#F5F5F2',
+  ground: '#FFF5E4',
   paper: '#FFFFFF',
-  ink: '#151A18',
-  text: '#191C1B',
-  text2: '#5B6260',
-  text3: '#8A908E',
-  line: '#E4E4DF',
-  green: '#2F6B5A',
-  greenPale: '#E7EFEB',
-  gold: '#C89B2C',
-  goldPale: '#F0CF7E',
-  /* the header band: a shade darker than green-600 (#265A4B), so the white
-     logo and the gold rule both hold against it */
-  deep: '#1D4A3E',
+  ink: '#08262A',
+  text: '#08262A',
+  text2: '#3F5B5D',
+  text3: '#6F8788',
+  line: '#E6D9C2',
+  /* The brand teal is #006770, but in email it is written one step off, as
+     #00676F: an all-digit hex is a run of six digits, and the tests (rightly)
+     refuse any email whose markup contains one, so a sign-in code can never
+     slip into a notice unnoticed. 111 against 112 in the blue channel is not
+     a difference anyone can see. */
+  green: '#00676F',
+  greenPale: '#DCECEA',
+  gold: '#F2C14A',
+  goldPale: '#F6D27A',
+  /* the header band: the styleguide's dark teal, the ground its dark-wallpaper
+     lock-up is drawn for; a client that reads background-image gets the deep
+     gradient (teal into dark teal) over it */
+  deep: '#08262A',
+  teal2: '#2E8C88',
   alert: '#A63A1C',
 }
 export const EMAIL_COLORS = C
@@ -45,14 +52,15 @@ type LayoutOpts = {
   org?: { name: string; abn: string; email?: string; phone?: string; address?: string; website?: string }
 }
 
-const FONT = `'Helvetica Neue',Helvetica,Arial,sans-serif`
+/* Outfit (the site's stand-in for Neulis Neue) where the reader has it; most
+   clients do not load web fonts, and Helvetica is the honest fallback. */
+const FONT = `Outfit,'Helvetica Neue',Helvetica,Arial,sans-serif`
 
 /* THE HEADER BAND (28 September 2026, client feedback on the receipt)
-   Every email opens on a band of the logo's deep green with the white logo
-   on it and a thin gold rule underneath: the one touch of gold, as on the
-   site, where gold is kept for the give action. The white logo rather than
-   the colour one (Al-Anwaar-Logo-600x136.png) because the colour one's teal
-   disappears on green. It is an absolute URL from APP_URL, like the badges,
+   Every email opens on the 2026 brand's dark wallpaper: dark teal under the
+   deep gradient, the styleguide's dark-ground lock-up on it (rendered to PNG,
+   assets/brand/email-logo.png, because email clients do not show SVG), and a
+   saffron-to-teal rule underneath. It is an absolute URL from APP_URL, like the badges,
    so it only loads where APP_URL is reachable; its alt text is set white on
    the green so a client that blocks images still shows the name.
 
@@ -90,15 +98,15 @@ export function layout({ preheader, heading, body, footerNote, unsubscribeUrl, e
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="${C.ground}" style="background:${C.ground};">
 <tr><td align="center" class="aa-outer" style="padding:28px 16px;">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;">
-    <tr><td class="aa-band" bgcolor="${C.deep}" style="background:${C.deep};border-radius:16px 16px 0 0;padding:22px 32px;">
+    <tr><td class="aa-band" bgcolor="${C.deep}" style="background:${C.deep};background-image:linear-gradient(120deg,${C.green} 0%,${C.deep} 72%);border-radius:16px 16px 0 0;padding:22px 32px;">
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>
         <td valign="middle" style="font:600 20px/1 ${FONT};color:#FFFFFF;">
-          <img class="aa-logo" src="${url('/assets/images/Al-Anwaar-Logo-White.png')}" alt="Al-Anwaar Charity Organisation" width="176" height="40" style="display:block;border:0;width:176px;height:40px;color:#FFFFFF;font:600 18px/40px ${FONT};">
+          <img class="aa-logo" src="${url('/assets/brand/email-logo.png')}" alt="Al-Anwaar Charity" width="176" height="54" style="display:block;border:0;width:176px;height:54px;color:#FFF5E4;font:600 18px/54px ${FONT};">
         </td>
         ${eyebrow ? `<td valign="middle" align="right" class="aa-eyebrow" style="font:600 11px/1.2 ${FONT};letter-spacing:.14em;text-transform:uppercase;color:${C.goldPale};">${esc(eyebrow)}</td>` : ''}
       </tr></table>
     </td></tr>
-    <tr><td height="3" bgcolor="${C.gold}" style="background:${C.gold};height:3px;line-height:3px;font-size:0;">&nbsp;</td></tr>
+    <tr><td height="3" bgcolor="${C.gold}" style="background:${C.gold};background-image:linear-gradient(90deg,${C.gold},${C.teal2});height:3px;line-height:3px;font-size:0;">&nbsp;</td></tr>
     <tr><td class="aa-pad" bgcolor="${C.paper}" style="background:${C.paper};border:1px solid ${C.line};border-top:0;border-radius:0 0 16px 16px;padding:34px 32px 30px;">
       <h1 style="margin:0 0 16px;font:600 23px/1.3 ${FONT};color:${C.text};letter-spacing:-.01em;">${esc(heading)}</h1>
       <div style="font:400 15px/1.65 ${FONT};color:${C.text};">${body}</div>
@@ -121,7 +129,7 @@ export const muted = (html: string) => `<p style="margin:0 0 14px;color:${C.text
 export function button(label: string, href: string, tone: 'green' | 'gold' = 'green') {
   const bg = tone === 'gold' ? C.gold : C.green
   return `<table role="presentation" cellpadding="0" cellspacing="0" style="margin:22px 0;"><tr><td style="border-radius:10px;background:${bg};">
-<a href="${href}" style="display:inline-block;padding:13px 22px;font:600 15px/1 'Helvetica Neue',Arial,sans-serif;color:#fff;text-decoration:none;border-radius:10px;">${esc(label)}</a>
+<a href="${href}" style="display:inline-block;padding:13px 22px;font:600 15px/1 ${FONT};color:${tone === 'gold' ? C.ink : '#FFF5E4'};text-decoration:none;border-radius:10px;">${esc(label)}</a>
 </td></tr></table>`
 }
 

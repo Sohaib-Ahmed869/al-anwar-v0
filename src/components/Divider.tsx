@@ -1,4 +1,4 @@
-import { MasjidMark } from './Ornament'
+import { BrandMark } from './Brand'
 
 /* ---------------------------------------------------------------------------
    The thing between two sections.
@@ -25,7 +25,7 @@ import { MasjidMark } from './Ornament'
                thought, not two — and between two that are not, because there is
                nothing else left to reach for.
 
-     mark      The hairline with the masjid standing on it. THE SECTION BREAKER
+     mark      The hairline with the brandmark on it. THE SECTION BREAKER
                on the home page, at the client's direction (16 September 2026),
                and used at every seam rather than once.
 
@@ -35,7 +35,8 @@ import { MasjidMark } from './Ornament'
                that appears at every turn stops being read as one. What makes it
                survivable here is that the home page has four seams, not ten,
                and that the mark is now a line with a building on it rather than
-               a badge dropped into a gap — it reads as rule first, ornament
+               a badge dropped into a gap (written of the old masjid mark; the 2026
+               hexagon keeps the same job) — it reads as rule first, ornament
                second, which is the right order for something used this often.
 
    ALL OF THEM ARE aria-hidden AND NONE OF THEM IS AN <hr>. A divider between
@@ -113,49 +114,29 @@ export default function Divider({
 function Rule({ className = '' }: { className?: string }) {
   return (
     <div aria-hidden="true" className={`gutter mx-auto max-w-page ${className}`}>
-      <div className="h-px bg-[linear-gradient(90deg,transparent,rgba(200,155,44,.45),rgba(47,107,90,.45),transparent)]" />
+      <div className="h-px bg-[linear-gradient(90deg,transparent,rgba(242,193,74,.45),rgba(0,103,112,.45),transparent)]" />
     </div>
   )
 }
 
-/* The hairline with the masjid standing on it.
-
-   Two rules and the mark between them rather than one rule with something laid
-   over it, so the mark needs no opaque backing plate and the divider still
-   works if the ground changes under it.
-
-   `items-end` IS THE WHOLE FIX. The glyph's ground is the last two units of its
-   viewBox (see Ornament.tsx), so aligning the row on its bottom edge puts the
-   two hairlines on the same line the building stands on, and the three read as
-   one rule with a masjid on it. Centred — which is what this was — the rules
-   crossed the dome about two thirds of the way up and the base hung below them,
-   so it read as a blob dropped on a line. `mb-px` is the half of the 2px ground
-   bar that puts the hairline through its middle rather than under it.
-
-   The gap is small on purpose. Wide enough that the glyph is not touching the
-   rules, tight enough that the eye reads one line across the page and not three
-   objects in a row.
-
-   Sized to be seen: it was 24px tall at 45% and the shape did not survive
-   either. 32px is the floor at which the two minarets, the dome and the ground
-   read as four separate things. */
+/* The hairline with the brandmark at its centre: two rules and the mark
+   between them rather than one rule with something laid over it, so the mark
+   needs no opaque backing plate and the divider still works if the ground
+   changes under it. The gap is small on purpose, so the eye reads one line
+   across the page and not three objects in a row. */
 function Marked({ small = false, className = '' }: { small?: boolean; className?: string }) {
   return (
     <div
       aria-hidden="true"
-      className={`gutter mx-auto flex max-w-page items-end gap-s2 ${className}`}
+      className={`gutter mx-auto flex max-w-page items-center gap-s2 ${className}`}
     >
-      <div className="mb-px h-px flex-1 bg-[linear-gradient(90deg,transparent,rgba(47,107,90,.4))]" />
-      {/* The favicon's mark, not the drawn glyph — same traced path as
-          public/favicon.svg, in the logo's teal, so the divider and the tab
-          agree. Its sweep ends at the bottom corners of the box, which is where
-          `items-end` meets the hairlines. Client's call, 16 September 2026. */}
-      {/* `small` is 24px, below the 32px floor above, at the client's request
-          (16 September 2026) for the one seam left on the home page. */}
-      <MasjidMark
-        className={small ? 'size-6 shrink-0 text-teal' : 'size-10 shrink-0 text-teal sm:size-11'}
-      />
-      <div className="mb-px h-px flex-1 bg-[linear-gradient(90deg,rgba(47,107,90,.4),transparent)]" />
+      <div className="h-px flex-1 bg-[linear-gradient(90deg,transparent,rgba(0,103,112,.45))]" />
+      {/* The 2026 brandmark in its own colours — teal, with the doorway lit in
+          saffron. It is a hexagon, symmetrical and self-contained, so it
+          centres on the rule rather than standing on it the way the old
+          masjid did; `items-center` replaces the old `items-end`. */}
+      <BrandMark className={small ? 'h-7 w-auto shrink-0' : 'h-11 w-auto shrink-0 sm:h-12'} />
+      <div className="h-px flex-1 bg-[linear-gradient(90deg,rgba(0,103,112,.45),transparent)]" />
     </div>
   )
 }

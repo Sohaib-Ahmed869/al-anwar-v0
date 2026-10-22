@@ -133,9 +133,26 @@ Donor: `amina.rahman@example.com`; in development the code is shown on screen.
 
 ## Design conventions
 
+- **The brand is the 2026 styleguide** (`Al-Anwaar-Styleguide-2026.pdf`). Colours were
+  read off its vector fills (the printed hex codes are a typo): dark teal `#08262A`, teal
+  `#006770`, medium teal `#2E8C88`, saffron `#F2C14A`, off-white `#FFF5E4`. The old token
+  names (ink, green, gold, ground…) carry these values, so `--color-green` IS the teal.
+- Brand assets are vectors extracted from the PDF, in `public/assets/brand/`, and wrapped
+  in `src/components/Brand.tsx` (Logo, BrandMark, Tiles, OutlineMark, Sticker, Arch,
+  DomePanel, GradientDomes, HeroBrand). Never use the old `Al-Anwaar-Logo-*.png` files.
+- Fonts are self-hosted from `public/fonts` (Bricolage Grotesque for Snaga Uni Display,
+  Outfit for Neulis Neue, Noto Kufi Arabic). When the licensed files arrive, add them
+  there and name them first in the `--font-*` tokens.
+- Keep the brand elements in their roles and SPARING: the tiles appear only in the footer,
+  the portals' sidebar, the sign-in panel, the home zakat band and, faintly, at the foot of
+  each photo hero (HeroBrand) — not behind pages, not in panels (the client found that too
+  much); the outlined mark appears only in the home
+  hero and the sign-in panel;
+  gradients are `bg-grad-*` utilities (domes for moments, bands for panels).
 - Tokens live only in `src/index.css` (Tailwind v4 `@theme`, with no tailwind config file).
-- **Gold (`bg-gold`) is only for the give action** (and the focus ring). Everything
-  else interactive is green or teal.
+- **Gold (saffron, `bg-gold`) is only for the give action** (and the focus ring, labels
+  and key details as type). Type on saffron is always `text-ink`. Everything else
+  interactive is teal.
 - Every amount takes `.nums` (tabular numerals).
 - Portal UI kit: `src/portal/ui` (radix-ui, vaul, cmdk, sonner, lucide). Charts are
   in `src/portal/charts` (recharts). Data fetching uses @tanstack/react-query through

@@ -8,7 +8,7 @@ import { PLACES, appealBySlug } from '../components/appeals-data'
 
 import { appealView } from '../components/appeal-view'
 import { ArrowRight, BookOpen, Box, Check, Droplet, HandHeart, LifeBuoy } from '../components/icons'
-import { MasjidMark } from '../components/Ornament'
+import { BrandGlyph } from '../components/Ornament'
 import {
   checkStep,
   appealsFor,
@@ -54,7 +54,7 @@ const REASON_ICON: Record<string, (p: { className?: string }) => ReactNode> = {
   food: Box,
   water: Droplet,
   education: BookOpen,
-  jariyah: MasjidMark,
+  jariyah: BrandGlyph,
   memory: HandHeart,
 }
 
@@ -229,7 +229,7 @@ export default function FundraiserStartForm() {
               </p>
               <h1
                 id="sent-title"
-                className="mt-s2 font-display text-[clamp(34px,4.4vw,58px)] leading-[1.04] font-semibold tracking-[-0.025em]"
+                className="mt-s2 font-display text-[clamp(34px,4.4vw,58px)] leading-[1.04] tracking-[-0.025em]"
               >
                 {words.title}
               </h1>
@@ -271,7 +271,7 @@ export default function FundraiserStartForm() {
           <p className="mt-s3 font-script text-[clamp(21px,1.9vw,27px)] leading-none text-green">{START.eyebrow}</p>
           <h1
             id="start-title"
-            className="mt-s2 font-display text-[clamp(34px,4.4vw,58px)] leading-[1.04] font-semibold tracking-[-0.025em]"
+            className="mt-s2 font-display text-[clamp(34px,4.4vw,58px)] leading-[1.04] tracking-[-0.025em]"
           >
             {START.title}
           </h1>
@@ -325,7 +325,7 @@ export default function FundraiserStartForm() {
             {/* --- 1. reason --- */}
             {step === 0 && (
               <fieldset>
-                <legend className="font-display text-[clamp(22px,2vw,28px)] font-semibold tracking-[-0.02em]">
+                <legend className="font-display text-[clamp(22px,2vw,28px)] tracking-[-0.02em]">
                   {START.reason.title}
                 </legend>
                 <p className="mt-1 text-[15px] text-text-2">{START.reason.hint}</p>
@@ -376,7 +376,7 @@ export default function FundraiserStartForm() {
             {/* --- 2. appeal --- */}
             {step === 1 && (
               <fieldset>
-                <legend className="font-display text-[clamp(22px,2vw,28px)] font-semibold tracking-[-0.02em]">
+                <legend className="font-display text-[clamp(22px,2vw,28px)] tracking-[-0.02em]">
                   {START.appeal.title}
                 </legend>
                 <p className="mt-1 text-[15px] text-text-2">{START.appeal.hint}</p>
@@ -427,7 +427,7 @@ export default function FundraiserStartForm() {
             {/* --- 3. the page --- */}
             {step === 2 && (
               <div>
-                <h2 className="font-display text-[clamp(22px,2vw,28px)] font-semibold tracking-[-0.02em]">
+                <h2 className="font-display text-[clamp(22px,2vw,28px)] tracking-[-0.02em]">
                   {START.page.title}
                 </h2>
                 <div className="mt-s4 grid gap-s4">
@@ -550,7 +550,7 @@ export default function FundraiserStartForm() {
             {/* --- 4. about you --- */}
             {step === 3 && (
               <div>
-                <h2 className="font-display text-[clamp(22px,2vw,28px)] font-semibold tracking-[-0.02em]">
+                <h2 className="font-display text-[clamp(22px,2vw,28px)] tracking-[-0.02em]">
                   {START.you.title}
                 </h2>
                 <p className="mt-1 text-[15px] text-text-2">{START.you.hint}</p>

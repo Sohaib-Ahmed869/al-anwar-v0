@@ -1,3 +1,4 @@
+import { Sticker } from '../components/Brand'
 import { useEffect, useRef, useState, type PointerEvent } from 'react'
 import { Link } from 'react-router-dom'
 
@@ -167,11 +168,13 @@ export default function HomeAppeals() {
                       className="grid w-full shrink-0 grid-rows-[auto_1fr] lg:h-[clamp(380px,31vw,500px)] lg:grid-cols-[minmax(0,5fr)_minmax(0,8fr)] lg:grid-rows-1"
                     >
                       {/* the panel */}
-                      <div className="order-2 flex flex-col rounded-b-2xl bg-teal p-s3 text-paper sm:p-s4 lg:order-1 lg:rounded-tl-2xl lg:rounded-br-none lg:p-[clamp(32px,3.2vw,52px)]">
+                      <div className="relative isolate order-2 flex flex-col overflow-hidden rounded-b-2xl bg-grad-lagoon p-s3 text-paper sm:p-s4 lg:order-1 lg:rounded-tl-2xl lg:rounded-br-none lg:p-[clamp(32px,3.2vw,52px)]">
+                        {/* the panel is the guide's lagoon gradient (medium teal
+                            into teal, p. 15) */}
                         <p className="font-script text-[clamp(28px,2.6vw,40px)] leading-none text-gold-pale">
                           {a.cause}
                         </p>
-                        <h3 className="mt-2 font-display text-[clamp(26px,2.5vw,36px)] leading-[1.1] font-semibold tracking-[-0.02em] text-balance">
+                        <h3 className="mt-2 font-display text-[clamp(26px,2.5vw,36px)] leading-[1.1] tracking-[-0.02em] text-balance">
                           {a.title}
                         </h3>
                         <p className="mt-s2 max-w-[40ch] text-[15.5px] leading-[1.55] text-paper/85 lg:line-clamp-3">
@@ -191,7 +194,7 @@ export default function HomeAppeals() {
                             className="h-1.5 w-full overflow-hidden rounded-full bg-paper/20"
                           >
                             <span
-                              className="block h-full rounded-full bg-gold-pale"
+                              className="block h-full rounded-full bg-[linear-gradient(90deg,var(--color-offwhite),var(--color-gold))]"
                               style={{
                                 width: `${shown ? a.pct : 0}%`,
                                 transition: shown ? 'width 1100ms var(--ease-brand) 350ms' : 'none',
@@ -215,14 +218,14 @@ export default function HomeAppeals() {
                         <div className="mt-s3 flex flex-wrap items-end justify-between gap-x-s3 gap-y-s2">
                           <div>
                             <p className="text-[13px] font-semibold">{a.fromLine}</p>
-                            <p className="nums mt-1 font-display text-[clamp(44px,4.2vw,66px)] leading-none font-bold tracking-[-0.03em]">
+                            <p className="nums mt-1 font-display text-[clamp(44px,4.2vw,66px)] leading-none tracking-[-0.03em]">
                               {money(a.from)}
                             </p>
                           </div>
                           <Link
                             to={giveHref(a)}
                             tabIndex={hidden ? -1 : undefined}
-                            className="group inline-flex min-h-[48px] items-center gap-2 rounded-[10px] bg-gold px-5 text-[15px] font-semibold text-ink transition-colors duration-200 ease-brand hover:bg-gold-dark hover:text-paper sm:min-h-[52px] sm:px-6 sm:text-[16px]"
+                            className="group inline-flex min-h-[48px] items-center gap-2 rounded-[10px] bg-gold px-5 text-[15px] font-semibold text-ink transition-colors duration-200 ease-brand hover:bg-gold-dark hover:text-ink sm:min-h-[52px] sm:px-6 sm:text-[16px]"
                           >
                             Donate Now
                             <ArrowRight className="h-4 w-4 transition-transform duration-200 ease-brand group-hover:translate-x-0.5" />
@@ -244,6 +247,9 @@ export default function HomeAppeals() {
                           className="absolute inset-0 h-full w-full object-cover select-none"
                           style={{ objectPosition: a.position }}
                         />
+                        {/* the stamp: the brandmark sticker on the photograph's
+                            corner, as the guide lays it over imagery (p. 16) */}
+                        <Sticker className="absolute top-5 right-5 w-[clamp(56px,5vw,84px)]" />
 
                         {/* The cause pill that sat top-left on the photograph came
                             off at the client's request, 16 September 2026: the

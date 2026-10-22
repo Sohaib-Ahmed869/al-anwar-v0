@@ -226,7 +226,7 @@ function Gift({ gift: g, waiting }: { gift: GiftStatus; waiting: boolean }) {
       <div className="mt-s4 flex flex-wrap gap-s2">
         <Link
           to="/give"
-          className="inline-flex min-h-[52px] items-center gap-2.5 rounded-[14px] bg-gold px-6 text-[15.5px] font-semibold text-ink shadow-gold transition-[transform,background-color,color] duration-200 ease-brand hover:-translate-y-[1.5px] hover:bg-gold-dark hover:text-paper"
+          className="inline-flex min-h-[52px] items-center gap-2.5 rounded-[14px] bg-gold px-6 text-[15.5px] font-semibold text-ink shadow-gold transition-[transform,background-color,color] duration-200 ease-brand hover:-translate-y-[1.5px] hover:bg-gold-dark hover:text-ink"
         >
           <HandHeart className="h-4 w-4" />
           Try again

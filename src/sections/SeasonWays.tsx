@@ -183,7 +183,7 @@ function Panel({
         >
           <div>
             <p className="font-script text-[clamp(19px,1.7vw,24px)] leading-none text-gold-pale">{v.group}</p>
-            <h3 className="mt-1.5 font-display text-[clamp(30px,3vw,44px)] leading-[1.05] font-semibold tracking-[-0.022em]">
+            <h3 className="mt-1.5 font-display text-[clamp(30px,3vw,44px)] leading-[1.05] tracking-[-0.022em]">
               {v.cause.label}
             </h3>
           </div>
@@ -206,7 +206,7 @@ function Panel({
             const on = open && i === rung
             const body = (
               <>
-                <span className="nums block font-display text-[clamp(21px,1.9vw,27px)] leading-none font-bold tracking-[-0.02em]">
+                <span className="nums block font-display text-[clamp(21px,1.9vw,27px)] leading-none tracking-[-0.02em]">
                   {money(r.value)}
                 </span>
                 {r.label && (
@@ -240,7 +240,7 @@ function Panel({
           {open ? (
             <Link
               to={giveTo(v.cause.id, amount)}
-              className="group inline-flex min-h-[52px] items-center gap-2.5 rounded-[12px] bg-gold px-6 text-[16px] font-semibold text-ink shadow-gold transition-[background-color,color,transform] duration-200 ease-brand hover:-translate-y-[1px] hover:bg-gold-dark hover:text-paper"
+              className="group inline-flex min-h-[52px] items-center gap-2.5 rounded-[12px] bg-gold px-6 text-[16px] font-semibold text-ink shadow-gold transition-[background-color,color,transform] duration-200 ease-brand hover:-translate-y-[1px] hover:bg-gold-dark hover:text-ink"
             >
               <HandHeart className="h-[17px] w-[17px] shrink-0" />
               <span>

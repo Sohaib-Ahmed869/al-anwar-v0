@@ -1,5 +1,4 @@
 import { ArrowRight, Facebook, Instagram, WhatsApp, YouTube } from '../components/icons'
-import { MasjidMark } from '../components/Ornament'
 import Reveal from '../components/Reveal'
 import SectionHead, { BREAKOUT, SECTION_Y } from '../components/SectionHead'
 import { CONTACT } from '../components/contact-data'
@@ -203,9 +202,8 @@ export default function ContactSocial() {
                to this one otherwise. */
             rel="noreferrer noopener"
             aria-label={`Al-Anwaar on ${feature.label}`}
-            className="group relative isolate block overflow-hidden rounded-2xl bg-teal transition-[transform,box-shadow] duration-300 ease-brand hover:-translate-y-1 hover:shadow-[0_28px_60px_-32px_rgba(0,103,112,0.8)]"
+            className="group relative isolate block overflow-hidden rounded-2xl bg-grad-lagoon-x transition-[transform,box-shadow] duration-300 ease-brand hover:-translate-y-1 hover:shadow-[0_28px_60px_-32px_rgba(0,103,112,0.8)]"
           >
-            <MasjidMark className="pointer-events-none absolute -right-[2%] -bottom-[30%] -z-10 size-[clamp(180px,20vw,300px)] text-paper/[0.07] transition-transform duration-700 ease-brand group-hover:-translate-y-2" />
 
             <div className="flex flex-col gap-s3 p-s3 sm:flex-row sm:items-center sm:gap-s4 sm:p-s4 lg:p-[clamp(32px,3.2vw,52px)]">
               <Logo label={feature.label} size="lg" onDark />
@@ -214,7 +212,7 @@ export default function ContactSocial() {
                 <p className="font-script text-[clamp(24px,2.2vw,32px)] leading-none text-gold-pale">
                   {feature.label}
                 </p>
-                <p className="mt-2 font-display text-[clamp(22px,2.2vw,30px)] leading-[1.15] font-semibold tracking-[-0.02em] break-words text-paper">
+                <p className="mt-2 font-display text-[clamp(22px,2.2vw,30px)] leading-[1.15] tracking-[-0.02em] break-words text-paper">
                   {CONTACT.social.featureTitle.replace('{who}', who)}
                 </p>
                 <p className="mt-s1 text-[15px] leading-[1.55] text-paper/80">
@@ -254,7 +252,7 @@ export default function ContactSocial() {
                       <Logo label={label} />
 
                       <span className="min-w-0 flex-1">
-                        <span className="block font-display text-[18px] leading-tight font-semibold tracking-[-0.01em] text-text">{label}</span>
+                        <span className="block font-display text-[18px] leading-tight tracking-[-0.01em] text-text">{label}</span>
                         {BLURBS[label] && (
                           <span className="block text-[13.5px] text-text-2">{BLURBS[label]}</span>
                         )}

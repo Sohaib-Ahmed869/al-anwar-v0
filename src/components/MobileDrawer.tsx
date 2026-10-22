@@ -1,3 +1,4 @@
+import { Logo } from './Brand'
 import { useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 
@@ -75,13 +76,7 @@ export default function MobileDrawer({ open, onClose }: Props) {
       }`}
     >
       <div className="mb-s1 flex h-16 items-center justify-between border-b border-line">
-        <img
-          src="/assets/images/Al-Anwaar-Logo-600x136.png"
-          alt="Al-Anwaar"
-          width={600}
-          height={136}
-          className="h-8 w-auto"
-        />
+        <Logo className="h-10 w-auto" />
         <button
           type="button"
           onClick={onClose}

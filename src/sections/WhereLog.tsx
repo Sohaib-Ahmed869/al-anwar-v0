@@ -50,7 +50,7 @@ export default function WhereLog() {
               {facts.map((f) => (
                 <div key={f.label} className="px-s3 first:pl-0 last:pr-0">
                   <dt className="sr-only">{f.label}</dt>
-                  <dd className="nums font-display text-[clamp(28px,3vw,40px)] leading-none font-semibold tracking-[-0.02em] text-teal">
+                  <dd className="nums font-display text-[clamp(28px,3vw,40px)] leading-none tracking-[-0.02em] text-teal">
                     {f.value}
                   </dd>
                   <dd aria-hidden="true" className="mt-1.5 text-[13px] text-text-2">
@@ -95,7 +95,7 @@ export default function WhereLog() {
                     aria-hidden="true"
                     className="absolute -top-[8px] left-0 size-[15px] rounded-full border-[3px] border-ground bg-teal ring-1 ring-teal/40"
                   />
-                  <p className="nums font-display text-[clamp(20px,1.7vw,24px)] leading-tight font-semibold tracking-[-0.016em]">
+                  <p className="nums font-display text-[clamp(20px,1.7vw,24px)] leading-tight tracking-[-0.016em]">
                     {entry.date}
                   </p>
                   <p className="mt-s2 text-[12px] font-semibold tracking-[0.12em] text-teal uppercase">

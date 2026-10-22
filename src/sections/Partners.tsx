@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom'
 
 import Reveal, { Words, useHeroDepth } from '../components/Reveal'
 import SectionHead, { BREAKOUT, SECTION_Y } from '../components/SectionHead'
-import { MasjidMark } from '../components/Ornament'
+import { BrandGlyph } from '../components/Ornament'
+import { HeroBrand } from '../components/Brand'
 import { ArrowRight, Box, Building, Check, Globe } from '../components/icons'
 import { ROUTINE } from '../components/where-data'
 import { FIELD_PARTNERS, OUR_PARTNERS, PARTNER_TYPES, PLACES } from '../components/partners-data'
@@ -27,7 +28,7 @@ import { FIELD_PARTNERS, OUR_PARTNERS, PARTNER_TYPES, PLACES } from '../componen
 const H = OUR_PARTNERS.hero
 
 const ICONS: Record<string, (p: { className?: string }) => ReactNode> = {
-  masjid: MasjidMark,
+  masjid: BrandGlyph,
   building: Building,
   box: Box,
   globe: Globe,
@@ -61,8 +62,9 @@ export function PartnersHero() {
           fetchPriority="high"
           className="absolute inset-0 h-full w-full object-cover"
         />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(21,26,24,0.74)_0%,rgba(21,26,24,0.34)_26%,rgba(21,26,24,0.46)_60%,rgba(21,26,24,0.9)_100%)]" />
-        <div className="absolute inset-0 hidden bg-[linear-gradient(95deg,rgba(21,26,24,0.86)_0%,rgba(21,26,24,0.44)_44%,transparent_72%)] md:block" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,38,42,0.74)_0%,rgba(8,38,42,0.34)_26%,rgba(8,38,42,0.46)_60%,rgba(8,38,42,0.9)_100%)]" />
+        <div className="absolute inset-0 hidden bg-[linear-gradient(95deg,rgba(8,38,42,0.86)_0%,rgba(8,38,42,0.44)_44%,transparent_72%)] md:block" />
+        <HeroBrand />
       </div>
 
       <div className="relative flex min-h-[calc(74svh-var(--strip-h))] flex-col pt-[var(--header-h)]">
@@ -76,7 +78,7 @@ export function PartnersHero() {
             </p>
             <h1
               id="partners-title"
-              className="mt-s2 font-display text-[clamp(34px,4.6vw,60px)] leading-[1.04] font-semibold tracking-[-0.022em] text-paper [text-wrap:balance] [text-shadow:0_2px_30px_rgba(0,0,0,0.5)]"
+              className="mt-s2 font-display text-[clamp(34px,4.6vw,60px)] leading-[1.04] tracking-[-0.022em] text-paper [text-wrap:balance] [text-shadow:0_2px_30px_rgba(0,0,0,0.5)]"
             >
               <Words text={H.title} play="load" delay={160} step={70} />
             </h1>
@@ -113,7 +115,7 @@ export function PartnersHero() {
                   className={`flex flex-col-reverse ${i > 0 ? 'sm:border-l sm:border-paper/15 sm:pl-s3' : ''} ${i % 2 ? 'border-l border-paper/15 pl-s2 sm:pl-s3' : ''}`}
                 >
                   <dt className="mt-1 text-[12.5px] leading-snug text-paper/65">{s.label}</dt>
-                  <dd className="nums font-display text-[clamp(22px,2vw,28px)] leading-none font-bold tracking-[-0.02em] text-paper">
+                  <dd className="nums font-display text-[clamp(22px,2vw,28px)] leading-none tracking-[-0.02em] text-paper">
                     {s.value}
                   </dd>
                 </div>
@@ -123,14 +125,13 @@ export function PartnersHero() {
 
           {featured && (
             <div
-              className="relative isolate flex w-full shrink-0 flex-col overflow-hidden rounded-2xl bg-teal p-s3 text-paper shadow-[0_24px_60px_-24px_rgba(0,0,0,0.55)] sm:p-s4 lg:w-[clamp(340px,32vw,440px)]"
+              className="relative isolate flex w-full shrink-0 flex-col overflow-hidden rounded-2xl bg-grad-lagoon-x p-s3 text-paper shadow-[0_24px_60px_-24px_rgba(0,0,0,0.55)] sm:p-s4 lg:w-[clamp(340px,32vw,440px)]"
               style={rise(300, 1200)}
             >
-              <MasjidMark className="pointer-events-none absolute -right-[8%] -bottom-[12%] -z-10 size-[220px] text-paper/[0.07]" />
               <p className="font-script text-[clamp(24px,2vw,30px)] leading-none text-gold-pale">
                 Our field partner in {featured.place}
               </p>
-              <h2 className="mt-2 font-display text-[clamp(24px,2.2vw,32px)] leading-[1.1] font-semibold tracking-[-0.02em] text-balance">
+              <h2 className="mt-2 font-display text-[clamp(24px,2.2vw,32px)] leading-[1.1] tracking-[-0.02em] text-balance">
                 {featured.name}
               </h2>
               <p className="mt-s2 line-clamp-4 text-[15px] leading-[1.55] text-paper/85">{featured.body}</p>
@@ -167,11 +168,10 @@ export function PartnersField() {
                     {/* No photograph: the one Ramadan 2022 frame we hold shows another
                         organisation's banner, so it cannot sit on this card. The
                         teal side carries only facts we hold. */}
-                    <div className="relative isolate flex min-h-[240px] flex-col justify-between overflow-hidden bg-teal p-s3 text-paper sm:p-s4 lg:p-[clamp(32px,3.2vw,52px)]">
-                      <MasjidMark className="pointer-events-none absolute -right-[10%] -bottom-[12%] -z-10 size-[clamp(220px,24vw,340px)] text-paper/[0.08]" />
+                    <div className="relative isolate flex min-h-[240px] flex-col justify-between overflow-hidden bg-grad-lagoon-x p-s3 text-paper sm:p-s4 lg:p-[clamp(32px,3.2vw,52px)]">
                       <p className="font-script text-[clamp(24px,2vw,30px)] leading-none text-gold-pale">Working together since</p>
                       <div>
-                        <p className="nums font-display text-[clamp(64px,7vw,104px)] leading-[0.85] font-bold tracking-[-0.05em]">2022</p>
+                        <p className="nums font-display text-[clamp(64px,7vw,104px)] leading-[0.85] tracking-[-0.05em]">2022</p>
                         <p className="mt-s2 text-[15px] text-paper/80">Ramadan food packages across {p.place}</p>
                       </div>
                     </div>
@@ -179,7 +179,7 @@ export function PartnersField() {
                       <p className="font-script text-[clamp(24px,2vw,30px)] leading-none text-green">
                         {F.featuredLabel} · {p.place}
                       </p>
-                      <h3 className="mt-2 font-display text-[clamp(26px,2.6vw,36px)] leading-[1.1] font-semibold tracking-[-0.02em] text-balance">
+                      <h3 className="mt-2 font-display text-[clamp(26px,2.6vw,36px)] leading-[1.1] tracking-[-0.02em] text-balance">
                         {p.name}
                       </h3>
                       <p className="mt-s2 max-w-[60ch] text-[15.5px] leading-relaxed text-text-2">{p.body}</p>
@@ -223,7 +223,7 @@ export function PartnersField() {
                     to={`/where-it-goes#${place.id}`}
                     className="group flex h-full flex-col rounded-2xl border border-line p-s3 transition-[border-color,transform,box-shadow] duration-300 ease-brand hover:-translate-y-1 hover:border-teal hover:shadow-card"
                   >
-                    <p className="font-display text-[21px] font-semibold tracking-[-0.016em]">{place.name}</p>
+                    <p className="font-display text-[21px] tracking-[-0.016em]">{place.name}</p>
                     {place.since && <p className="mt-0.5 text-[13px] text-text-3">Since {place.since}</p>}
                     <p className="mt-s2 mb-s3 text-[14px] leading-snug text-text-2">{place.work.join(', ')}</p>
                     <p
@@ -257,11 +257,11 @@ export function PartnersHow() {
                 <article className="group flex h-full flex-col rounded-2xl border border-line p-s3 sm:p-s4">
                   <span
                     aria-hidden="true"
-                    className="nums font-display text-[clamp(48px,4.4vw,68px)] leading-[0.8] font-semibold tracking-[-0.05em] text-transparent transition-colors duration-300 ease-brand [-webkit-text-stroke:1.5px_var(--color-teal)] group-hover:text-teal"
+                    className="nums font-display text-[clamp(48px,4.4vw,68px)] leading-[0.8] tracking-[-0.05em] text-transparent transition-colors duration-300 ease-brand [-webkit-text-stroke:1.5px_var(--color-teal)] group-hover:text-teal"
                   >
                     0{i + 1}
                   </span>
-                  <h3 className="mt-s3 font-display text-[clamp(20px,1.8vw,24px)] leading-[1.18] font-semibold tracking-[-0.018em] text-balance">
+                  <h3 className="mt-s3 font-display text-[clamp(20px,1.8vw,24px)] leading-[1.18] tracking-[-0.018em] text-balance">
                     {r.title}
                   </h3>
                   <p className="mt-s2 text-[15px] leading-relaxed text-text-2">{r.body}</p>
@@ -309,7 +309,7 @@ export function PartnersWays() {
                     <p className="mt-s3 font-script text-[clamp(22px,1.8vw,26px)] leading-none text-green transition-colors duration-300 group-hover:text-gold-pale">
                       {t.kind}
                     </p>
-                    <h3 className="mt-2 font-display text-[clamp(20px,1.7vw,23px)] leading-[1.18] font-semibold tracking-[-0.018em] text-balance transition-colors duration-300 group-hover:text-paper">
+                    <h3 className="mt-2 font-display text-[clamp(20px,1.7vw,23px)] leading-[1.18] tracking-[-0.018em] text-balance transition-colors duration-300 group-hover:text-paper">
                       <Link to={`/become-a-partner?type=${t.id}`} className="after:absolute after:inset-0">
                         {t.title}
                       </Link>
@@ -334,13 +334,12 @@ export function PartnersClose() {
     <section aria-labelledby="partners-close-head" className="pb-[clamp(56px,6.5vw,96px)]">
       <div className="gutter mx-auto max-w-page">
         <Reveal variant="clip" className={`block ${BREAKOUT}`}>
-          <div className="relative isolate flex flex-col gap-s4 overflow-hidden rounded-2xl bg-teal p-s3 text-paper sm:p-s4 md:flex-row md:items-center md:justify-between lg:p-[clamp(40px,4vw,64px)]">
-            <MasjidMark className="pointer-events-none absolute -right-[4%] -bottom-[18%] -z-10 size-[clamp(200px,22vw,320px)] text-paper/[0.07]" />
+          <div className="relative isolate flex flex-col gap-s4 overflow-hidden rounded-2xl bg-grad-lagoon-x p-s3 text-paper sm:p-s4 md:flex-row md:items-center md:justify-between lg:p-[clamp(40px,4vw,64px)]">
             <div>
               <p className="font-script text-[clamp(24px,2.2vw,32px)] leading-none text-gold-pale">{C.eyebrow}</p>
               <h2
                 id="partners-close-head"
-                className="mt-2 font-display text-[clamp(28px,3.2vw,44px)] leading-[1.08] font-semibold tracking-[-0.025em] text-balance"
+                className="mt-2 font-display text-[clamp(28px,3.2vw,44px)] leading-[1.08] tracking-[-0.025em] text-balance"
               >
                 {C.title}
               </h2>
@@ -356,7 +355,7 @@ export function PartnersClose() {
               </Link>
               <Link
                 to="/give"
-                className="inline-flex min-h-[52px] items-center gap-2 rounded-[10px] bg-gold px-6 text-[15.5px] font-semibold text-ink transition-colors duration-200 ease-brand hover:bg-gold-dark hover:text-paper"
+                className="inline-flex min-h-[52px] items-center gap-2 rounded-[10px] bg-gold px-6 text-[15.5px] font-semibold text-ink transition-colors duration-200 ease-brand hover:bg-gold-dark hover:text-ink"
               >
                 {C.secondary}
               </Link>

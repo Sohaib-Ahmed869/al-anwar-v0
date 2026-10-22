@@ -69,7 +69,7 @@ export function TagEditor({
             <button
               type="button"
               onClick={() => setAdding(true)}
-              className="inline-flex h-7 items-center gap-1 rounded-full px-2.5 text-[12.5px] font-medium text-text-2 ring-1 ring-line ring-inset ring-dashed hover:text-text hover:ring-[#c9c9c2]"
+              className="inline-flex h-7 items-center gap-1 rounded-full px-2.5 text-[12.5px] font-medium text-text-2 ring-1 ring-line ring-inset ring-dashed hover:text-text hover:ring-[#dccdb2]"
             >
               <Plus className="size-3.5" /> Add tag
             </button>

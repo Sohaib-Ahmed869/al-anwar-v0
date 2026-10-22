@@ -432,7 +432,7 @@ function CausesInput({ value, onChange }: { value: string[]; onChange: (v: strin
       {suggestions.length > 0 && (
         <div className="mt-2 flex flex-wrap gap-1.5">
           {suggestions.slice(0, 8).map((c) => (
-            <button key={c} type="button" onClick={() => add(c)} className="h-7 rounded-lg px-2 text-[12.5px] text-text-2 ring-1 ring-line ring-inset hover:text-text hover:ring-[#cdcdc6]">
+            <button key={c} type="button" onClick={() => add(c)} className="h-7 rounded-lg px-2 text-[12.5px] text-text-2 ring-1 ring-line ring-inset hover:text-text hover:ring-[#dccdb2]">
               + {c}
             </button>
           ))}

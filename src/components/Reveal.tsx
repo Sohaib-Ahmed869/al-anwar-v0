@@ -137,11 +137,15 @@ export function Words({
   /** ms between one word and the next */
   step = 45,
   play = 'view',
+  accent,
 }: {
   text: string
   delay?: number
   step?: number
   play?: 'view' | 'load'
+  /** a class for the LAST word — the styleguide's two-tone heading, where one
+   *  word of a title takes the highlight colour ("primary vertical", p. 5) */
+  accent?: string
 }) {
   const [ref, inView] = useInView<HTMLSpanElement>()
   const words = text.split(' ')
@@ -162,7 +166,7 @@ export function Words({
           return (
             <span key={i}>
               <span className="-mb-[0.14em] inline-block overflow-hidden pb-[0.14em] align-bottom">
-                <span className="inline-block origin-[0_100%]" style={style}>
+                <span className={`inline-block origin-[0_100%] ${accent && i === words.length - 1 ? accent : ''}`} style={style}>
                   {word}
                 </span>
               </span>

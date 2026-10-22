@@ -56,7 +56,7 @@ export default function InvolvedVolunteer() {
                 Small, and real
               </p>
               <div>
-                <p className="nums font-display text-[clamp(72px,8vw,120px)] leading-[0.85] font-bold tracking-[-0.05em]">
+                <p className="nums font-display text-[clamp(72px,8vw,120px)] leading-[0.85] tracking-[-0.05em]">
                   {VOLUNTEER_COUNT}
                 </p>
                 <p className="mt-s2 max-w-[28ch] text-[15.5px] leading-[1.5] text-paper/85">
@@ -88,7 +88,7 @@ export default function InvolvedVolunteer() {
                     <p className="mt-s4 font-script text-[clamp(24px,2vw,30px)] leading-none text-green">
                       {role.kind}
                     </p>
-                    <h3 className="mt-2 font-display text-[clamp(22px,2vw,28px)] leading-[1.15] font-semibold tracking-[-0.02em] text-balance">
+                    <h3 className="mt-2 font-display text-[clamp(22px,2vw,28px)] leading-[1.15] tracking-[-0.02em] text-balance">
                       {role.title}
                     </h3>
                     <p className="mt-s2 text-[15px] leading-relaxed text-text-2">{role.body}</p>
@@ -102,7 +102,7 @@ export default function InvolvedVolunteer() {
         {/* How a day goes. */}
         <div className={`mt-s5 lg:mt-s6 ${BREAKOUT}`}>
           <Reveal variant="soft">
-            <h3 className="font-display text-[clamp(22px,2vw,28px)] leading-tight font-semibold tracking-[-0.02em]">
+            <h3 className="font-display text-[clamp(22px,2vw,28px)] leading-tight tracking-[-0.02em]">
               {VOLUNTEER.dayTitle}
             </h3>
           </Reveal>
@@ -119,7 +119,7 @@ export default function InvolvedVolunteer() {
                   >
                     0{i + 1}
                   </span>
-                  <p className="mt-s3 font-display text-[19px] leading-snug font-semibold tracking-[-0.014em]">
+                  <p className="mt-s3 font-display text-[19px] leading-snug tracking-[-0.014em]">
                     {step.title}
                   </p>
                   <p className="mt-1.5 max-w-[34ch] text-[15px] leading-relaxed text-text-2">

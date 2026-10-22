@@ -128,11 +128,11 @@ export function ReportCountChart({
       <div style={{ height }} className="-ml-2">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: 0 }} barCategoryGap="28%">
-            <CartesianGrid vertical={false} stroke="#ebebe7" />
-            <XAxis dataKey={xKey} tickLine={false} axisLine={false} tick={{ fill: '#8a908e', fontSize: 12 }} dy={6} minTickGap={8} />
-            <YAxis allowDecimals={false} tickFormatter={(v) => formatNumber(Number(v))} tickLine={false} axisLine={false} tick={{ fill: '#8a908e', fontSize: 12 }} width={40} />
+            <CartesianGrid vertical={false} stroke="#efe4d0" />
+            <XAxis dataKey={xKey} tickLine={false} axisLine={false} tick={{ fill: '#6f8788', fontSize: 12 }} dy={6} minTickGap={8} />
+            <YAxis allowDecimals={false} tickFormatter={(v) => formatNumber(Number(v))} tickLine={false} axisLine={false} tick={{ fill: '#6f8788', fontSize: 12 }} width={40} />
             <Tooltip
-              cursor={{ fill: 'rgba(20,26,24,.04)' }}
+              cursor={{ fill: 'rgba(8,38,42,.04)' }}
               content={({ active, payload, label }) =>
                 active && payload?.length ? (
                   <div className="min-w-40 rounded-xl bg-paper px-3 py-2.5 text-[12.5px] shadow-pop">
@@ -155,7 +155,7 @@ export function ReportCountChart({
                 key={s.key}
                 dataKey={s.key}
                 stackId={s.key === 'lapsed' ? undefined : single ? undefined : 'a'}
-                fill={single ? '#2f6b5a' : (s.color ?? seriesColor(i))}
+                fill={single ? '#006770' : (s.color ?? seriesColor(i))}
                 stroke="#fff"
                 strokeWidth={single ? 0 : 1}
                 maxBarSize={32}

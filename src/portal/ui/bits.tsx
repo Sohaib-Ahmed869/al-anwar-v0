@@ -1,3 +1,4 @@
+import { GradientDomes } from '../../components/Brand'
 import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { ChevronRight } from 'lucide-react'
@@ -97,6 +98,7 @@ export function PageHeader({
   crumbs,
   meta,
   className,
+  banner = false,
 }: {
   title: ReactNode
   description?: ReactNode
@@ -105,7 +107,29 @@ export function PageHeader({
   /** badges or facts under the title */
   meta?: ReactNode
   className?: string
+  /** the portal's front page: the header as a brand banner — the deep teal
+   *  gradient and the gradient domes (styleguide p. 15) — rather than plain
+   *  type on the ground */
+  banner?: boolean
 }) {
+  if (banner)
+    return (
+      <header className={cn('relative isolate mb-6 overflow-hidden rounded-[22px] bg-grad-deep-x px-5 py-6 text-paper sm:mb-8 sm:px-8 sm:py-8', className)}>
+        <GradientDomes
+          pick={[0, 1, 2, 5]}
+          className="absolute top-1/2 right-[clamp(20px,3vw,40px)] -z-10 hidden -translate-y-1/2 xl:flex"
+          domeClass="w-[38px]"
+        />
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between xl:pr-[220px]">
+          <div className="min-w-0">
+            <h1 className="font-display text-[28px] leading-tight sm:text-[34px]">{title}</h1>
+            {description && <p className="mt-1.5 max-w-2xl text-[14.5px] leading-relaxed text-text-on-ink-2 [&_.text-text-3]:text-teal-soft">{description}</p>}
+            {meta && <div className="mt-3 flex flex-wrap items-center gap-2">{meta}</div>}
+          </div>
+          {actions && <div className="flex shrink-0 flex-wrap items-center gap-2 [&_a:not(.bg-green)]:ring-0">{actions}</div>}
+        </div>
+      </header>
+    )
   return (
     <header className={cn('mb-6 sm:mb-8', className)}>
       {crumbs && crumbs.length > 0 && (
@@ -128,7 +152,7 @@ export function PageHeader({
       )}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="min-w-0">
-          <h1 className="text-[26px] leading-tight font-semibold tracking-[-0.02em] text-text sm:text-[30px]">{title}</h1>
+          <h1 className="font-display text-[26px] leading-tight text-text sm:text-[32px]">{title}</h1>
           {description && <p className="mt-1.5 max-w-2xl text-[14.5px] leading-relaxed text-text-2">{description}</p>}
           {meta && <div className="mt-3 flex flex-wrap items-center gap-2">{meta}</div>}
         </div>
@@ -178,7 +202,7 @@ export function Kbd({ children, className }: { children: ReactNode; className?: 
   return (
     <kbd
       className={cn(
-        'inline-grid h-5 min-w-5 place-items-center rounded-[5px] bg-paper px-1 font-sans text-[11px] font-medium text-text-2 ring-1 ring-line shadow-[0_1px_0_rgba(20,26,24,.08)]',
+        'inline-grid h-5 min-w-5 place-items-center rounded-[5px] bg-paper px-1 font-sans text-[11px] font-medium text-text-2 ring-1 ring-line shadow-[0_1px_0_rgba(8,38,42,.08)]',
         className,
       )}
     >

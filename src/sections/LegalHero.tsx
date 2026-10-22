@@ -75,7 +75,7 @@ export default function LegalHero({
     <section
       data-overlay-hero=""
       aria-labelledby="legal-title"
-      className="relative isolate mt-[calc(var(--header-h)*-1)] overflow-hidden bg-teal"
+      className="relative isolate mt-[calc(var(--header-h)*-1)] overflow-hidden bg-grad-deep-x"
     >
       {/* ---------- the picture ---------- */}
       <div aria-hidden="true" className="absolute inset-0">
@@ -114,7 +114,7 @@ export default function LegalHero({
         </p>
         <h1
           id="legal-title"
-          className="mt-s2 max-w-[18ch] font-display text-[clamp(36px,4.8vw,72px)] leading-[1] font-semibold tracking-[-0.04em] text-paper [text-shadow:0_2px_30px_rgba(0,40,44,0.35)]"
+          className="mt-s2 max-w-[18ch] font-display text-[clamp(36px,4.8vw,72px)] leading-[1] tracking-[-0.04em] text-paper [text-shadow:0_2px_30px_rgba(8,38,42,0.35)]"
           style={rise(140)}
         >
           <span className="block">{title}</span>

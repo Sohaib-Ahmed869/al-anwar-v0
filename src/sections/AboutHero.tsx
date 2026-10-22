@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 
-import { MasjidMark } from '../components/Ornament'
+import { BrandMark } from '../components/Brand'
 import { Words } from '../components/Reveal'
 import { ArrowRight, HandHeart } from '../components/icons'
 
@@ -64,7 +64,7 @@ export default function AboutHero() {
           className="flex items-center gap-3 font-script text-[clamp(24px,2.2vw,32px)] leading-none text-green"
           style={rise(60)}
         >
-          <MasjidMark className="size-7 text-teal sm:size-8" />
+          <BrandMark className="h-8 w-auto sm:h-9" />
           About us
         </p>
 
@@ -73,7 +73,7 @@ export default function AboutHero() {
         <div className="mt-s3 grid gap-s4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end lg:gap-s5">
           <h1
             id="about-title"
-            className="font-display text-[clamp(36px,5.2vw,76px)] leading-[0.98] font-semibold tracking-[-0.04em] text-text"
+            className="font-display text-[clamp(36px,5.2vw,76px)] leading-[0.98] tracking-[-0.04em] text-text"
           >
             <span className="block">
               <Words text="Who you are" play="load" delay={140} step={80} />
@@ -102,7 +102,7 @@ export default function AboutHero() {
           </h1>
 
           <p
-            className="border-l-2 border-gold pl-s2 font-display text-[clamp(22px,2.3vw,34px)] leading-[1.05] font-semibold tracking-[-0.03em] text-text lg:mb-[0.2em] lg:min-w-[7.2em] lg:justify-self-end"
+            className="border-l-2 border-gold pl-s2 font-display text-[clamp(22px,2.3vw,34px)] leading-[1.05] tracking-[-0.03em] text-text lg:mb-[0.2em] lg:min-w-[7.2em] lg:justify-self-end"
             style={rise(600)}
           >
             <span className="block text-[clamp(12px,0.95vw,13.5px)] font-semibold tracking-[0.16em] text-text-3 uppercase">
@@ -138,7 +138,7 @@ export default function AboutHero() {
             {/* Gold, because this one takes money. */}
             <Link
               to="/give"
-              className="group relative inline-flex min-h-[54px] items-center justify-center gap-2.5 overflow-hidden rounded-[13px] bg-gold px-7 text-[16px] font-semibold tracking-[-0.008em] text-ink shadow-gold transition-[transform,box-shadow,background-color,color] duration-200 ease-brand hover:-translate-y-[1.5px] hover:bg-gold-dark hover:text-paper hover:shadow-gold-lg active:translate-y-0"
+              className="group relative inline-flex min-h-[54px] items-center justify-center gap-2.5 overflow-hidden rounded-[13px] bg-gold px-7 text-[16px] font-semibold tracking-[-0.008em] text-ink shadow-gold transition-[transform,box-shadow,background-color,color] duration-200 ease-brand hover:-translate-y-[1.5px] hover:bg-gold-dark hover:text-ink hover:shadow-gold-lg active:translate-y-0"
             >
               <HandHeart className="h-[18px] w-[18px] shrink-0 transition-transform duration-300 ease-brand group-hover:scale-[1.12]" />
               Donate

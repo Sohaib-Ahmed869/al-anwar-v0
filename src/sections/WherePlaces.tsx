@@ -2,7 +2,6 @@ import { Link } from 'react-router-dom'
 
 import Reveal from '../components/Reveal'
 import SectionHead, { BREAKOUT, SECTION_Y } from '../components/SectionHead'
-import { MasjidMark } from '../components/Ornament'
 import { ArrowRight, Check } from '../components/icons'
 import { PARTNERS, PLACES } from '../components/where-data'
 
@@ -52,12 +51,9 @@ export default function WherePlaces() {
                 <Reveal variant="clip" delay={Math.min(i, 4) * 80} className="h-full">
                   <article
                     className={`relative isolate flex h-full flex-col overflow-hidden rounded-2xl p-s3 sm:p-s4 ${
-                      i === 0 ? 'bg-teal text-paper' : 'border border-line bg-paper'
+                      i === 0 ? 'bg-grad-lagoon-x text-paper' : 'border border-line bg-paper'
                     }`}
                   >
-                    {i === 0 && (
-                      <MasjidMark className="pointer-events-none absolute -right-[10%] -bottom-[8%] -z-10 size-[clamp(220px,24vw,340px)] text-paper/[0.07]" />
-                    )}
                     <p
                       className={`font-script text-[clamp(21px,1.8vw,26px)] leading-none ${
                         i === 0 ? 'text-gold-pale' : 'text-green'

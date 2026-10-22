@@ -59,7 +59,7 @@ export default function FundraiserCard({ fundraiser: f }: { fundraiser: Fundrais
       </div>
 
       <div className="flex flex-1 flex-col p-s3">
-        <h3 className="font-display text-[clamp(19px,1.5vw,21px)] leading-snug font-semibold tracking-[-0.016em] text-balance">
+        <h3 className="font-display text-[clamp(19px,1.5vw,21px)] leading-snug tracking-[-0.016em] text-balance">
           <Link to={`/fundraisers/${f.slug}`} className="after:absolute after:inset-0">
             {f.title}
           </Link>
@@ -75,7 +75,7 @@ export default function FundraiserCard({ fundraiser: f }: { fundraiser: Fundrais
         <div className="mt-auto pt-s3">
           <div className="flex items-end justify-between gap-s2">
             <p>
-              <span className="nums font-display text-[22px] leading-none font-bold tracking-[-0.02em]">
+              <span className="nums font-display text-[22px] leading-none tracking-[-0.02em]">
                 {money(f.raised)}
               </span>
               <span className="text-[13.5px] text-text-3"> of {money(f.goal)}</span>
@@ -99,7 +99,7 @@ export default function FundraiserCard({ fundraiser: f }: { fundraiser: Fundrais
             </p>
             <Link
               to={fundraiserGiveHref(f)}
-              className="group/give relative z-10 inline-flex min-h-[40px] shrink-0 items-center gap-1.5 rounded-[10px] bg-gold px-4 text-[14px] font-semibold text-ink transition-colors duration-200 ease-brand hover:bg-gold-dark hover:text-paper"
+              className="group/give relative z-10 inline-flex min-h-[40px] shrink-0 items-center gap-1.5 rounded-[10px] bg-gold px-4 text-[14px] font-semibold text-ink transition-colors duration-200 ease-brand hover:bg-gold-dark hover:text-ink"
             >
               Donate
               <ArrowRight className="h-3 w-3 transition-transform duration-200 ease-brand group-hover/give:translate-x-0.5" />

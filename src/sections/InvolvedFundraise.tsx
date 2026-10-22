@@ -73,7 +73,7 @@ export default function InvolvedFundraise() {
             <p className="font-script text-[clamp(24px,2.2vw,30px)] leading-none text-green">
               {FUNDRAISE.stepsEyebrow}
             </p>
-            <h3 className="mt-2 font-display text-[clamp(22px,2vw,28px)] leading-tight font-semibold tracking-[-0.02em]">
+            <h3 className="mt-2 font-display text-[clamp(22px,2vw,28px)] leading-tight tracking-[-0.02em]">
               {FUNDRAISE.stepsTitle}
             </h3>
           </Reveal>

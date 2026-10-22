@@ -105,7 +105,7 @@ export default function FundraiserTile({
           </div>
           <div className="mt-s2 flex items-end justify-between gap-s2">
             <p className="text-text-on-ink">
-              <span className="nums font-display text-[clamp(24px,2vw,30px)] leading-none font-bold tracking-[-0.02em]">
+              <span className="nums font-display text-[clamp(24px,2vw,30px)] leading-none tracking-[-0.02em]">
                 {money(f.raised)}
               </span>
               <span className="nums block pt-1 text-[12.5px] text-text-on-ink-2">
@@ -114,7 +114,7 @@ export default function FundraiserTile({
             </p>
             <Link
               to={fundraiserGiveHref(f)}
-              className="group/give relative z-10 inline-flex min-h-[44px] shrink-0 items-center gap-2 rounded-[10px] bg-gold px-4 text-[14.5px] font-semibold text-ink transition-colors duration-200 ease-brand hover:bg-gold-dark hover:text-paper"
+              className="group/give relative z-10 inline-flex min-h-[44px] shrink-0 items-center gap-2 rounded-[10px] bg-gold px-4 text-[14.5px] font-semibold text-ink transition-colors duration-200 ease-brand hover:bg-gold-dark hover:text-ink"
             >
               Donate
               <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 ease-brand group-hover/give:translate-x-0.5" />

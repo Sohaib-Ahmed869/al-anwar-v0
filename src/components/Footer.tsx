@@ -1,8 +1,8 @@
+import { Logo, Tiles } from './Brand'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import { ArrowRight, ArrowUp, Facebook, HandHeart, Instagram, Mail, MapPin } from './icons'
-import { MasjidMark } from './Ornament'
 import { FACEBOOK, INSTAGRAM } from './social-data'
 import { ORG } from './org-data'
 import Letter from './Letter'
@@ -107,12 +107,12 @@ export default function Footer() {
     >
       {/* The ink starts under the middle of the letter card; above it the
           footer is transparent, so the page's own ground runs on with no seam. */}
-      <div aria-hidden="true" className="absolute inset-x-0 bottom-0 -z-10 bg-ink" style={{ top: `calc(${LEAD} + ${OVERHANG})` }} />
-
-      {/* The masjid watermark, low on the right (user's call). The Find us
-          panel over it is solid, not translucent, so the mark cannot show
-          through it as a lighter patch. */}
-      <MasjidMark className="pointer-events-none absolute -right-[3%] -bottom-[8%] -z-10 size-[clamp(260px,30vw,460px)] text-paper/[0.035]" />
+      <div aria-hidden="true" className="absolute inset-x-0 bottom-0 -z-10 overflow-hidden bg-ink" style={{ top: `calc(${LEAD} + ${OVERHANG})` }}>
+        {/* The tiles of Islamic geometry (styleguide p. 16) as the footer's
+            texture, teal on dark teal as the guide's own covers do, faded out
+            toward the top so the letter card above does not sit on a pattern. */}
+        <Tiles className="bg-teal-mid/[0.1]" fade="linear-gradient(to top,#000 40%,transparent)" style={{ '--tile': '260px' } as React.CSSProperties} />
+      </div>
 
       <Letter />
 
@@ -121,11 +121,7 @@ export default function Footer() {
           {/* ---- who we are ---- */}
           <div className="max-w-[340px]">
             <Link to="/" className="inline-block">
-              <img
-                src="/assets/images/Al-Anwaar-Logo-White.png"
-                alt="Al-Anwaar"
-                className="h-11 w-auto transition-opacity duration-200 hover:opacity-80"
-              />
+              <Logo layout="vertical" onDark className="h-28 w-auto transition-opacity duration-200 hover:opacity-80" />
             </Link>
             <p className="mt-s3 text-[14.5px] leading-relaxed">
               Food, water and schools in Gaza, Yemen, Lebanon, Syria and The Gambia, delivered by
@@ -135,7 +131,7 @@ export default function Footer() {
             <div className="mt-s3 flex flex-wrap items-center gap-2">
               <Link
                 to="/give"
-                className="group inline-flex min-h-[44px] items-center gap-2 rounded-[10px] bg-gold px-4 text-[14.5px] font-semibold text-ink transition-colors duration-200 ease-brand hover:bg-gold-dark hover:text-paper"
+                className="group inline-flex min-h-[44px] items-center gap-2 rounded-[10px] bg-gold px-4 text-[14.5px] font-semibold text-ink transition-colors duration-200 ease-brand hover:bg-gold-dark hover:text-ink"
               >
                 <HandHeart className="h-4 w-4" />
                 Donate

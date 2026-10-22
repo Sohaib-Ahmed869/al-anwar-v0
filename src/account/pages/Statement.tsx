@@ -70,22 +70,22 @@ export default function Statement() {
           )}
 
           <div className="grid gap-6 sm:grid-cols-2 print:grid-cols-2">
-            <AddressBlock label="Prepared for" name={s.donor.name} address={s.donor.address} extra={<p className="mt-1 text-[12px] text-[#6b7371]">Supporter number {s.donor.number}</p>} />
+            <AddressBlock label="Prepared for" name={s.donor.name} address={s.donor.address} extra={<p className="mt-1 text-[12px] text-[#3f5b5d]">Supporter number {s.donor.number}</p>} />
             <div className="sm:text-right print:text-right">
-              <p className="text-[10.5px] font-semibold tracking-[.08em] text-[#6b7371] uppercase">Total tax-deductible donations</p>
-              <p className="nums mt-1 font-serif text-[36px] leading-none text-[#1d4a3e]">{formatMoney(s.totals.total, { exact: true })}</p>
-              <p className="mt-1.5 text-[12.5px] text-[#4d5553]">
+              <p className="text-[10.5px] font-semibold tracking-[.08em] text-[#3f5b5d] uppercase">Total tax-deductible donations</p>
+              <p className="nums mt-1 font-display text-[36px] leading-none text-[#006770]">{formatMoney(s.totals.total, { exact: true })}</p>
+              <p className="mt-1.5 text-[12.5px] text-[#3f5b5d]">
                 {s.totals.count} {s.totals.count === 1 ? 'donation' : 'donations'} between {formatDateLong(s.period.from)} and {formatDateLong(s.period.to)}
               </p>
             </div>
           </div>
 
           {s.gifts.length === 0 ? (
-            <p className="py-10 text-center text-[13px] text-[#6b7371]">No donations were received {isFy ? 'in this financial year' : 'between these dates'}.</p>
+            <p className="py-10 text-center text-[13px] text-[#3f5b5d]">No donations were received {isFy ? 'in this financial year' : 'between these dates'}.</p>
           ) : (
             <table className="w-full border-collapse text-[12.5px]">
               <thead>
-                <tr className="border-b border-[#1b1f1e] text-left text-[10.5px] tracking-[.06em] text-[#4d5553] uppercase">
+                <tr className="border-b border-[#08262a] text-left text-[10.5px] tracking-[.06em] text-[#3f5b5d] uppercase">
                   <th className="py-2 pr-3 font-semibold">Date</th>
                   <th className="hidden py-2 pr-3 font-semibold sm:table-cell print:table-cell">Receipt no.</th>
                   <th className="py-2 pr-3 font-semibold">Donation</th>
@@ -96,13 +96,13 @@ export default function Statement() {
               </thead>
               <tbody>
                 {s.gifts.map((g) => (
-                  <tr key={g.id} className="border-b border-[#e3e4e0] align-top break-inside-avoid">
+                  <tr key={g.id} className="border-b border-[#efe4d0] align-top break-inside-avoid">
                     <td className="nums py-2 pr-3 whitespace-nowrap">{formatDate(g.date)}</td>
                     <td className="nums hidden py-2 pr-3 whitespace-nowrap sm:table-cell print:table-cell">{g.receiptNumber}</td>
                     <td className="py-2 pr-3">
                       {g.appealTitle ?? 'Where most needed'}
-                      {g.fundraiserTitle && <span className="text-[#6b7371]"> · via {g.fundraiserTitle}</span>}
-                      <span className="block text-[11px] text-[#6b7371]">
+                      {g.fundraiserTitle && <span className="text-[#3f5b5d]"> · via {g.fundraiserTitle}</span>}
+                      <span className="block text-[11px] text-[#3f5b5d]">
                         <span className="sm:hidden print:hidden">
                           {g.receiptNumber} · {DESIGNATIONS[g.designation as Designation]?.short} ·{' '}
                         </span>
@@ -120,23 +120,23 @@ export default function Statement() {
 
           {s.gifts.length > 0 && (
             <div className="ml-auto w-full max-w-[340px] break-inside-avoid">
-              <p className="mb-2 text-[10.5px] font-semibold tracking-[.08em] text-[#6b7371] uppercase">By designation</p>
+              <p className="mb-2 text-[10.5px] font-semibold tracking-[.08em] text-[#3f5b5d] uppercase">By designation</p>
               <dl className="text-[12.5px]">
                 {s.byDesignation.map((d) => (
-                  <div key={d.designation} className="flex justify-between gap-4 border-b border-[#e3e4e0] py-1.5">
+                  <div key={d.designation} className="flex justify-between gap-4 border-b border-[#efe4d0] py-1.5">
                     <dt>
-                      {d.label} <span className="text-[#6b7371]">({d.count})</span>
+                      {d.label} <span className="text-[#3f5b5d]">({d.count})</span>
                     </dt>
                     <dd className="nums">{formatMoney(d.total, { exact: true })}</dd>
                   </div>
                 ))}
                 {fees && (
-                  <div className="flex justify-between gap-4 py-1.5 text-[#6b7371]">
+                  <div className="flex justify-between gap-4 py-1.5 text-[#3f5b5d]">
                     <dt>of which operating costs contributions</dt>
                     <dd className="nums">{formatMoney(s.totals.fees, { exact: true })}</dd>
                   </div>
                 )}
-                <div className="mt-1 flex justify-between gap-4 border-t-2 border-[#1b1f1e] pt-2 text-[14px] font-semibold">
+                <div className="mt-1 flex justify-between gap-4 border-t-2 border-[#08262a] pt-2 text-[14px] font-semibold">
                   <dt>Total</dt>
                   <dd className="nums">{formatMoney(s.totals.total, { exact: true })}</dd>
                 </div>
@@ -146,13 +146,13 @@ export default function Statement() {
 
           <div className="space-y-4 break-inside-avoid">
             <DgrStatement org={s.org} footer={s.receipts.footer.replace(/this (gift|donation)/, 'these donations')} />
-            <p className="text-[11.5px] leading-relaxed text-[#6b7371]">
+            <p className="text-[11.5px] leading-relaxed text-[#3f5b5d]">
               This statement brings together the individual receipts already issued to you {isFy ? 'for this financial year' : 'between these dates'}; each receipt number above can be matched to its original. Please keep it with your tax records.
               It is a record of your donations, not tax advice.
             </p>
             <div className="pt-2">
               <p className="font-serif text-[15px]">{s.receipts.signatory}</p>
-              <p className="text-[11.5px] text-[#6b7371]">{s.receipts.signatoryTitle}</p>
+              <p className="text-[11.5px] text-[#3f5b5d]">{s.receipts.signatoryTitle}</p>
             </div>
           </div>
         </div>

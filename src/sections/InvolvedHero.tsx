@@ -44,7 +44,7 @@ export default function InvolvedHero() {
     <section
       data-overlay-hero=""
       aria-labelledby="involved-title"
-      className="relative isolate mt-[calc(var(--header-h)*-1)] overflow-hidden bg-teal"
+      className="relative isolate mt-[calc(var(--header-h)*-1)] overflow-hidden bg-grad-deep-x"
     >
       {/* ---------- the picture ---------- */}
       <div aria-hidden="true" className="absolute inset-0">
@@ -67,7 +67,7 @@ export default function InvolvedHero() {
         {/* the screen */}
         <div className="absolute inset-0 opacity-70" style={SCREEN} />
         {/* a little depth at the foot, under the words */}
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_45%,rgba(0,40,44,0.45)_100%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_45%,rgba(8,38,42,0.45)_100%)]" />
       </div>
 
       <div className="relative gutter mx-auto flex min-h-[clamp(520px,80svh,820px)] max-w-page flex-col justify-end pt-[calc(var(--header-h)+40px)] pb-[clamp(36px,6vh,64px)]">
@@ -81,7 +81,7 @@ export default function InvolvedHero() {
             </p>
             <h1
               id="involved-title"
-              className="mt-s2 font-display text-[clamp(40px,5.6vw,84px)] leading-[0.98] font-semibold tracking-[-0.04em] text-paper [text-shadow:0_2px_30px_rgba(0,40,44,0.35)]"
+              className="mt-s2 font-display text-[clamp(40px,5.6vw,84px)] leading-[0.98] tracking-[-0.04em] text-paper [text-shadow:0_2px_30px_rgba(8,38,42,0.35)]"
               style={rise(140)}
             >
               <span className="block">{HERO.titleLead}</span>
@@ -99,7 +99,7 @@ export default function InvolvedHero() {
             <button
               type="button"
               onClick={toWays}
-              className="group inline-flex min-h-[44px] items-center gap-3 font-display text-[clamp(18px,1.5vw,22px)] font-semibold tracking-[-0.015em] text-paper transition-colors duration-200 ease-brand hover:text-gold-pale"
+              className="group inline-flex min-h-[44px] items-center gap-3 font-display text-[clamp(18px,1.5vw,22px)] tracking-[-0.015em] text-paper transition-colors duration-200 ease-brand hover:text-gold-pale"
             >
               {HERO.more}
               <span

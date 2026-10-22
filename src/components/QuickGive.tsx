@@ -226,7 +226,7 @@ export default function QuickGive({
       <div className={card ? '' : 'lg:border-l lg:border-paper/15 lg:pl-s3'}>
         <button
           type="submit"
-          className={`group relative inline-flex h-14 w-full items-center justify-center gap-2.5 overflow-hidden rounded-xl bg-gold px-7 text-[16px] font-semibold whitespace-nowrap text-ink shadow-gold transition-[background-color,color,box-shadow,transform] duration-200 ease-brand hover:-translate-y-px hover:bg-gold-dark hover:text-paper hover:shadow-gold-lg active:translate-y-0 ${card ? '' : 'lg:w-auto lg:min-w-[13rem]'}`}
+          className={`group relative inline-flex h-14 w-full items-center justify-center gap-2.5 overflow-hidden rounded-xl bg-gold px-7 text-[16px] font-semibold whitespace-nowrap text-ink shadow-gold transition-[background-color,color,box-shadow,transform] duration-200 ease-brand hover:-translate-y-px hover:bg-gold-dark hover:text-ink hover:shadow-gold-lg active:translate-y-0 ${card ? '' : 'lg:w-auto lg:min-w-[13rem]'}`}
         >
           <span
             aria-hidden="true"

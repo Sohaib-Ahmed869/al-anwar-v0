@@ -180,7 +180,7 @@ export default function SeasonDays({ season }: { season: Season }) {
                           {d.hijri}
                         </span>
                       </div>
-                      <p className="nums mt-s3 font-display text-[clamp(26px,2.3vw,34px)] leading-none font-semibold tracking-[-0.02em] text-teal">
+                      <p className="nums mt-s3 font-display text-[clamp(26px,2.3vw,34px)] leading-none tracking-[-0.02em] text-teal">
                         {d.when}
                       </p>
                       <h3 className="mt-s2 text-[17px] font-semibold text-text">{d.title}</h3>

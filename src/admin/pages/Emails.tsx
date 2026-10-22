@@ -178,7 +178,7 @@ function EmailSheet({ id, onClose }: { id: string; onClose: () => void }) {
             ]}
           />
           {e.error && <Callout tone="red" title="Why it failed">{e.error}</Callout>}
-          <iframe title="The email as sent" sandbox="" srcDoc={e.html} className="h-[560px] w-full rounded-xl bg-[#F5F5F2] ring-1 ring-line" />
+          <iframe title="The email as sent" sandbox="" srcDoc={e.html} className="h-[560px] w-full rounded-xl bg-[#FFF5E4] ring-1 ring-line" />
         </div>
       )}
     </Sheet>

@@ -244,7 +244,7 @@ export default function AboutStory() {
                   {/* The year on the row itself below lg, where there is no
                       column beside it; from lg up the big year carries it and
                       this is kept small. */}
-                  <p className="nums flex items-baseline gap-s1 font-display text-[clamp(22px,2vw,26px)] leading-none font-semibold tracking-[-0.02em] text-teal lg:text-[15px] lg:tracking-normal">
+                  <p className="nums flex items-baseline gap-s1 font-display text-[clamp(22px,2vw,26px)] leading-none tracking-[-0.02em] text-teal lg:text-[15px] lg:tracking-normal">
                     {entry.year}
                     {entry.when && (
                       <span className="font-script text-[18px] font-normal tracking-normal text-text-3 lg:text-[17px]">
@@ -252,7 +252,7 @@ export default function AboutStory() {
                       </span>
                     )}
                   </p>
-                  <h3 className="mt-s1 font-display text-[clamp(21px,2vw,28px)] leading-[1.15] font-semibold tracking-[-0.02em] text-balance">
+                  <h3 className="mt-s1 font-display text-[clamp(21px,2vw,28px)] leading-[1.15] tracking-[-0.02em] text-balance">
                     {entry.title}
                   </h3>
                   <p className="mt-s2 max-w-[60ch] text-[clamp(15px,1.15vw,16.5px)] leading-[1.65] text-text-2">

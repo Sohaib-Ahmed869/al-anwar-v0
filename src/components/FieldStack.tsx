@@ -185,7 +185,7 @@ export default function FieldStack({
               />
 
               <div
-                className={`absolute inset-x-0 bottom-0 bg-[linear-gradient(180deg,transparent,rgba(21,26,24,0.92))] px-3.5 pt-10 pb-3 transition-opacity duration-300 ${
+                className={`absolute inset-x-0 bottom-0 bg-[linear-gradient(180deg,transparent,rgba(8,38,42,0.92))] px-3.5 pt-10 pb-3 transition-opacity duration-300 ${
                   top ? 'opacity-100' : 'opacity-0'
                 }`}
               >

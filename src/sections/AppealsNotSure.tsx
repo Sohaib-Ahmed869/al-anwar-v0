@@ -41,7 +41,7 @@ export default function AppealsNotSure() {
               <p className="font-script text-[clamp(26px,2.4vw,36px)] leading-none text-gold-pale">
                 Sadaqah
               </p>
-              <h3 className="mt-2 font-display text-[clamp(26px,2.5vw,36px)] leading-[1.1] font-semibold tracking-[-0.02em] text-balance">
+              <h3 className="mt-2 font-display text-[clamp(26px,2.5vw,36px)] leading-[1.1] tracking-[-0.02em] text-balance">
                 Where it&rsquo;s needed most
               </h3>
               <p className="mt-s2 max-w-[44ch] text-[15.5px] leading-[1.55] text-paper/85">
@@ -52,13 +52,13 @@ export default function AppealsNotSure() {
               <div className="mt-s4 flex flex-wrap items-end justify-between gap-x-s3 gap-y-s2 lg:mt-auto lg:pt-s4">
                 <div>
                   <p className="text-[13px] font-semibold">Give from</p>
-                  <p className="nums mt-1 font-display text-[clamp(44px,4.2vw,66px)] leading-none font-bold tracking-[-0.03em]">
+                  <p className="nums mt-1 font-display text-[clamp(44px,4.2vw,66px)] leading-none tracking-[-0.03em]">
                     {money(SADAQAH_FROM)}
                   </p>
                 </div>
                 <Link
                   to="/give?designation=sadaqah"
-                  className="group inline-flex min-h-[50px] items-center gap-2 rounded-[10px] bg-gold px-6 text-[16px] font-semibold text-ink transition-colors duration-200 ease-brand hover:bg-gold-dark hover:text-paper"
+                  className="group inline-flex min-h-[50px] items-center gap-2 rounded-[10px] bg-gold px-6 text-[16px] font-semibold text-ink transition-colors duration-200 ease-brand hover:bg-gold-dark hover:text-ink"
                 >
                   Give sadaqah
                   <ArrowRight className="h-4 w-4 transition-transform duration-200 ease-brand group-hover:translate-x-0.5" />
@@ -72,7 +72,7 @@ export default function AppealsNotSure() {
               <p className="font-script text-[clamp(26px,2.4vw,36px)] leading-none text-green">
                 Zakat
               </p>
-              <h3 className="mt-2 font-display text-[clamp(26px,2.5vw,36px)] leading-[1.1] font-semibold tracking-[-0.02em] text-balance">
+              <h3 className="mt-2 font-display text-[clamp(26px,2.5vw,36px)] leading-[1.1] tracking-[-0.02em] text-balance">
                 Passed on whole
               </h3>
               <p className="mt-s2 max-w-[40ch] text-[15.5px] leading-[1.55] text-text-2">

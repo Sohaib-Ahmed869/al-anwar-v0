@@ -46,7 +46,7 @@ export default function EventsDiary() {
           ) : (
             <Reveal variant="soft">
               <div className="rounded-2xl border border-line bg-paper p-s4 text-center">
-                <p className="font-display text-[clamp(22px,2vw,28px)] font-semibold tracking-[-0.02em]">
+                <p className="font-display text-[clamp(22px,2vw,28px)] tracking-[-0.02em]">
                   {HEAD.empty.title}
                 </p>
                 <p className="mx-auto mt-s2 max-w-[46ch] text-[15.5px] leading-[1.55] text-text-2">{HEAD.empty.body}</p>

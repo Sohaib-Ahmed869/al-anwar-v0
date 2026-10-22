@@ -3,11 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- The mark on its own. The 600x136 wordmark used to be the icon here,
-         which at 16px was an unreadable smear of teal. See public/favicon.svg
-         for where the shape came from and why the colours are what they are;
-         the .ico and the touch icon are rasterised from that same path, so
-         there is one shape and three files rather than three drawings. -->
+    <!-- The 2026 brandmark on its own, from the styleguide's vectors
+         (public/assets/brand/mark.svg). The .ico and the touch icon are
+         rendered from the same files, so there is one shape and three files. -->
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
@@ -25,11 +23,13 @@
          canonical above them.
 
          og.jpg is 1200x630, the size Facebook, WhatsApp, LinkedIn and X all
-         read as a wide card, and 130KB, well inside WhatsApp's limit (it
+         read as a wide card, and about 115KB, well inside WhatsApp's limit (it
          silently drops a preview image over roughly 600KB). It is drawn from
-         the site's own parts, not a screenshot: teal, the white wordmark the
-         footer uses, the logo's masjid faint behind, and one of our own Yemen
-         photographs. Regenerate it at that size or scrapers will crop it.
+         the 2026 brand's own parts, not a screenshot: the deep teal gradient
+         and the tiles, the vertical lock-up, the slogan in English and Kufi,
+         two gradient domes, the sticker, and one of our own Yemen photographs
+         framed in the dome border. Regenerate it at that size or scrapers
+         will crop it.
 
          THESE TAGS ARE THE SAME ON EVERY ROUTE. The app is a Vite SPA and
          vercel.json rewrites every path to this file, so a scraper reading
@@ -40,7 +40,7 @@
       name="description"
       content="Al-Anwaar is an Australian charity delivering food, water and lasting projects to families in Yemen, Gaza, Lebanon and The Gambia. Give zakat, sadaqah or a one-off donation."
     />
-    <meta name="theme-color" content="#006770" />
+    <meta name="theme-color" content="#08262A" />
 
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Al-Anwaar" />
@@ -57,7 +57,7 @@
     <meta property="og:image:height" content="630" />
     <meta
       property="og:image:alt"
-      content="The Al-Anwaar wordmark beside children filling jerry cans from a water tanker in Yemen."
+      content="The Al-Anwaar Charity logo and the words charity lights hope, beside a Yemeni town framed in the brand's dome-shaped border."
     />
 
     <meta name="twitter:card" content="summary_large_image" />
@@ -68,12 +68,10 @@
     />
     <meta name="twitter:image" content="https://alanwaar.vercel.app/og.jpg" />
 
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,300..700;1,400..600&family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..500&family=Caveat+Brush&family=IBM+Plex+Sans+Arabic:wght@400;500&display=swap"
-      rel="stylesheet"
-    />
+    <!-- The brand's fonts are self-hosted from public/fonts: see the note at
+         the top of src/index.css. -->
+    <link rel="preload" href="/fonts/outfit-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/bricolage-grotesque-latin.woff2" as="font" type="font/woff2" crossorigin />
   </head>
   <body>
     <div id="root"></div>

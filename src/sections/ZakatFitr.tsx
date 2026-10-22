@@ -106,7 +106,7 @@ export default function ZakatFitr() {
 
             <Link
               to={`/give?appeal=zakat-al-fitr&designation=zakat-fitr&amount=${total}`}
-              className="group relative mt-s3 flex min-h-[54px] items-center justify-center gap-2.5 overflow-hidden rounded-[10px] bg-gold px-6 text-[16px] font-semibold tracking-[-0.006em] text-ink shadow-gold transition-[transform,box-shadow,background-color,color] duration-200 ease-brand hover:-translate-y-[1.5px] hover:bg-gold-dark hover:text-paper hover:shadow-gold-lg active:translate-y-0"
+              className="group relative mt-s3 flex min-h-[54px] items-center justify-center gap-2.5 overflow-hidden rounded-[10px] bg-gold px-6 text-[16px] font-semibold tracking-[-0.006em] text-ink shadow-gold transition-[transform,box-shadow,background-color,color] duration-200 ease-brand hover:-translate-y-[1.5px] hover:bg-gold-dark hover:text-ink hover:shadow-gold-lg active:translate-y-0"
             >
               <span
                 aria-hidden="true"

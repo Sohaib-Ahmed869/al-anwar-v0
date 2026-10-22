@@ -46,6 +46,7 @@ export default function Overview() {
   return (
     <>
       <PageHeader
+        banner
         title={first ? `Salaam, ${first}` : 'Compliance'}
         description="The registers, statutory calendar and evidence the ACNC asks a charity to keep — in one place, kept current."
       />
@@ -362,7 +363,7 @@ function ScoreRing({ score }: { score: number }) {
   return (
     <div className="relative size-[112px] shrink-0" role="img" aria-label={`Health score ${score} out of 100: ${word}`}>
       <svg viewBox="0 0 120 120" className="size-full -rotate-90">
-        <circle cx="60" cy="60" r={r} fill="none" stroke="rgba(20,26,24,.07)" strokeWidth="10" />
+        <circle cx="60" cy="60" r={r} fill="none" stroke="rgba(8,38,42,.07)" strokeWidth="10" />
         <circle
           cx="60"
           cy="60"
@@ -440,7 +441,7 @@ function Row({ l, matrix, onPick }: { l: number; matrix: number[][]; onPick: (im
             className={cn(
               'nums grid aspect-square place-items-center rounded-lg text-[14px] font-semibold transition-transform',
               BAND_META[band].cell,
-              n ? 'shadow-[inset_0_0_0_1.5px_rgba(20,26,24,.12)] hover:scale-[1.06]' : 'opacity-35',
+              n ? 'shadow-[inset_0_0_0_1.5px_rgba(8,38,42,.12)] hover:scale-[1.06]' : 'opacity-35',
             )}
           >
             {n || ''}

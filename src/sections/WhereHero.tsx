@@ -1,3 +1,4 @@
+import { HeroBrand } from '../components/Brand'
 import { Link } from 'react-router-dom'
 
 import { Words, useHeroDepth } from '../components/Reveal'
@@ -49,8 +50,9 @@ export default function WhereHero() {
           className="absolute inset-0 h-full w-full object-cover"
           style={{ objectPosition: '45% 50%' }}
         />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(21,26,24,0.74)_0%,rgba(21,26,24,0.34)_26%,rgba(21,26,24,0.46)_60%,rgba(21,26,24,0.9)_100%)]" />
-        <div className="absolute inset-0 hidden bg-[linear-gradient(95deg,rgba(21,26,24,0.86)_0%,rgba(21,26,24,0.44)_44%,transparent_72%)] md:block" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,38,42,0.74)_0%,rgba(8,38,42,0.34)_26%,rgba(8,38,42,0.46)_60%,rgba(8,38,42,0.9)_100%)]" />
+        <div className="absolute inset-0 hidden bg-[linear-gradient(95deg,rgba(8,38,42,0.86)_0%,rgba(8,38,42,0.44)_44%,transparent_72%)] md:block" />
+        <HeroBrand />
       </div>
 
       <div className="relative flex min-h-[calc(72svh-var(--strip-h))] flex-col pt-[var(--header-h)]">
@@ -64,7 +66,7 @@ export default function WhereHero() {
             </p>
             <h1
               id="where-title"
-              className="mt-s2 font-display text-[clamp(34px,4.6vw,60px)] leading-[1.04] font-semibold tracking-[-0.022em] text-paper [text-wrap:balance] [text-shadow:0_2px_30px_rgba(0,0,0,0.5)]"
+              className="mt-s2 font-display text-[clamp(34px,4.6vw,60px)] leading-[1.04] tracking-[-0.022em] text-paper [text-wrap:balance] [text-shadow:0_2px_30px_rgba(0,0,0,0.5)]"
             >
               <Words text="Every dollar, accounted for." play="load" delay={160} step={70} />
             </h1>
@@ -100,7 +102,7 @@ export default function WhereHero() {
           >
             <p className="font-script text-[clamp(24px,2vw,30px)] leading-none text-gold-pale">As filed with the ACNC</p>
             <p className="mt-s3 text-[13px] font-semibold text-paper/75">Sent overseas since we registered</p>
-            <p className="nums mt-1 font-display text-[clamp(40px,3.8vw,58px)] leading-none font-bold tracking-[-0.03em]">
+            <p className="nums mt-1 font-display text-[clamp(40px,3.8vw,58px)] leading-none tracking-[-0.03em]">
               {money(TOTAL_OVERSEAS)}
             </p>
             <dl className="mt-s3 grid grid-cols-2 border-t border-paper/15 pt-s3">
@@ -108,18 +110,18 @@ export default function WhereHero() {
                 <dt className="mt-1 text-[12.5px] leading-snug text-paper/70">
                   Of spending sent overseas in <span className="nums">{LATEST.fy}</span>
                 </dt>
-                <dd className="nums font-display text-[clamp(24px,2.2vw,32px)] leading-none font-bold">{share(LATEST)}%</dd>
+                <dd className="nums font-display text-[clamp(24px,2.2vw,32px)] leading-none">{share(LATEST)}%</dd>
               </div>
               {noWages && (
                 <div className="flex flex-col-reverse border-l border-paper/15 pl-s3">
                   <dt className="mt-1 text-[12.5px] leading-snug text-paper/70">Paid in wages, every year</dt>
-                  <dd className="nums font-display text-[clamp(24px,2.2vw,32px)] leading-none font-bold">$0</dd>
+                  <dd className="nums font-display text-[clamp(24px,2.2vw,32px)] leading-none">$0</dd>
                 </div>
               )}
             </dl>
             <Link
               to="/give"
-              className="group mt-s4 flex min-h-[50px] w-full items-center justify-center gap-2 rounded-[10px] bg-gold px-6 text-[15.5px] font-semibold text-ink transition-colors duration-200 ease-brand hover:bg-gold-dark hover:text-paper"
+              className="group mt-s4 flex min-h-[50px] w-full items-center justify-center gap-2 rounded-[10px] bg-gold px-6 text-[15.5px] font-semibold text-ink transition-colors duration-200 ease-brand hover:bg-gold-dark hover:text-ink"
             >
               Give with confidence
               <ArrowRight className="h-4 w-4 transition-transform duration-200 ease-brand group-hover:translate-x-0.5" />

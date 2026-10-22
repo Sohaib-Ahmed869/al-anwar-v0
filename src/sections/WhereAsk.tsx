@@ -2,7 +2,6 @@ import { Link } from 'react-router-dom'
 
 import Reveal from '../components/Reveal'
 import { BREAKOUT } from '../components/SectionHead'
-import { MasjidMark } from '../components/Ornament'
 import { ArrowRight, HandHeart } from '../components/icons'
 
 /* ---------------------------------------------------------------------------
@@ -19,13 +18,12 @@ export default function WhereAsk() {
     <section aria-labelledby="where-ask-head" className="pb-[clamp(56px,6.5vw,96px)]">
       <div className="gutter mx-auto max-w-page">
         <Reveal variant="clip" className={`block ${BREAKOUT}`}>
-          <div className="relative isolate flex flex-col gap-s4 overflow-hidden rounded-2xl bg-teal p-s3 text-paper sm:p-s4 md:flex-row md:items-center md:justify-between lg:p-[clamp(40px,4vw,64px)]">
-            <MasjidMark className="pointer-events-none absolute -right-[4%] -bottom-[18%] -z-10 size-[clamp(200px,22vw,320px)] text-paper/[0.07]" />
+          <div className="relative isolate flex flex-col gap-s4 overflow-hidden rounded-2xl bg-grad-lagoon-x p-s3 text-paper sm:p-s4 md:flex-row md:items-center md:justify-between lg:p-[clamp(40px,4vw,64px)]">
             <div>
               <p className="font-script text-[clamp(24px,2.2vw,32px)] leading-none text-gold-pale">Seen enough?</p>
               <h2
                 id="where-ask-head"
-                className="mt-2 font-display text-[clamp(28px,3.2vw,44px)] leading-[1.08] font-semibold tracking-[-0.025em] text-balance"
+                className="mt-2 font-display text-[clamp(28px,3.2vw,44px)] leading-[1.08] tracking-[-0.025em] text-balance"
               >
                 Give knowing where it goes.
               </h2>
@@ -40,7 +38,7 @@ export default function WhereAsk() {
             <div className="flex shrink-0 flex-wrap items-center gap-3">
               <Link
                 to="/give"
-                className="group inline-flex min-h-[52px] items-center gap-2 rounded-[10px] bg-gold px-6 text-[15.5px] font-semibold text-ink transition-colors duration-200 ease-brand hover:bg-gold-dark hover:text-paper"
+                className="group inline-flex min-h-[52px] items-center gap-2 rounded-[10px] bg-gold px-6 text-[15.5px] font-semibold text-ink transition-colors duration-200 ease-brand hover:bg-gold-dark hover:text-ink"
               >
                 <HandHeart className="h-[18px] w-[18px]" />
                 Make a donation

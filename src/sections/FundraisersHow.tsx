@@ -2,7 +2,6 @@ import { Link } from 'react-router-dom'
 
 import Reveal, { useInView } from '../components/Reveal'
 import SectionHead, { BREAKOUT, SECTION_Y } from '../components/SectionHead'
-import { MasjidMark } from '../components/Ornament'
 import { LISTING } from '../components/fundraiser-data'
 import { ArrowRight } from '../components/icons'
 
@@ -44,7 +43,7 @@ export function FundraiseSteps({ className = '' }: { className?: string }) {
             {i + 1}
           </span>
           <div className="md:mt-s2">
-            <p className="font-display text-[18px] leading-snug font-semibold tracking-[-0.012em]">
+            <p className="font-display text-[18px] leading-snug tracking-[-0.012em]">
               {step.title}
             </p>
             <p className="mt-1 max-w-[30ch] text-[14.5px] leading-relaxed text-text-2">{step.body}</p>
@@ -63,13 +62,12 @@ export default function FundraisersHow() {
         <FundraiseSteps className={`mt-s4 lg:mt-s5 ${BREAKOUT}`} />
 
         <Reveal variant="clip" className={`mt-s5 block lg:mt-s6 ${BREAKOUT}`}>
-          <div className="relative isolate flex flex-col gap-s4 overflow-hidden rounded-2xl bg-teal p-s3 text-paper sm:p-s4 md:flex-row md:items-center md:justify-between lg:p-[clamp(40px,4vw,64px)]">
-            <MasjidMark className="pointer-events-none absolute -right-[4%] -bottom-[18%] -z-10 size-[clamp(200px,22vw,320px)] text-paper/[0.07]" />
+          <div className="relative isolate flex flex-col gap-s4 overflow-hidden rounded-2xl bg-grad-lagoon-x p-s3 text-paper sm:p-s4 md:flex-row md:items-center md:justify-between lg:p-[clamp(40px,4vw,64px)]">
             <div>
               <p className="font-script text-[clamp(24px,2.2vw,32px)] leading-none text-gold-pale">
                 {LISTING.close.eyebrow}
               </p>
-              <h2 className="mt-2 font-display text-[clamp(28px,3.2vw,44px)] leading-[1.08] font-semibold tracking-[-0.025em] text-balance">
+              <h2 className="mt-2 font-display text-[clamp(28px,3.2vw,44px)] leading-[1.08] tracking-[-0.025em] text-balance">
                 {LISTING.close.title}
               </h2>
               <p className="mt-s2 max-w-[52ch] text-[15.5px] leading-[1.55] text-paper/85">

@@ -426,7 +426,7 @@ export default function ZakatCalc() {
                 <p className="text-[11px] font-semibold tracking-[0.14em] text-gold-pale uppercase">
                   Your zakat ({NISAB.rate * 100}%)
                 </p>
-                <p className="nums mt-s2 font-display text-[clamp(40px,4.6vw,56px)] leading-none font-semibold tracking-[-0.03em]">
+                <p className="nums mt-s2 font-display text-[clamp(40px,4.6vw,56px)] leading-none tracking-[-0.03em]">
                   {aud.format(owes ? r.zakat : 0)}
                 </p>
                 <p className="mt-s2 text-[15px] font-semibold">{verdict.head}</p>
@@ -467,7 +467,7 @@ export default function ZakatCalc() {
               {payAmount > 0 ? (
                 <Link
                   to={`/give?designation=zakat&amount=${payAmount}`}
-                  className="group relative mt-s3 flex min-h-[54px] items-center justify-center gap-2.5 overflow-hidden rounded-[10px] bg-gold px-6 text-[16px] font-semibold tracking-[-0.006em] text-ink shadow-gold transition-[transform,box-shadow,background-color,color] duration-200 ease-brand hover:-translate-y-[1.5px] hover:bg-gold-dark hover:text-paper hover:shadow-gold-lg active:translate-y-0"
+                  className="group relative mt-s3 flex min-h-[54px] items-center justify-center gap-2.5 overflow-hidden rounded-[10px] bg-gold px-6 text-[16px] font-semibold tracking-[-0.006em] text-ink shadow-gold transition-[transform,box-shadow,background-color,color] duration-200 ease-brand hover:-translate-y-[1.5px] hover:bg-gold-dark hover:text-ink hover:shadow-gold-lg active:translate-y-0"
                 >
                   <HandHeart className="h-[17px] w-[17px] shrink-0 transition-transform duration-300 ease-brand group-hover:scale-[1.14]" />
                   <span className="nums">Pay {audWhole.format(payAmount)} zakat</span>

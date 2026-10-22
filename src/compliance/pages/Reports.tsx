@@ -1,3 +1,4 @@
+import { Logo } from '../../components/Brand'
 import { useEffect, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
@@ -572,10 +573,10 @@ function YearEndPack({ fy }: { fy: number }) {
       <article className="pack mx-auto max-w-[860px] rounded-2xl bg-paper px-6 py-10 text-text shadow-soft ring-1 ring-line/80 sm:px-14 sm:py-14">
         {/* cover */}
         <section className="flex min-h-[560px] flex-col border-b border-line pb-10 print:min-h-[240mm] print:border-0">
-          <img src="/assets/images/Al-Anwaar-Logo-600x136.png" alt="Al-Anwaar" className="h-9 w-auto self-start" />
+          <Logo layout="vertical" className="h-28 w-auto self-start" />
           <div className="my-auto py-12">
             <p className="text-[12px] font-semibold tracking-[0.12em] text-teal uppercase">Year-end evidence pack</p>
-            <h1 className="mt-3 text-[34px] leading-[1.1] font-semibold tracking-[-0.02em] sm:text-[42px]">{d.org.name}</h1>
+            <h1 className="mt-3 font-display text-[34px] leading-[1.1] sm:text-[44px]">{d.org.name}</h1>
             <p className="mt-4 text-[17px] text-text-2">
               Financial year {d.label} · {formatDateLong(d.period.from)} to {formatDateLong(d.period.to)}
             </p>

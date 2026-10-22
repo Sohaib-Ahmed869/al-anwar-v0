@@ -1,3 +1,4 @@
+import { HeroBrand } from '../components/Brand'
 import { Link } from 'react-router-dom'
 
 import { Words, useHeroDepth } from '../components/Reveal'
@@ -85,8 +86,9 @@ export default function AppealsHero() {
           className="absolute inset-0 h-full w-full object-cover"
           style={{ objectPosition: photo.position }}
         />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(21,26,24,0.74)_0%,rgba(21,26,24,0.34)_26%,rgba(21,26,24,0.46)_60%,rgba(21,26,24,0.9)_100%)]" />
-        <div className="absolute inset-0 hidden bg-[linear-gradient(95deg,rgba(21,26,24,0.82)_0%,rgba(21,26,24,0.40)_42%,transparent_70%)] md:block" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,38,42,0.74)_0%,rgba(8,38,42,0.34)_26%,rgba(8,38,42,0.46)_60%,rgba(8,38,42,0.9)_100%)]" />
+        <div className="absolute inset-0 hidden bg-[linear-gradient(95deg,rgba(8,38,42,0.82)_0%,rgba(8,38,42,0.40)_42%,transparent_70%)] md:block" />
+        <HeroBrand />
       </div>
 
       <div className="relative flex min-h-[calc(70svh-var(--strip-h))] flex-col pt-[var(--header-h)]">
@@ -101,7 +103,7 @@ export default function AppealsHero() {
             </p>
             <h1
               id="page-title"
-              className="mt-s2 font-display text-[clamp(34px,4.6vw,60px)] leading-[1.04] font-semibold tracking-[-0.022em] text-paper [text-wrap:balance] [text-shadow:0_2px_30px_rgba(0,0,0,0.5)]"
+              className="mt-s2 font-display text-[clamp(34px,4.6vw,60px)] leading-[1.04] tracking-[-0.022em] text-paper [text-wrap:balance] [text-shadow:0_2px_30px_rgba(0,0,0,0.5)]"
             >
               <Words text="Where your donation is needed now." play="load" delay={160} step={70} />
             </h1>
@@ -131,7 +133,7 @@ export default function AppealsHero() {
             <p className="font-script text-[clamp(24px,2vw,30px)] leading-none text-gold-pale">
               {panel.script}
             </p>
-            <h2 className="mt-2 font-display text-[clamp(24px,2.2vw,32px)] leading-[1.1] font-semibold tracking-[-0.02em] text-balance">
+            <h2 className="mt-2 font-display text-[clamp(24px,2.2vw,32px)] leading-[1.1] tracking-[-0.02em] text-balance">
               {panel.title}
             </h2>
             <p className="mt-s2 line-clamp-3 text-[15px] leading-[1.55] text-paper/85">
@@ -141,13 +143,13 @@ export default function AppealsHero() {
             <div className="mt-s3 flex flex-wrap items-end justify-between gap-x-s3 gap-y-s2">
               <div>
                 <p className="text-[13px] font-semibold">{panel.fromLine}</p>
-                <p className="nums mt-1 font-display text-[clamp(40px,3.6vw,56px)] leading-none font-bold tracking-[-0.03em]">
+                <p className="nums mt-1 font-display text-[clamp(40px,3.6vw,56px)] leading-none tracking-[-0.03em]">
                   {money(panel.from)}
                 </p>
               </div>
               <Link
                 to={panel.give.to}
-                className="group inline-flex min-h-[50px] items-center gap-2 rounded-[10px] bg-gold px-5 text-[15px] font-semibold text-ink transition-colors duration-200 ease-brand hover:bg-gold-dark hover:text-paper sm:px-6 sm:text-[16px]"
+                className="group inline-flex min-h-[50px] items-center gap-2 rounded-[10px] bg-gold px-5 text-[15px] font-semibold text-ink transition-colors duration-200 ease-brand hover:bg-gold-dark hover:text-ink sm:px-6 sm:text-[16px]"
               >
                 {panel.give.label}
                 <ArrowRight className="h-4 w-4 transition-transform duration-200 ease-brand group-hover:translate-x-0.5" />

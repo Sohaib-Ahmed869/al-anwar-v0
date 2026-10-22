@@ -7,8 +7,8 @@
 
    THE SITE. Everything the pages load was inventoried (October 2026):
    scripts, styles, images, video and API calls are all our own origin; the
-   only third parties are Google Fonts (a stylesheet and the font files) and
-   the OpenStreetMap embed in the footer. Payments leave the site by a full
+   only third party is the OpenStreetMap embed in the footer (the fonts are
+   self-hosted from public/fonts since the 2026 rebrand). Payments leave the site by a full
    page navigation to Stripe's or PayPal's own page, which CSP does not
    govern. Inline style attributes are everywhere (React style={{}}, and the
    UI kit injects styles at runtime), so style-src needs 'unsafe-inline';
@@ -27,8 +27,8 @@
 export const SITE_CSP = [
   "default-src 'self'",
   "script-src 'self'",
-  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-  "font-src 'self' https://fonts.gstatic.com",
+  "style-src 'self' 'unsafe-inline'",
+  "font-src 'self'",
   "img-src 'self' data: blob:",
   "media-src 'self'",
   "connect-src 'self'",

@@ -71,11 +71,11 @@ export function Stat({
             <AreaChart data={spark.map((v, i) => ({ i, v }))} margin={{ top: 4, right: 0, bottom: 0, left: 0 }}>
               <defs>
                 <linearGradient id="spark" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#2f6b5a" stopOpacity={0.18} />
-                  <stop offset="100%" stopColor="#2f6b5a" stopOpacity={0} />
+                  <stop offset="0%" stopColor="#006770" stopOpacity={0.18} />
+                  <stop offset="100%" stopColor="#006770" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <Area type="monotone" dataKey="v" stroke="#2f6b5a" strokeWidth={1.5} fill="url(#spark)" isAnimationActive={false} />
+              <Area type="monotone" dataKey="v" stroke="#006770" strokeWidth={1.5} fill="url(#spark)" isAnimationActive={false} />
             </AreaChart>
           </ResponsiveContainer>
         </div>

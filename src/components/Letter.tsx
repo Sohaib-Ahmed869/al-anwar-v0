@@ -94,7 +94,7 @@ export default function Letter() {
               </p>
               <h2
                 id={`${uid}-head`}
-                className="mt-1.5 font-display text-[clamp(21px,2vw,27px)] leading-snug font-semibold tracking-[-0.018em] text-balance"
+                className="mt-1.5 font-display text-[clamp(21px,2vw,27px)] leading-snug tracking-[-0.018em] text-balance"
               >
                 {LETTER.title}
               </h2>
@@ -111,7 +111,7 @@ export default function Letter() {
                   <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-gold-pale text-ink">
                     <Check className="h-[18px] w-[18px]" />
                   </span>
-                  <p className="mt-s2 font-display text-[20px] leading-snug font-semibold">
+                  <p className="mt-s2 font-display text-[20px] leading-snug">
                     {joined === 'endpoint' ? LETTER.joined.title : LETTER.joined.handedOff}
                   </p>
                   <p className="mt-1 text-[14.5px] leading-relaxed text-paper/80">

@@ -113,7 +113,7 @@ export default function AboutWork() {
                       <ArrowRight className="h-3.5 w-3.5" />
                     </span>
                   </div>
-                  <h3 className="mt-s3 font-display text-[clamp(20px,1.8vw,24px)] leading-[1.18] font-semibold tracking-[-0.018em] text-balance transition-colors duration-300 group-hover:text-paper">
+                  <h3 className="mt-s3 font-display text-[clamp(20px,1.8vw,24px)] leading-[1.18] tracking-[-0.018em] text-balance transition-colors duration-300 group-hover:text-paper">
                     {role.title}
                   </h3>
                   <p className="mt-s2 mb-s3 text-[15px] leading-relaxed text-text-2 transition-colors duration-300 group-hover:text-paper/80">
@@ -143,7 +143,7 @@ export default function AboutWork() {
               <p className="font-script text-[clamp(24px,2.2vw,32px)] leading-none text-gold-pale">
                 Something else in mind?
               </p>
-              <h3 className="mt-2 font-display text-[clamp(22px,2.2vw,30px)] leading-[1.15] font-semibold tracking-[-0.02em] text-balance">
+              <h3 className="mt-2 font-display text-[clamp(22px,2.2vw,30px)] leading-[1.15] tracking-[-0.02em] text-balance">
                 Tell us what you are good at.
               </h3>
               <p className="mt-s1 max-w-[52ch] text-[15px] leading-[1.55] text-paper/80">

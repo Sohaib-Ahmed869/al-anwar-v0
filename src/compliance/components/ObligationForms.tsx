@@ -276,7 +276,7 @@ export function DocumentChooser({ selected, onChange, height = 260 }: { selected
                   onClick={() => onChange(on ? selected.filter((x) => x !== d.id) : [...selected, d.id])}
                   className={cn('flex w-full items-center gap-3 px-3 py-2.5 text-left transition-colors hover:bg-paper-2', on && 'bg-green-50/70')}
                 >
-                  <span className={cn('grid size-[18px] shrink-0 place-items-center rounded-[5px] ring-1 ring-inset', on ? 'bg-green text-white ring-green' : 'ring-[#c9c9c2]')}>
+                  <span className={cn('grid size-[18px] shrink-0 place-items-center rounded-[5px] ring-1 ring-inset', on ? 'bg-green text-white ring-green' : 'ring-[#dccdb2]')}>
                     {on && <Check className="size-3.5" strokeWidth={3} />}
                   </span>
                   <FileText className="size-4 shrink-0 text-text-3" />

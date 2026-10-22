@@ -52,13 +52,13 @@ export function CampaignPreview({ subject, preheader, body }: { subject: string;
           </div>
         </div>
       </div>
-      <div className={cn('bg-[#F5F5F2] transition-[padding]', width === 'mobile' && 'px-4 py-4')}>
+      <div className={cn('bg-[#FFF5E4] transition-[padding]', width === 'mobile' && 'px-4 py-4')}>
         {q.data ? (
           <iframe
             title="Email preview"
             sandbox=""
             srcDoc={q.data.html}
-            className={cn('mx-auto block h-[640px] bg-[#F5F5F2] transition-[width,opacity] duration-300', width === 'mobile' ? 'w-[375px] max-w-full rounded-[20px] ring-1 ring-line' : 'w-full', q.isFetching && 'opacity-70')}
+            className={cn('mx-auto block h-[640px] bg-[#FFF5E4] transition-[width,opacity] duration-300', width === 'mobile' ? 'w-[375px] max-w-full rounded-[20px] ring-1 ring-line' : 'w-full', q.isFetching && 'opacity-70')}
           />
         ) : (
           <div className="space-y-3 p-8">

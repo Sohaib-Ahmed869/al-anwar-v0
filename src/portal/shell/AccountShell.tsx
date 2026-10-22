@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { Logo } from '../../components/Brand'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
 import { HandHeart, Home, LogOut, Megaphone, Receipt, Repeat, UserRound, ExternalLink } from 'lucide-react'
@@ -47,11 +48,11 @@ export function AccountShell() {
   }
 
   return (
-    <div className="min-h-dvh bg-ground">
+    <div className="min-h-dvh">
       <header className="sticky top-0 z-30 border-b border-line bg-paper/90 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-[1180px] items-center gap-6 px-4 sm:px-6">
           <Link to="/" className="shrink-0" aria-label="Al-Anwaar home">
-            <img src="/assets/images/Al-Anwaar-Logo-600x136.png" alt="Al-Anwaar" className="h-7 w-auto sm:h-8" />
+            <Logo className="h-9 w-auto sm:h-10" />
           </Link>
           <nav className="hidden flex-1 items-center gap-1 lg:flex" aria-label="Your account">
             {NAV.map((n) => (

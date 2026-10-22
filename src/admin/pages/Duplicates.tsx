@@ -381,7 +381,7 @@ function SideCard({ side, selected, onSelect }: { side: CompareSide; selected: b
       onClick={onSelect}
       className={cn(
         'flex flex-col rounded-xl p-4 text-left ring-1 ring-inset transition-all',
-        selected ? 'bg-green-50 ring-2 ring-green' : 'bg-paper ring-line hover:ring-[#c9c9c2]',
+        selected ? 'bg-green-50 ring-2 ring-green' : 'bg-paper ring-line hover:ring-[#dccdb2]',
       )}
     >
       <div className="flex items-start gap-3">
@@ -396,7 +396,7 @@ function SideCard({ side, selected, onSelect }: { side: CompareSide; selected: b
           </p>
           <p className="truncate text-[12.5px] text-text-3">{d.email}</p>
         </div>
-        <span className={cn('grid size-5 shrink-0 place-items-center rounded-full ring-1 ring-inset', selected ? 'bg-green text-white ring-green' : 'ring-[#c9c9c2]')}>
+        <span className={cn('grid size-5 shrink-0 place-items-center rounded-full ring-1 ring-inset', selected ? 'bg-green text-white ring-green' : 'ring-[#dccdb2]')}>
           {selected && <Check className="size-3" strokeWidth={3} />}
         </span>
       </div>
@@ -423,7 +423,7 @@ function ChoiceCell({ name, value, selected, onSelect }: { name: string; value: 
         selected ? 'bg-green-50/70' : 'hover:bg-ink/[.02]',
       )}
     >
-      <input type="radio" name={name} checked={selected} onChange={onSelect} className="mt-0.5 size-4 accent-[#2f6b5a]" />
+      <input type="radio" name={name} checked={selected} onChange={onSelect} className="mt-0.5 size-4 accent-[#006770]" />
       <span className={cn('min-w-0 [overflow-wrap:anywhere]', value ? 'text-text' : 'text-text-3')}>{value || 'None'}</span>
     </label>
   )

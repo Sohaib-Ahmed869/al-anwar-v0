@@ -1,3 +1,4 @@
+import { HeroBrand } from '../components/Brand'
 import { useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 
@@ -202,12 +203,13 @@ export default function GiveHero() {
           rgba of --color-ink, which a gradient cannot take as a variable. */}
       <div
         aria-hidden="true"
-        className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(21,26,24,0.62)_0%,rgba(21,26,24,0.12)_28%,rgba(21,26,24,0.18)_55%,rgba(21,26,24,0.88)_100%)]"
+        className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(8,38,42,0.62)_0%,rgba(8,38,42,0.12)_28%,rgba(8,38,42,0.18)_55%,rgba(8,38,42,0.88)_100%)]"
       />
       <div
         aria-hidden="true"
-        className="absolute inset-0 -z-10 hidden bg-[linear-gradient(95deg,rgba(21,26,24,0.78)_0%,rgba(21,26,24,0.36)_40%,transparent_66%)] md:block"
+        className="absolute inset-0 -z-10 hidden bg-[linear-gradient(95deg,rgba(8,38,42,0.78)_0%,rgba(8,38,42,0.36)_40%,transparent_66%)] md:block"
       />
+      <HeroBrand z="-z-10" />
 
       <div className="relative flex min-h-[calc(100svh-var(--strip-h))] items-center pt-[var(--header-h)] pb-[clamp(56px,9vh,96px)]">
         <div className="gutter mx-auto w-full max-w-page">
@@ -226,7 +228,7 @@ export default function GiveHero() {
               </p>
               <h1
                 id="page-title"
-                className="mt-s2 font-display text-[clamp(31px,4.2vw,54px)] leading-[1.05] font-semibold tracking-[-0.022em] text-paper [text-wrap:balance] [text-shadow:0_2px_30px_rgba(0,0,0,0.5)]"
+                className="mt-s2 font-display text-[clamp(31px,4.2vw,54px)] leading-[1.05] tracking-[-0.022em] text-paper [text-wrap:balance] [text-shadow:0_2px_30px_rgba(0,0,0,0.5)]"
               >
                 {/* Sets up the verse under it (2:261): the gift as a seed. Was
                   "Your gift, handed over in Yemen, Gaza and Lebanon.", a list
@@ -250,7 +252,7 @@ export default function GiveHero() {
                 <button
                   type="button"
                   onClick={toForm}
-                  className="group relative inline-flex min-h-[54px] items-center justify-center gap-2.5 overflow-hidden rounded-[13px] bg-gold px-7 text-[16px] font-semibold tracking-[-0.008em] text-ink shadow-gold transition-[transform,box-shadow,background-color,color] duration-200 ease-brand hover:-translate-y-[1.5px] hover:bg-gold-dark hover:text-paper hover:shadow-gold-lg active:translate-y-0"
+                  className="group relative inline-flex min-h-[54px] items-center justify-center gap-2.5 overflow-hidden rounded-[13px] bg-gold px-7 text-[16px] font-semibold tracking-[-0.008em] text-ink shadow-gold transition-[transform,box-shadow,background-color,color] duration-200 ease-brand hover:-translate-y-[1.5px] hover:bg-gold-dark hover:text-ink hover:shadow-gold-lg active:translate-y-0"
                 >
                   <HandHeart className="h-[18px] w-[18px] shrink-0 transition-transform duration-300 ease-brand group-hover:scale-[1.12]" />
                   Give now
@@ -327,7 +329,7 @@ export default function GiveHero() {
       {/* the gold-to-green hairline every hero on this site closes on */}
       <div
         aria-hidden="true"
-        className="absolute inset-x-0 bottom-0 h-px bg-[linear-gradient(90deg,transparent,rgba(200,155,44,.5),rgba(47,107,90,.5),transparent)]"
+        className="absolute inset-x-0 bottom-0 h-px bg-[linear-gradient(90deg,transparent,rgba(242,193,74,.5),rgba(0,103,112,.5),transparent)]"
       />
     </section>
   )

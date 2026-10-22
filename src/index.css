@@ -1,126 +1,172 @@
 @import "tailwindcss";
 
 /* ---------------------------------------------------------------------------
+   THE BRAND'S TYPE, SELF-HOSTED from public/fonts (all three are SIL Open
+   Font Licence, free to host). They used to come from Google Fonts; serving
+   them ourselves means one less third party in the privacy page's list, no
+   wait on another host before the headings appear, and the same arrangement
+   the licensed Snaga and Neulis files will need when they arrive: drop the
+   woff2 in public/fonts, add an @font-face here, and name it first in the
+   stacks in @theme. Latin and Latin Extended for the Latin faces; Arabic and
+   Latin for Noto Kufi. Each file is a variable font across its weights.
+--------------------------------------------------------------------------- */
+@font-face {
+  font-family: 'Bricolage Grotesque';
+  font-style: normal;
+  font-weight: 500 800;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url('/fonts/bricolage-grotesque-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Bricolage Grotesque';
+  font-style: normal;
+  font-weight: 500 800;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url('/fonts/bricolage-grotesque-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Noto Kufi Arabic';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('/fonts/noto-kufi-arabic-arabic.woff2') format('woff2');
+  unicode-range: U+0600-06FF, U+0750-077F, U+0870-0891, U+0897-08E1, U+08E3-08FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE70-FE74, U+FE76-FEFC, U+102E0-102FB, U+10E60-10E7E, U+10EC2-10EC7, U+10EC9-10EEE, U+10EF0-10EFF, U+1EE00-1EE03, U+1EE05-1EE1F, U+1EE21-1EE22, U+1EE24, U+1EE27, U+1EE29-1EE32, U+1EE34-1EE37, U+1EE39, U+1EE3B, U+1EE42, U+1EE47, U+1EE49, U+1EE4B, U+1EE4D-1EE4F, U+1EE51-1EE52, U+1EE54, U+1EE57, U+1EE59, U+1EE5B, U+1EE5D, U+1EE5F, U+1EE61-1EE62, U+1EE64, U+1EE67-1EE6A, U+1EE6C-1EE72, U+1EE74-1EE77, U+1EE79-1EE7C, U+1EE7E, U+1EE80-1EE89, U+1EE8B-1EE9B, U+1EEA1-1EEA3, U+1EEA5-1EEA9, U+1EEAB-1EEBB, U+1EEF0-1EEF1;
+}
+@font-face {
+  font-family: 'Noto Kufi Arabic';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('/fonts/noto-kufi-arabic-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Outfit';
+  font-style: normal;
+  font-weight: 300 700;
+  font-display: swap;
+  src: url('/fonts/outfit-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Outfit';
+  font-style: normal;
+  font-weight: 300 700;
+  font-display: swap;
+  src: url('/fonts/outfit-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* ---------------------------------------------------------------------------
    Design tokens, ported from the prototype's :root block in ../index.html.
    Everything here becomes a Tailwind utility: --color-green -> bg-green,
    --spacing-s4 -> p-s4, --font-display -> font-display.
    This is the only place the design system is defined.
 --------------------------------------------------------------------------- */
 @theme {
-  /* Ink — the dark ground */
-  --color-ink: #151a18;
-  --color-ink-2: #1f2624;
+  /* ---- THE 2026 BRAND -------------------------------------------------------
+     Every colour below is read off the vector artwork in
+     Al-Anwaar-Styleguide-2026.pdf (pp. 13–15), not sampled from a screenshot:
+     the guide's printed hex labels all say 08262a, which is a typo in the PDF,
+     so the fills themselves are the source of truth.
 
-  /* Green — the brand */
-  --color-green: #2f6b5a;
-  --color-green-pale: #e7efeb;
+       dark teal  #08262A  depth and authority — the ink, the dark grounds
+       teal       #006770  the core brand colour — actions, links, the mark
+       med. teal  #2E8C88  balance and flexibility — layers, secondary type
+       saffron    #F2C14A  the highlight — the give action and key details
+       off-white  #FFF5E4  the primary neutral — the page itself
 
-  /* THE MARK'S OWN TEAL, and the one colour on this site taken straight off the
-     artwork rather than chosen for it. The logo PNG in the header and the
-     footer is drawn in #006770, the previous site at alanwaar.group is built on
-     it, and its favicon was it — so anywhere the masjid mark appears on its own
-     it is this, and it agrees with the logo standing next to it instead of
-     being a slightly different green beside it.
+     The old token NAMES stay (ink, green, gold, ground…) so the 60-odd files
+     that use them pick the brand up without being touched; only the values
+     moved. --color-green is the brand's teal now, not a separate green. */
 
-     IT IS FOR THE MARK — and, since 16 September 2026 at the client's
-     direction, the home page's appeal banner (HomeAppeals), which is the logo's
-     colour for the same reason Al-Ihsan's banner is theirs. Nothing else. --color-green is the brand green for
-     buttons, links, eyebrows and rules, and it is deliberately quieter than the
-     artwork. Do not reach for text-teal because something needs to be louder;
-     that decision is whether the WHOLE site moves to #006770, and it has not.
-     See the note at the head of Ornament.tsx. Client's call, 16 September 2026. */
+  /* Ink — the dark ground: the guide's dark teal */
+  --color-ink: #08262a;
+  --color-ink-2: #0d3337;
+
+  /* The brand colour. Was a quieter green beside the logo's teal; the
+     styleguide makes teal the core colour, so the two are one now. */
+  --color-green: #006770;
+  --color-green-pale: #dcecea;
+
+  /* The core teal, the medium teal, and the palest tint of it. */
   --color-teal: #006770;
+  --color-teal-mid: #2e8c88;
+  --color-teal-soft: #9cc9c5;
 
-  /* Paper — the light grounds */
-  --color-paper: #ffffff;
-  --color-paper-2: #f5f5f2;
-  --color-sand: #eceae4;
+  /* Paper — the light grounds, all warmed toward the off-white */
+  --color-paper: #fffbf4;
+  --color-paper-2: #fff5e4;
+  --color-sand: #f6e9d2;
+  --color-offwhite: #fff5e4;
 
-  /* THE GROUND. The one colour a page runs on from the header to the footer.
-     The home page used to alternate paper and sand to say a section had ended;
-     it now runs on this the whole way down and says it with a drawn divider
-     instead (components/Divider.tsx explains why). Everything else follows.
+  /* THE GROUND: the styleguide's off-white, the primary neutral. Cards sit on
+     it in --color-paper, a step lighter, so they still lift off the page. */
+  --color-ground: #fff5e4;
 
-     This is the single line to change if the site's ground should be warmer,
-     cooler, or plain white — set it to var(--color-paper) and the page goes
-     white without a single section file being touched. paper-2 is the default
-     because a page of pure white gives the white cards on it nothing to lift
-     off, and because "monotone" should still read as a colour somebody chose. */
-  --color-ground: #f5f5f2;
+  /* Saffron — "an ode to the warm light of charity". The give action, the
+     focus ring and the one detail on a screen that must be seen. Type on it
+     is dark teal, never white: white on saffron is 1.7:1. */
+  --color-gold: #f2c14a;
+  --color-gold-dark: #d9a632;
 
-  /* Gold — the give action and the focus ring. Nothing else. */
-  --color-gold: #c89b2c;
-  --color-gold-dark: #a87f1d;
+  /* Saffron as TYPE on teal and dark teal grounds. */
+  --color-gold-pale: #f6d27a;
 
-  /* Gold as TYPE on the teal appeal banner (HomeAppeals): the script line over
-     each appeal's title. --color-gold is about 2.8:1 on #006770 and fails even
-     for large type; this is about 4.7:1. It sets words, never a button. */
-  --color-gold-pale: #f0cf7e;
-
-  /* Alert — the emergency strip. The pale one is the same hue lifted to read on
-     a dark ground: the crisis link inside a menu panel, which is frosted dark
-     while the panel is hanging in the home hero. Same job as --color-green-pale. */
+  /* Alert — the emergency strip. Warm, and kept apart from the saffron. */
   --color-alert: #a63a1c;
   --color-alert-pale: #eda58f;
 
-  /* Text */
-  --color-text: #191c1b;
-  --color-text-2: #5b6260;
-  --color-text-3: #8a908e;
-  --color-text-on-ink: #f2f2ee;
-  --color-text-on-ink-2: #a9afac;
+  /* Text — dark teal, and teal-greys rather than neutral greys */
+  --color-text: #08262a;
+  --color-text-2: #3f5b5d;
+  --color-text-3: #6f8788;
+  --color-text-on-ink: #fff5e4;
+  --color-text-on-ink-2: #9fbfbc;
 
   /* Rules */
-  --color-line: #ddddd8;
-  --color-line-2: #ebebe7;
-  --color-line-ink: #33393a;
+  --color-line: #e6d9c2;
+  --color-line-2: #efe4d0;
+  --color-line-ink: #1c4448;
 
-  /* Type
-     ONE LATIN FACE. Inter Tight sets the whole site — the headline, the label,
-     the paragraph, the amount and the button. There used to be a second, a
-     display serif, and it was carrying the page's whole personality: it read
-     as a magazine about a charity rather than as the charity. It is gone.
+  /* Type — the styleguide's three voices (p. 9), in free stand-ins until the
+     licensed files arrive. Each is ONE line here, so swapping in the real
+     faces later is a change to these three lines and the <link> in
+     index.html, and nothing else.
 
-     The display token is still its own token rather than an alias nobody can
-     find, so if a display face ever comes back it comes back in one line here
-     and every headline on the site picks it up at once. `font-display` marks
-     the slots that would take it. */
-  --font-display: "Inter Tight", "Helvetica Neue", Arial, sans-serif;
-  --font-sans: "Inter Tight", "Helvetica Neue", Arial, sans-serif;
-  --font-arabic: "IBM Plex Sans Arabic", sans-serif;
+       headings  Snaga Uni Display Bold  ->  Bricolage Grotesque 800 for now.
+                 Snaga is a wide, heavy unicase display face; Bricolage at 800
+                 is the closest free match for its weight, width and character.
+                 (Unica One is unicase too, but thin and condensed — it read as
+                 a different brand.)
+       body      Neulis Neue Regular     ->  Outfit: the same soft, round,
+                 geometric sans.
+       arabic    Noto Kufi Arabic Medium ->  Noto Kufi Arabic, the real thing:
+                 it is a free Google font.
 
-  /* THE SERIF, back on the site — but on a leash (client's request, 16
-     September 2026, from a sample they sent).
+     When the paid fonts arrive: self-host them in public/fonts, add an
+     @font-face for each, and put their names first in these stacks. */
+  --font-display: "Snaga Uni Display", "Bricolage Grotesque", "Outfit", Arial, sans-serif;
+  --font-sans: "Neulis Neue", "Outfit", "Helvetica Neue", Arial, sans-serif;
+  --font-arabic: "Noto Kufi Arabic", sans-serif;
 
-     Fraunces: variable, optical-size aware, SIL Open Font Licence, free
-     commercially. IT IS A CLOSE MATCH RATHER THAN AN IDENTIFICATION — the
-     sample was a few words at small size and the exact face could not be read
-     off it. If the client can name it, this is the one line that changes.
+  /* The serif and the brush script were the old site's accents, and the
+     brand has neither. Their slots are re-voiced rather than removed (94 of
+     them across the sections), in the two ways the guide itself does it:
 
-     It is deliberately NOT --font-display. Flipping the display token would put
-     a serif on all 66 headline slots across the site in one go, and nobody has
-     asked for that; the note above is still the reason the serif was dropped in
-     the first place. Right now this face sets exactly two things, both in the
-     /give hero: the headline and the ayah's translation. Roll it out by
-     pointing --font-display here, in one line, if and when that is the call.
-
-     SET IT LIGHT. At 300 with a large optical size it reads as a quiet
-     inscription, which is what a verse wants; at 600 Fraunces is a poster face
-     and would shout over the ayah above it. */
-  --font-serif: "Fraunces", "Iowan Old Style", Georgia, serif;
-
-  /* THE ACCENT, and it is an accent. A brush script, for the one line above a
-     heading that is allowed to sound like a person rather than a label. It is
-     not a third voice on the site: it never sets a heading, never sets a
-     paragraph, never sets an amount — it has no tabular figures, so any money
-     figure in it would wobble — and it never appears twice on a screen.
-
-     Caveat Brush stands in for Guthen Bloots, which is the face the client
-     showed and which is licensed for personal use only; a charity's public site
-     is not personal use. Caveat Brush is SIL Open Font Licence and free to use
-     commercially. If the Guthen licence is bought, this is the one line that
-     changes and every place the accent appears picks it up at once. */
-  --font-script: "Caveat Brush", "Bradley Hand", cursive;
+       font-script  the line over a heading ("Emergency appeal") becomes the
+                    guide's spaced-capital label — the CHARITY under the
+                    wordmark, the CORE BRAND COLOUR under each swatch. The
+                    sizing lives in the unlayered rule at the foot of this
+                    file, because every slot carries a script-sized clamp().
+       font-serif   quotations become the body face, upright, as the guide
+                    sets Ibn Khaldun (p. 4) and the ayah (p. 11). */
+  --font-serif: var(--font-sans);
+  --font-script: var(--font-sans);
 
   /* Spacing scale */
   --spacing-s1: 8px;
@@ -162,38 +208,38 @@
   /* Elevation. The nav panel is lifted by three stacked shadows rather than one,
      so the edge stays crisp while the ambient shade spreads. The gold pair is
      the Donate button at rest and on hover. */
-  --shadow-nav: 0 1px 2px rgba(20, 26, 24, 0.04), 0 12px 28px -8px rgba(20, 26, 24, 0.1),
-    0 32px 64px -24px rgba(20, 26, 24, 0.16);
-  --shadow-gold: 0 1px 2px rgba(168, 127, 29, 0.2), 0 6px 16px -6px rgba(200, 155, 44, 0.55);
-  --shadow-gold-lg: 0 2px 4px rgba(168, 127, 29, 0.22), 0 12px 24px -8px rgba(200, 155, 44, 0.7);
+  --shadow-nav: 0 1px 2px rgba(8, 38, 42, 0.04), 0 12px 28px -8px rgba(8, 38, 42, 0.1),
+    0 32px 64px -24px rgba(8, 38, 42, 0.16);
+  --shadow-gold: 0 1px 2px rgba(196, 146, 30, 0.2), 0 6px 16px -6px rgba(242, 193, 74, 0.55);
+  --shadow-gold-lg: 0 2px 4px rgba(196, 146, 30, 0.22), 0 12px 24px -8px rgba(242, 193, 74, 0.7);
   /* A card lifted off a tinted ground — the give card on the sand band. Same
      idea as the nav: one tight shadow to keep the edge, one wide and very soft
      one for the shade. It is nearly invisible on paper, which is correct; it is
      only meant to read where the ground is darker than the card. */
-  --shadow-card: 0 1px 2px rgba(20, 26, 24, 0.05), 0 26px 50px -34px rgba(20, 26, 24, 0.35);
+  --shadow-card: 0 1px 2px rgba(8, 38, 42, 0.05), 0 26px 50px -34px rgba(8, 38, 42, 0.35);
 
   /* ---- THE PORTALS (donor, admin, compliance) ------------------------------
      Status tones for badges, charts and banners. Each has a strong ink for
      type and a pale ground to sit on; every pair clears 4.5:1. The rule on the
      public site still holds inside the portals: gold is the give action and the
      focus ring, and a status is never gold. */
-  --color-green-600: #265a4b;
-  --color-green-50: #f1f6f3;
-  --color-teal-pale: #e3f0f1;
+  --color-green-600: #00545b;
+  --color-green-50: #eef6f4;
+  --color-teal-pale: #dcecea;
   --color-amber: #8a5a00;
   --color-amber-pale: #fbf1dc;
   --color-red: #a63a1c;
   --color-red-pale: #fbebe6;
   --color-violet: #5b4b99;
   --color-violet-pale: #efecf8;
-  --color-gold-50: #fbf6e8;
+  --color-gold-50: #fdf3dc;
 
   /* Things that float over the page: menus, popovers, dialogs, the palette. */
-  --shadow-pop: 0 0 0 1px rgba(20, 26, 24, 0.06), 0 8px 24px -6px rgba(20, 26, 24, 0.14),
-    0 24px 48px -16px rgba(20, 26, 24, 0.18);
+  --shadow-pop: 0 0 0 1px rgba(8, 38, 42, 0.06), 0 8px 24px -6px rgba(8, 38, 42, 0.14),
+    0 24px 48px -16px rgba(8, 38, 42, 0.18);
   /* A card on the portal ground: a hairline's worth of shade, no more. */
-  --shadow-soft: 0 1px 2px rgba(20, 26, 24, 0.04), 0 1px 1px rgba(20, 26, 24, 0.02);
-  --shadow-lift: 0 1px 2px rgba(20, 26, 24, 0.05), 0 10px 24px -12px rgba(20, 26, 24, 0.16);
+  --shadow-soft: 0 1px 2px rgba(8, 38, 42, 0.04), 0 1px 1px rgba(8, 38, 42, 0.02);
+  --shadow-lift: 0 1px 2px rgba(8, 38, 42, 0.05), 0 10px 24px -12px rgba(8, 38, 42, 0.16);
 
   /* Motion */
   --ease-brand: cubic-bezier(0.22, 0.61, 0.36, 1);
@@ -236,17 +282,17 @@
     font-optical-sizing: auto;
   }
 
-  /* With one face doing every job, weight is the only thing left to tell a
-     headline apart from the paragraph under it, so the display slots carry it
-     here rather than in 66 places across the pages. 600 and not 700: at
-     clamp(30px, 3.9vw, 46px) Inter Tight's bold is a shout, and the semibold
-     still reads as display against body copy at 400.
+  /* The display slots carry the heading face's weight here rather than in 66
+     places across the pages. 800, because Snaga (and Bricolage standing in
+     for it) is a heavy display face and the guide sets every heading solid;
+     tracked in a touch, as the guide's headings are.
 
      It sits in `base`, so any weight utility on the element itself — a
      `font-semibold` on a small label, a `font-bold` somewhere deliberate —
      still wins. */
   .font-display {
-    font-weight: 600;
+    font-weight: 800;
+    letter-spacing: -0.025em;
   }
 
   /* Gold is the focus ring. See DESIGN-NOTES.md. */
@@ -306,12 +352,12 @@
 
   html.scrolling::-webkit-scrollbar-thumb,
   html.scrolling ::-webkit-scrollbar-thumb {
-    background-color: rgba(21, 26, 24, 0.3);
+    background-color: rgba(8, 38, 42, 0.3);
   }
 
   /* Reach for it and it stays, whether or not the page is moving. */
   ::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(21, 26, 24, 0.45);
+    background-color: rgba(8, 38, 42, 0.45);
   }
 
   /* Firefox has no scrollbar pseudo-elements and its own two properties
@@ -325,7 +371,7 @@
     }
 
     html.scrolling :where(div, section, nav, ul, ol, aside, main) {
-      scrollbar-color: rgba(21, 26, 24, 0.3) transparent;
+      scrollbar-color: rgba(8, 38, 42, 0.3) transparent;
     }
   }
 
@@ -379,7 +425,7 @@
 --------------------------------------------------------------------------- */
 html[data-portal] {
   scrollbar-width: thin;
-  scrollbar-color: rgba(21, 26, 24, 0.22) transparent;
+  scrollbar-color: rgba(8, 38, 42, 0.22) transparent;
 }
 html[data-portal]::-webkit-scrollbar {
   width: 12px;
@@ -387,7 +433,7 @@ html[data-portal]::-webkit-scrollbar {
 }
 html[data-portal]::-webkit-scrollbar-thumb,
 html[data-portal] ::-webkit-scrollbar-thumb {
-  background-color: rgba(21, 26, 24, 0.2);
+  background-color: rgba(8, 38, 42, 0.2);
 }
 
 @keyframes portal-in {
@@ -425,7 +471,7 @@ html[data-portal] ::-webkit-scrollbar-thumb {
   }
 }
 .skeleton {
-  background: linear-gradient(90deg, #ecece7 0%, #f5f5f1 40%, #ecece7 80%);
+  background: linear-gradient(90deg, #f3e7d2 0%, #fbf2e3 40%, #f3e7d2 80%);
   background-size: 200% 100%;
   animation: shimmer 1.4s linear infinite;
 }
@@ -668,4 +714,137 @@ html[data-portal] ::-webkit-scrollbar-thumb {
   20% {
     transform: translateY(5px);
   }
+}
+
+/* ---------------------------------------------------------------------------
+   THE BRAND'S LABEL VOICE, standing in the slots the brush script used to
+   fill (see the Type note in @theme). Unlayered on purpose: unlayered rules
+   beat every layered utility, so the script-sized text-[clamp(...)] on each of
+   the 94 slots gives way to the label size here without 94 edits.
+--------------------------------------------------------------------------- */
+.font-script {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: clamp(12px, 0.9vw, 13.5px);
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  line-height: 1.35;
+}
+/* Each label is led by the brandmark in saffron, small — the mark and the
+   spaced capitals together, as the lock-up pairs them. */
+.font-script::before {
+  content: '';
+  display: inline-block;
+  width: 0.92em;
+  height: 1.06em;
+  margin-right: 0.7em;
+  vertical-align: -0.2em;
+  background-color: var(--color-gold);
+  -webkit-mask: url('/assets/brand/mark-mono.svg') center / contain no-repeat;
+  mask: url('/assets/brand/mark-mono.svg') center / contain no-repeat;
+}
+
+/* Quotations: upright, in the body face. There is no italic in the brand. */
+.font-serif {
+  font-style: normal;
+  font-weight: 400;
+}
+
+/* Arabic is always Noto Kufi, at the guide's medium weight. */
+[lang='ar'],
+.font-arabic {
+  font-family: var(--font-arabic);
+  font-weight: 500;
+}
+
+/* ---------------------------------------------------------------------------
+   THE BRAND ELEMENTS (styleguide pp. 15–16), as utilities. Each is a CSS mask
+   over a plain box, so the colour is whatever background the box is given —
+   `bg-teal`, `bg-paper/10`, a gradient — and one file serves every colourway.
+   components/Brand.tsx wraps them; reach for those rather than these.
+--------------------------------------------------------------------------- */
+
+/* The tiles of Islamic geometry: the brandmark nested in offset rows. One
+   repeat unit is 87.95 x 152.06 in the artwork, so the height is always the
+   width x 1.7288; set --tile to scale it. */
+.brand-tiles {
+  --tile: 88px;
+  -webkit-mask: url('/assets/brand/tile.svg') 0 0 / var(--tile) calc(var(--tile) * 1.7288) repeat;
+  mask: url('/assets/brand/tile.svg') 0 0 / var(--tile) calc(var(--tile) * 1.7288) repeat;
+}
+
+/* The outlined brandmark, "layered over backgrounds to add depth". */
+.brand-outline {
+  -webkit-mask: url('/assets/brand/mark-outline.svg') center / contain no-repeat;
+  mask: url('/assets/brand/mark-outline.svg') center / contain no-repeat;
+}
+
+/* The solid brandmark as a shape, for a tint of the mark in any colour. */
+.brand-mark-shape {
+  -webkit-mask: url('/assets/brand/mark-mono.svg') center / contain no-repeat;
+  mask: url('/assets/brand/mark-mono.svg') center / contain no-repeat;
+}
+
+/* The dome border, both points, stretched to the box: for the tall dome
+   panels of p. 15 (give them aspect-[131/435] to keep the true angles). */
+.brand-dome {
+  -webkit-mask: url('/assets/brand/dome.svg') center / 100% 100% no-repeat;
+  mask: url('/assets/brand/dome.svg') center / 100% 100% no-repeat;
+}
+
+/* The dome's pointed top on a straight body: frames a photograph of any
+   shape while the point keeps its true angle (arch.svg is 22 widths tall). */
+.brand-arch {
+  -webkit-mask: url('/assets/brand/arch.svg') top center / 100% auto no-repeat;
+  mask: url('/assets/brand/arch.svg') top center / 100% auto no-repeat;
+}
+
+/* The six gradients of p. 15, each top to bottom as the guide draws them. */
+.bg-grad-dawn {
+  background-image: linear-gradient(180deg, #fff5e4 0%, #f2c14a 100%);
+}
+.bg-grad-mist {
+  background-image: linear-gradient(180deg, #e3e6d8 0%, #006770 100%);
+}
+.bg-grad-sea {
+  background-image: linear-gradient(180deg, #fff5e4 0%, #2e8c88 100%);
+}
+.bg-grad-deep {
+  background-image: linear-gradient(180deg, #006770 0%, #08262a 100%);
+}
+.bg-grad-dusk {
+  background-image: linear-gradient(180deg, #2e8c88 0%, #08262a 100%);
+}
+.bg-grad-lagoon {
+  background-image: linear-gradient(180deg, #2e8c88 0%, #006770 100%);
+}
+/* The same light, laid across a band rather than down a dome. */
+.bg-grad-deep-x {
+  background-image: linear-gradient(120deg, #006770 0%, #08262a 72%);
+}
+.bg-grad-lagoon-x {
+  background-image: linear-gradient(120deg, #2e8c88 0%, #006770 60%, #00545b 100%);
+}
+
+/* ---------------------------------------------------------------------------
+   THE WALLPAPER (styleguide pp. 1, 3, 15–16): the tiles drawn large and tone
+   on tone. It is NOT laid behind every page — tried, and it was too much (22
+   October 2026, client feedback). It lives only where it reads as texture: the
+   footer, the portals' sidebar, the sign-in panel and the home zakat band,
+   each through <Tiles> in Brand.tsx. `.wallpaper-dark` is the same thing as a
+   class, for a dark box that should carry it; nothing uses it at present.
+--------------------------------------------------------------------------- */
+.wallpaper-dark {
+  position: relative;
+  isolation: isolate;
+}
+.wallpaper-dark::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-color: rgba(46, 140, 136, 0.07);
+  -webkit-mask: url('/assets/brand/tile.svg') 0 0 / 260px 449.5px repeat;
+  mask: url('/assets/brand/tile.svg') 0 0 / 260px 449.5px repeat;
 }

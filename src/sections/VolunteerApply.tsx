@@ -3,7 +3,6 @@ import { useId, useState, type ReactNode } from 'react'
 import FaqList from '../components/FaqList'
 import Reveal from '../components/Reveal'
 import SectionHead, { BREAKOUT, SECTION_Y } from '../components/SectionHead'
-import { MasjidMark } from '../components/Ornament'
 import { ArrowRight, Check, Mail, Phone } from '../components/icons'
 import { APPLY, FAQ, ROLES } from '../components/volunteer-data'
 import { ORG } from '../components/org-data'
@@ -117,7 +116,7 @@ export function VolunteerApply() {
                   <span className="inline-flex size-12 items-center justify-center rounded-full bg-teal text-paper">
                     <Mail className="h-5 w-5" />
                   </span>
-                  <p className="mt-s3 font-display text-[clamp(24px,2.2vw,30px)] leading-snug font-semibold tracking-[-0.02em]">
+                  <p className="mt-s3 font-display text-[clamp(24px,2.2vw,30px)] leading-snug tracking-[-0.02em]">
                     {APPLY.handedOff.title}
                   </p>
                   <p className="mt-s2 max-w-[56ch] text-[15.5px] leading-relaxed text-text-2">
@@ -239,10 +238,9 @@ export function VolunteerApply() {
 
           {/* --- what happens next --- */}
           <Reveal variant="clip" delay={90} className="h-full">
-            <aside className="relative isolate flex h-full flex-col overflow-hidden rounded-2xl bg-teal p-s3 text-paper sm:p-s4 lg:p-[clamp(32px,3.2vw,48px)]">
-              <MasjidMark className="pointer-events-none absolute -right-[6%] -bottom-[8%] -z-10 size-[clamp(200px,22vw,320px)] text-paper/[0.07]" />
+            <aside className="relative isolate flex h-full flex-col overflow-hidden rounded-2xl bg-grad-lagoon-x p-s3 text-paper sm:p-s4 lg:p-[clamp(32px,3.2vw,48px)]">
               <p className="font-script text-[clamp(24px,2.2vw,30px)] leading-none text-gold-pale">{APPLY.panel.eyebrow}</p>
-              <h3 className="mt-2 font-display text-[clamp(22px,2vw,28px)] leading-[1.15] font-semibold tracking-[-0.02em]">
+              <h3 className="mt-2 font-display text-[clamp(22px,2vw,28px)] leading-[1.15] tracking-[-0.02em]">
                 {APPLY.panel.title}
               </h3>
               <ul className="mt-s3 grid gap-s2">

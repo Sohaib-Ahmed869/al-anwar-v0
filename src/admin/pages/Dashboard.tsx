@@ -60,6 +60,7 @@ export default function Dashboard() {
   return (
     <>
       <PageHeader
+        banner
         title={`${greeting()}${first ? `, ${first}` : ''}`}
         description={
           <>
@@ -382,7 +383,7 @@ function RaisedCard({ series, className }: { series?: MonthRow[]; className?: st
       if (rest.length) o.other = rest.reduce((s, k) => s + (src[k] ?? 0), 0)
       return o
     })
-    const seriesDef = [...named.map((k) => ({ key: k, label: label(k) })), ...(rest.length ? [{ key: 'other', label: 'Other', color: '#9aa09e' }] : [])]
+    const seriesDef = [...named.map((k) => ({ key: k, label: label(k) })), ...(rest.length ? [{ key: 'other', label: 'Other', color: '#8aa3a3' }] : [])]
     return { data, series: seriesDef }
   }, [rows, split])
 

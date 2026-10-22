@@ -4,7 +4,6 @@ import { Link } from 'react-router-dom'
 import FundraiserCard, { fundraiserGiveHref } from '../components/FundraiserCard'
 import Reveal from '../components/Reveal'
 import SectionHead, { BREAKOUT, SECTION_Y } from '../components/SectionHead'
-import { MasjidMark } from '../components/Ornament'
 import { type Fundraiser } from '../components/fundraiser-data'
 import { type Appeal } from '../components/appeals-data'
 import { money } from '../components/appeal-view'
@@ -65,7 +64,7 @@ export default function FundraiserBody({ fundraiser: f, appeal }: { fundraiser: 
                 </p>
                 <h2
                   id="story-head"
-                  className="mt-s2 font-display text-[clamp(28px,3vw,40px)] leading-[1.08] font-semibold tracking-[-0.022em]"
+                  className="mt-s2 font-display text-[clamp(28px,3vw,40px)] leading-[1.08] tracking-[-0.022em]"
                 >
                   Why this matters
                 </h2>
@@ -119,12 +118,11 @@ export default function FundraiserBody({ fundraiser: f, appeal }: { fundraiser: 
             {/* --- where it goes, and who has given --- */}
             <div className="flex flex-col gap-s2">
               <Reveal variant="clip">
-                <div className="relative isolate overflow-hidden rounded-2xl bg-teal p-s3 text-paper sm:p-s4">
-                  <MasjidMark className="pointer-events-none absolute -right-[8%] -bottom-[16%] -z-10 size-[200px] text-paper/[0.07]" />
+                <div className="relative isolate overflow-hidden rounded-2xl bg-grad-lagoon-x p-s3 text-paper sm:p-s4">
                   <p className="font-script text-[clamp(22px,2vw,28px)] leading-none text-gold-pale">
                     Where your donation goes
                   </p>
-                  <h3 className="mt-2 font-display text-[clamp(22px,2vw,28px)] leading-[1.15] font-semibold tracking-[-0.02em]">
+                  <h3 className="mt-2 font-display text-[clamp(22px,2vw,28px)] leading-[1.15] tracking-[-0.02em]">
                     {appeal.title}
                   </h3>
                   <p className="mt-s2 text-[15px] leading-[1.55] text-paper/85">{appeal.blurb}</p>
@@ -141,7 +139,7 @@ export default function FundraiserBody({ fundraiser: f, appeal }: { fundraiser: 
               <Reveal variant="clip" delay={90}>
                 <div className="rounded-2xl border border-line bg-paper p-s3 sm:p-s4">
                   <div className="flex items-center justify-between gap-s2">
-                    <h3 className="font-display text-[20px] font-semibold tracking-[-0.016em]">
+                    <h3 className="font-display text-[20px] tracking-[-0.016em]">
                       Latest supporters
                     </h3>
                     <span className="nums text-[13.5px] text-text-3">{f.supporters} in total</span>
@@ -152,7 +150,7 @@ export default function FundraiserBody({ fundraiser: f, appeal }: { fundraiser: 
                         <li key={`${s.name}-${s.on}-${s.amount}`} className="flex gap-s2 py-s2">
                           <span
                             aria-hidden="true"
-                            className="flex size-10 shrink-0 items-center justify-center rounded-full bg-teal/10 font-display text-[15px] font-semibold text-teal"
+                            className="flex size-10 shrink-0 items-center justify-center rounded-full bg-teal/10 font-display text-[15px] text-teal"
                           >
                             {s.name.charAt(0)}
                           </span>
@@ -174,7 +172,7 @@ export default function FundraiserBody({ fundraiser: f, appeal }: { fundraiser: 
                   )}
                   <Link
                     to={fundraiserGiveHref(f)}
-                    className="group mt-s2 flex min-h-[50px] w-full items-center justify-center gap-2 rounded-[10px] bg-gold px-6 text-[15.5px] font-semibold text-ink transition-colors duration-200 ease-brand hover:bg-gold-dark hover:text-paper"
+                    className="group mt-s2 flex min-h-[50px] w-full items-center justify-center gap-2 rounded-[10px] bg-gold px-6 text-[15.5px] font-semibold text-ink transition-colors duration-200 ease-brand hover:bg-gold-dark hover:text-ink"
                   >
                     Donate to this fundraiser
                     <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 ease-brand group-hover:translate-x-0.5" />

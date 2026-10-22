@@ -81,7 +81,7 @@ export default function SectionHead({
             id={id}
             className="mt-s2 max-w-[20ch] font-display text-[clamp(31px,4.2vw,54px)] leading-[1.05] tracking-[-0.022em] text-balance"
           >
-            <Words text={title} delay={120} />
+            <Words text={title} delay={120} accent="text-teal-mid" />
           </h2>
         ) : (
           <Reveal variant="soft" delay={80}>

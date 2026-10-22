@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom'
 
-import { MasjidMark } from '../components/Ornament'
 import Reveal from '../components/Reveal'
 import SectionHead, { BREAKOUT, SECTION_Y } from '../components/SectionHead'
 import { ArrowRight } from '../components/icons'
@@ -67,13 +66,12 @@ export default function AboutMission() {
           className={`mt-s4 grid gap-s2 lg:mt-s5 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] ${BREAKOUT}`}
         >
           <Reveal variant="clip" className="h-full">
-            <div className="relative isolate flex h-full flex-col overflow-hidden rounded-2xl bg-teal p-s3 text-paper sm:p-s4 lg:p-[clamp(32px,3.2vw,52px)]">
+            <div className="relative isolate flex h-full flex-col overflow-hidden rounded-2xl bg-grad-lagoon-x p-s3 text-paper sm:p-s4 lg:p-[clamp(32px,3.2vw,52px)]">
               {/* The logo's masjid, large and faint, standing in the corner. */}
-              <MasjidMark className="absolute -right-[4%] -bottom-[14%] -z-10 size-[clamp(180px,20vw,300px)] text-paper/[0.07]" />
               <p className="font-script text-[clamp(26px,2.4vw,36px)] leading-none text-gold-pale">
                 Our mission
               </p>
-              <p className="mt-s2 max-w-[34ch] font-display text-[clamp(22px,2.2vw,31px)] leading-[1.3] font-medium tracking-[-0.016em] text-balance">
+              <p className="mt-s2 max-w-[34ch] font-display text-[clamp(22px,2.2vw,31px)] leading-[1.3] tracking-[-0.016em] text-balance">
                 We&rsquo;re committed to creating a brighter future for all. Since 2022, we&rsquo;ve
                 been driven by compassion, providing vital support to those in need. With your help,
                 we can make a lasting difference.
@@ -108,12 +106,12 @@ export default function AboutMission() {
                     </p>
                     <span
                       aria-hidden="true"
-                      className="nums font-display text-[clamp(48px,4.4vw,68px)] leading-[0.8] font-semibold tracking-[-0.05em] text-transparent transition-colors duration-300 ease-brand [-webkit-text-stroke:1.5px_var(--color-teal)] group-hover:text-teal"
+                      className="nums font-display text-[clamp(48px,4.4vw,68px)] leading-[0.8] tracking-[-0.05em] text-transparent transition-colors duration-300 ease-brand [-webkit-text-stroke:1.5px_var(--color-teal)] group-hover:text-teal"
                     >
                       {String(i + 1).padStart(2, '0')}
                     </span>
                   </div>
-                  <h3 className="mt-s3 font-display text-[clamp(20px,1.8vw,24px)] leading-[1.18] font-semibold tracking-[-0.018em] text-balance">
+                  <h3 className="mt-s3 font-display text-[clamp(20px,1.8vw,24px)] leading-[1.18] tracking-[-0.018em] text-balance">
                     {value.title}
                   </h3>
                   <p className="mt-s2 mb-s3 text-[15px] leading-relaxed text-text-2">{value.body}</p>

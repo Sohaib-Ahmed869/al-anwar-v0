@@ -328,7 +328,7 @@ export default function AboutTeam() {
                   aria-haspopup="dialog"
                   className="group block w-full cursor-pointer text-left"
                 >
-                  <div className="relative overflow-hidden rounded-xl shadow-[0_1px_2px_rgba(21,26,24,0.06)] sm:rounded-2xl transition-shadow duration-300 ease-brand group-hover:shadow-[0_18px_40px_-24px_rgba(21,26,24,0.5)]">
+                  <div className="relative overflow-hidden rounded-xl shadow-[0_1px_2px_rgba(8,38,42,0.06)] sm:rounded-2xl transition-shadow duration-300 ease-brand group-hover:shadow-[0_18px_40px_-24px_rgba(8,38,42,0.5)]">
                     <Portrait seat={seat} tile />
 
                     {/* The name on the photograph, as the home page's tiles
@@ -341,7 +341,7 @@ export default function AboutTeam() {
                       <span className="block text-[10.5px] font-semibold tracking-[0.16em] text-gold-pale uppercase sm:text-[11px]">
                         {seat.role}
                       </span>
-                      <span className="mt-1 block font-display text-[clamp(17px,1.6vw,22px)] leading-[1.1] font-semibold tracking-[-0.015em] text-paper">
+                      <span className="mt-1 block font-display text-[clamp(17px,1.6vw,22px)] leading-[1.1] tracking-[-0.015em] text-paper">
                         {seat.name ?? 'Name to come'}
                       </span>
                     </span>
@@ -352,7 +352,7 @@ export default function AboutTeam() {
                         seat's dialog. */}
                     <span
                       aria-hidden="true"
-                      className="absolute top-2.5 right-2.5 flex h-9 w-9 items-center justify-center rounded-full bg-paper font-sans text-[22px] leading-none text-ink shadow-[0_2px_10px_-2px_rgba(21,26,24,0.35)] transition-[transform,background-color,color] duration-300 ease-brand group-hover:scale-110 group-hover:bg-teal group-hover:text-paper"
+                      className="absolute top-2.5 right-2.5 flex h-9 w-9 items-center justify-center rounded-full bg-paper font-sans text-[22px] leading-none text-ink shadow-[0_2px_10px_-2px_rgba(8,38,42,0.35)] transition-[transform,background-color,color] duration-300 ease-brand group-hover:scale-110 group-hover:bg-teal group-hover:text-paper"
                     >
                       +
                     </span>

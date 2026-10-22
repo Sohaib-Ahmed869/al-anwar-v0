@@ -383,7 +383,7 @@ export default function LegalBody({ sections }: { sections: LegalSection[] }) {
                 </div>
 
                 <div className="mt-s1 flex items-start gap-s2">
-                  <h2 className="flex-1 font-display text-[clamp(23px,2.2vw,30px)] leading-[1.15] font-semibold tracking-[-0.025em] text-text">
+                  <h2 className="flex-1 font-display text-[clamp(23px,2.2vw,30px)] leading-[1.15] tracking-[-0.025em] text-text">
                     {section.title}
                   </h2>
 

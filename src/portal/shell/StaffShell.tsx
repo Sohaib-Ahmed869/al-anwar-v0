@@ -16,6 +16,7 @@ import { Menu, MenuItem, MenuLabel, MenuSeparator, Tooltip } from '../ui/Menu'
 import { useHotkey } from '../ui/hooks'
 import { CommandPalette, type PaletteAction } from './CommandPalette'
 import { ChangePasswordDialog } from './ChangePasswordDialog'
+import { BrandMark, Logo, Tiles } from '../../components/Brand'
 
 /* ---------------------------------------------------------------------------
    The frame around the admin and compliance portals.
@@ -122,8 +123,8 @@ export function StaffShell({ portal, groups, badgesQuery, actions = [], searchPa
       {visible.map((g, gi) => (
         <div key={gi}>
           {rail
-            ? gi > 0 && <div aria-hidden className="mx-2 mb-3 border-t border-line" />
-            : g.label && <p className="mb-1 px-3 text-[11px] font-semibold tracking-[0.06em] text-text-3 uppercase">{g.label}</p>}
+            ? gi > 0 && <div aria-hidden className="mx-2 mb-3 border-t border-line-ink" />
+            : g.label && <p className="mb-1.5 px-3 text-[10.5px] font-medium tracking-[0.22em] text-teal-soft/70 uppercase">{g.label}</p>}
           <ul className="space-y-px">
             {g.items.map((i) => {
               const n = i.badge ? badges.data?.[i.badge] : undefined
@@ -137,20 +138,22 @@ export function StaffShell({ portal, groups, badgesQuery, actions = [], searchPa
                     cn(
                       'group relative flex h-9 items-center gap-3 rounded-[10px] text-[13.5px] font-medium transition-colors pointer-coarse:h-11',
                       rail ? 'justify-center' : 'px-3',
-                      isActive ? 'bg-green-50 text-green' : 'text-text-2 hover:bg-ink/[.04] hover:text-text',
+                      isActive
+                        ? 'bg-paper/[.09] text-paper before:absolute before:inset-y-2 before:left-0 before:w-[3px] before:rounded-full before:bg-gold'
+                        : 'text-text-on-ink-2 hover:bg-paper/[.05] hover:text-paper',
                     )
                   }
                 >
                   {({ isActive }) => (
                     <>
-                      <i.icon className={cn('size-[18px] shrink-0', isActive ? 'text-green' : 'text-text-3 group-hover:text-text-2')} />
+                      <i.icon className={cn('size-[18px] shrink-0', isActive ? 'text-gold' : 'text-teal-soft/70 group-hover:text-paper')} />
                       {rail ? (
-                        n ? <span className="absolute top-1.5 right-3 size-2 rounded-full bg-amber ring-2 ring-paper" /> : null
+                        n ? <span className="absolute top-1.5 right-3 size-2 rounded-full bg-gold ring-2 ring-ink" /> : null
                       ) : (
                         <>
                           <span className="flex-1 truncate">{i.label}</span>
                           {n ? (
-                            <span className={cn('nums rounded-full px-1.5 text-[11px] leading-5 font-semibold', isActive ? 'bg-green text-white' : 'bg-amber-pale text-amber')}>
+                            <span className={cn('nums rounded-full px-1.5 text-[11px] leading-5 font-semibold', isActive ? 'bg-gold text-ink' : 'bg-gold/15 text-gold-pale')}>
                               {n > 99 ? '99+' : n}
                             </span>
                           ) : null}
@@ -180,9 +183,11 @@ export function StaffShell({ portal, groups, badgesQuery, actions = [], searchPa
     </nav>
   )
 
-  const brand = (
+  /* The styleguide's dark-wallpaper lock-up in the sidebar and the sheet,
+     which are dark teal; the light one in the phone's top bar, which is not. */
+  const brand = (onDark = true) => (
     <Link to={PORTALS[portal].home} className="flex items-center gap-2.5 rounded-lg">
-      <img src="/assets/images/Al-Anwaar-Logo-600x136.png" alt="Al-Anwaar" className="h-7 w-auto" />
+      <Logo onDark={onDark} className="h-9 w-auto" />
     </Link>
   )
 
@@ -213,37 +218,38 @@ export function StaffShell({ portal, groups, badgesQuery, actions = [], searchPa
   )
 
   return (
-    <div className="min-h-dvh bg-ground">
+    <div className="min-h-dvh">
       {/* ---------- desktop sidebar ---------- */}
       <aside
         className={cn(
-          'fixed inset-y-0 left-0 z-30 hidden flex-col border-r border-line bg-paper transition-[width] duration-200 ease-out lg:flex',
+          'fixed inset-y-0 left-0 z-30 hidden flex-col overflow-hidden bg-ink transition-[width] duration-200 ease-out lg:flex',
           collapsed ? 'w-[72px]' : 'w-[264px]',
         )}
       >
+        {/* THE SIDEBAR IS THE BRAND'S DARK WALLPAPER (styleguide p. 7): dark
+            teal, the off-white lock-up, saffron for where you are, and the
+            tiles of Islamic geometry rising faintly from the foot of it. */}
+        <Tiles className="bg-teal-mid/[0.1]" style={{ '--tile': '190px' } as React.CSSProperties} />
         {collapsed ? (
-          <div className="flex h-16 items-center justify-center">
+          <div className="relative flex h-16 items-center justify-center">
             <Tooltip content="Expand sidebar  [" side="right">
               <button
                 type="button"
                 onClick={toggleCollapsed}
                 aria-label="Expand sidebar"
                 aria-expanded={false}
-                className="group grid size-10 place-items-center rounded-[10px] transition-colors hover:bg-ink/[.04]"
+                className="group grid size-10 place-items-center rounded-[10px] transition-colors hover:bg-paper/[.06]"
               >
-                {/* the mark is the first 126 of the wordmark's 600 columns */}
-                <span className="block h-7 w-[26px] overflow-hidden group-hover:hidden group-focus-visible:hidden">
-                  <img src="/assets/images/Al-Anwaar-Logo-600x136.png" alt="" className="h-7 w-auto max-w-none" />
-                </span>
-                <PanelLeftOpen className="hidden size-[18px] text-text-2 group-hover:block group-focus-visible:block" />
+                <BrandMark tone="onDark" className="h-8 w-auto group-hover:hidden group-focus-visible:hidden" />
+                <PanelLeftOpen className="hidden size-[18px] text-paper group-hover:block group-focus-visible:block" />
               </button>
             </Tooltip>
           </div>
         ) : (
-          <div className="flex h-16 items-center justify-between gap-2 pr-3 pl-5">
-            {brand}
+          <div className="relative flex h-[72px] items-center justify-between gap-2 pr-3 pl-5">
+            {brand()}
             <span className="flex items-center gap-1">
-              <span className={cn('rounded-md px-2 py-1 text-[11px] font-semibold tracking-wide uppercase', portal === 'compliance' ? 'bg-teal-pale text-teal' : 'bg-green-50 text-green')}>
+              <span className={cn('rounded-md px-2 py-1 text-[11px] font-semibold tracking-wide uppercase', portal === 'compliance' ? 'bg-teal-mid/30 text-teal-soft' : 'bg-gold/15 text-gold-pale')}>
                 {PORTALS[portal].name}
               </span>
               <Tooltip content="Collapse sidebar  [" side="bottom">
@@ -252,7 +258,7 @@ export function StaffShell({ portal, groups, badgesQuery, actions = [], searchPa
                   onClick={toggleCollapsed}
                   aria-label="Collapse sidebar"
                   aria-expanded
-                  className="grid size-8 place-items-center rounded-lg text-text-3 transition-colors hover:bg-ink/[.04] hover:text-text-2"
+                  className="grid size-8 place-items-center rounded-lg text-text-on-ink-2 transition-colors hover:bg-paper/[.06] hover:text-paper"
                 >
                   <PanelLeftClose className="size-[18px]" />
                 </button>
@@ -260,14 +266,14 @@ export function StaffShell({ portal, groups, badgesQuery, actions = [], searchPa
             </span>
           </div>
         )}
-        <div className="px-3 pb-3">
+        <div className="relative px-3 pb-3">
           {collapsed ? (
             <Tooltip content="Search or jump to…  ⌘K" side="right">
               <button
                 type="button"
                 onClick={() => setPaletteOpen(true)}
                 aria-label="Search or jump to"
-                className="grid h-9 w-full place-items-center rounded-[10px] bg-paper-2 text-text-3 ring-1 ring-line ring-inset transition-colors hover:text-text-2 hover:ring-[#cdcdc6]"
+                className="grid h-9 w-full place-items-center rounded-[10px] bg-paper/[.06] text-text-on-ink-2 ring-1 ring-paper/10 ring-inset transition-colors hover:text-paper hover:ring-paper/20"
               >
                 <Search className="size-4" />
               </button>
@@ -276,7 +282,7 @@ export function StaffShell({ portal, groups, badgesQuery, actions = [], searchPa
             <button
               type="button"
               onClick={() => setPaletteOpen(true)}
-              className="flex h-9 w-full items-center gap-2.5 rounded-[10px] bg-paper-2 px-3 text-[13px] text-text-3 ring-1 ring-line ring-inset transition-colors hover:text-text-2 hover:ring-[#cdcdc6]"
+              className="flex h-9 w-full items-center gap-2.5 rounded-[10px] bg-paper/[.06] px-3 text-[13px] text-text-on-ink-2 ring-1 ring-paper/10 ring-inset transition-colors hover:text-paper hover:ring-paper/20"
             >
               <Search className="size-4" />
               <span className="flex-1 text-left">Search or jump to…</span>
@@ -284,21 +290,21 @@ export function StaffShell({ portal, groups, badgesQuery, actions = [], searchPa
             </button>
           )}
         </div>
-        <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto px-3 pt-2 pb-6">{nav(undefined, collapsed)}</div>
-        <div className="border-t border-line p-3">
+        <div className="relative min-h-0 flex-1 overflow-x-hidden overflow-y-auto px-3 pt-2 pb-6">{nav(undefined, collapsed)}</div>
+        <div className="relative border-t border-line-ink p-3">
           {userMenu(
             collapsed ? (
-              <button type="button" aria-label={`${user.name}: account menu`} className="grid w-full place-items-center rounded-[10px] p-2 transition-colors hover:bg-ink/[.04]">
+              <button type="button" aria-label={`${user.name}: account menu`} className="grid w-full place-items-center rounded-[10px] p-2 transition-colors hover:bg-paper/[.06]">
                 <Avatar name={user.name} size="sm" />
               </button>
             ) : (
-              <button type="button" className="flex w-full items-center gap-3 rounded-[10px] p-2 text-left transition-colors hover:bg-ink/[.04]">
+              <button type="button" className="flex w-full items-center gap-3 rounded-[10px] p-2 text-left transition-colors hover:bg-paper/[.06]">
                 <Avatar name={user.name} size="sm" />
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate text-[13.5px] font-medium text-text">{user.name}</span>
-                  <span className="block truncate text-[12px] text-text-3">{ROLES[user.role].label}</span>
+                  <span className="block truncate text-[13.5px] font-medium text-paper">{user.name}</span>
+                  <span className="block truncate text-[12px] text-text-on-ink-2">{ROLES[user.role].label}</span>
                 </span>
-                <ChevronsUpDown className="size-4 text-text-3" />
+                <ChevronsUpDown className="size-4 text-text-on-ink-2" />
               </button>
             ),
           )}
@@ -315,7 +321,7 @@ export function StaffShell({ portal, groups, badgesQuery, actions = [], searchPa
         >
           <MenuIcon className="size-5" />
         </button>
-        <div className="flex flex-1 justify-center">{brand}</div>
+        <div className="flex flex-1 justify-center">{brand(false)}</div>
         <button type="button" onClick={() => setPaletteOpen(true)} className="grid size-10 place-items-center rounded-[10px] text-text-2 hover:bg-ink/5" aria-label="Search">
           <Search className="size-5" />
         </button>
@@ -359,25 +365,26 @@ export function StaffShell({ portal, groups, badgesQuery, actions = [], searchPa
       <Drawer.Root open={moreOpen} onOpenChange={setMoreOpen} direction="left">
         <Drawer.Portal>
           <Drawer.Overlay className="fixed inset-0 z-50 bg-ink/40 lg:hidden" />
-          <Drawer.Content className="fixed inset-y-0 left-0 z-50 flex w-[86vw] max-w-[320px] flex-col bg-paper outline-none lg:hidden">
+          <Drawer.Content className="fixed inset-y-0 left-0 z-50 flex w-[86vw] max-w-[320px] flex-col overflow-hidden bg-ink outline-none lg:hidden">
+            <Tiles className="bg-teal-mid/[0.1]" style={{ '--tile': '190px' } as React.CSSProperties} />
             <Drawer.Title className="sr-only">Navigation</Drawer.Title>
             <Drawer.Description className="sr-only">Every page in the {PORTALS[portal].name} portal</Drawer.Description>
-            <div className="flex h-14 items-center justify-between border-b border-line px-4">
-              {brand}
-              <button type="button" onClick={() => setMoreOpen(false)} className="grid size-10 place-items-center rounded-[10px] text-text-2" aria-label="Close">
+            <div className="relative flex h-16 items-center justify-between border-b border-line-ink px-4">
+              {brand()}
+              <button type="button" onClick={() => setMoreOpen(false)} className="grid size-10 place-items-center rounded-[10px] text-paper" aria-label="Close">
                 <X className="size-5" />
               </button>
             </div>
-            <div className="min-h-0 flex-1 overflow-y-auto px-3 py-4">{nav(() => setMoreOpen(false))}</div>
-            <div className="border-t border-line p-3 pb-[max(12px,env(safe-area-inset-bottom))]">
+            <div className="relative min-h-0 flex-1 overflow-y-auto px-3 py-4">{nav(() => setMoreOpen(false))}</div>
+            <div className="relative border-t border-line-ink p-3 pb-[max(12px,env(safe-area-inset-bottom))]">
               {userMenu(
                 <button type="button" className="flex w-full items-center gap-3 rounded-[10px] p-2 text-left">
                   <Avatar name={user.name} size="sm" />
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate text-[13.5px] font-medium">{user.name}</span>
-                    <span className="block text-[12px] text-text-3">{ROLES[user.role].label}</span>
+                    <span className="block truncate text-[13.5px] font-medium text-paper">{user.name}</span>
+                    <span className="block text-[12px] text-text-on-ink-2">{ROLES[user.role].label}</span>
                   </span>
-                  <ChevronsUpDown className="size-4 text-text-3" />
+                  <ChevronsUpDown className="size-4 text-text-on-ink-2" />
                 </button>,
               )}
             </div>

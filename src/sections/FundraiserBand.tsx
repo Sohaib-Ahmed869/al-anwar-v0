@@ -1,3 +1,4 @@
+import { HeroBrand } from '../components/Brand'
 import { useId, useState } from 'react'
 import { Link } from 'react-router-dom'
 
@@ -58,8 +59,9 @@ export default function FundraiserBand({ fundraiser: f, appeal }: { fundraiser: 
           className="absolute inset-0 h-full w-full object-cover"
           style={{ objectPosition: photo.position }}
         />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(21,26,24,0.74)_0%,rgba(21,26,24,0.34)_26%,rgba(21,26,24,0.46)_60%,rgba(21,26,24,0.9)_100%)]" />
-        <div className="absolute inset-0 hidden bg-[linear-gradient(95deg,rgba(21,26,24,0.84)_0%,rgba(21,26,24,0.42)_44%,transparent_72%)] md:block" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,38,42,0.74)_0%,rgba(8,38,42,0.34)_26%,rgba(8,38,42,0.46)_60%,rgba(8,38,42,0.9)_100%)]" />
+        <div className="absolute inset-0 hidden bg-[linear-gradient(95deg,rgba(8,38,42,0.84)_0%,rgba(8,38,42,0.42)_44%,transparent_72%)] md:block" />
+        <HeroBrand />
       </div>
 
       <div className="relative gutter mx-auto flex min-h-[calc(80svh-var(--strip-h))] max-w-page flex-col justify-center gap-10 pt-[calc(var(--header-h)+32px)] pb-[clamp(32px,6vh,72px)] lg:flex-row lg:items-center lg:justify-between lg:gap-s5">
@@ -82,7 +84,7 @@ export default function FundraiserBand({ fundraiser: f, appeal }: { fundraiser: 
           )}
           <h1
             id="fundraiser-title"
-            className="mt-s2 font-display text-[clamp(34px,4.6vw,60px)] leading-[1.04] font-semibold tracking-[-0.022em] text-paper [text-wrap:balance] [text-shadow:0_2px_30px_rgba(0,0,0,0.5)]"
+            className="mt-s2 font-display text-[clamp(34px,4.6vw,60px)] leading-[1.04] tracking-[-0.022em] text-paper [text-wrap:balance] [text-shadow:0_2px_30px_rgba(0,0,0,0.5)]"
             style={rise(140)}
           >
             {f.title}
@@ -109,7 +111,7 @@ export default function FundraiserBand({ fundraiser: f, appeal }: { fundraiser: 
           className="w-full shrink-0 rounded-2xl bg-teal p-s3 text-paper shadow-[0_24px_60px_-24px_rgba(0,0,0,0.55)] sm:p-s4 lg:w-[clamp(350px,32vw,440px)]"
           style={rise(300)}
         >
-          <p className="nums font-display text-[clamp(34px,3vw,44px)] leading-none font-bold tracking-[-0.03em]">
+          <p className="nums font-display text-[clamp(34px,3vw,44px)] leading-none tracking-[-0.03em]">
             {money(f.raised)}
           </p>
           <p className="nums mt-1.5 text-[14px] text-paper/75">raised of {money(f.goal)} goal</p>
@@ -183,7 +185,7 @@ export default function FundraiserBand({ fundraiser: f, appeal }: { fundraiser: 
 
           <Link
             to={fundraiserGiveHref(f, amount)}
-            className="group mt-s3 flex min-h-[54px] w-full items-center justify-center gap-2 rounded-[12px] bg-gold px-6 text-[16px] font-semibold text-ink transition-colors duration-200 ease-brand hover:bg-gold-dark hover:text-paper"
+            className="group mt-s3 flex min-h-[54px] w-full items-center justify-center gap-2 rounded-[12px] bg-gold px-6 text-[16px] font-semibold text-ink transition-colors duration-200 ease-brand hover:bg-gold-dark hover:text-ink"
           >
             Donate <span className="nums">{money(amount)}</span>
             <ArrowRight className="h-4 w-4 transition-transform duration-200 ease-brand group-hover:translate-x-0.5" />

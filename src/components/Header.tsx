@@ -1,3 +1,4 @@
+import { Logo } from './Brand'
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 
@@ -406,7 +407,7 @@ export default function Header() {
            over the white section for the few pixels of scroll between the hero
            leaving and the bar taking its paper — and it sits at z-index -1
            inside the header, which puts it over the page and under the nav. */
-        className={`sticky top-0 z-50 transition-[background-color,box-shadow] duration-300 ease-brand before:pointer-events-none before:absolute before:inset-x-0 before:top-0 before:bottom-0 before:z-[-1] before:bg-[linear-gradient(180deg,rgba(21,26,24,0.95)_0%,rgba(21,26,24,0.86)_46%,rgba(21,26,24,0.46)_78%,transparent_100%)] before:transition-opacity before:duration-300 before:ease-brand before:content-[''] after:pointer-events-none after:absolute after:inset-x-0 after:bottom-0 after:h-px after:bg-[linear-gradient(90deg,transparent,var(--color-line-2)_8%,var(--color-line)_50%,var(--color-line-2)_92%,transparent)] after:transition-opacity after:duration-300 after:content-[''] ${
+        className={`sticky top-0 z-50 transition-[background-color,box-shadow] duration-300 ease-brand before:pointer-events-none before:absolute before:inset-x-0 before:top-0 before:bottom-0 before:z-[-1] before:bg-[linear-gradient(180deg,rgba(8,38,42,0.95)_0%,rgba(8,38,42,0.86)_46%,rgba(8,38,42,0.46)_78%,transparent_100%)] before:transition-opacity before:duration-300 before:ease-brand before:content-[''] after:pointer-events-none after:absolute after:inset-x-0 after:bottom-0 after:h-px after:bg-[linear-gradient(90deg,transparent,var(--color-line-2)_8%,var(--color-line)_50%,var(--color-line-2)_92%,transparent)] after:transition-opacity after:duration-300 after:content-[''] ${
           !solid
             ? /* no paper up here — the picture carries on behind the bar, veiled
                  by the gradient above once anything is moving under it */
@@ -414,7 +415,7 @@ export default function Header() {
                 scrolled ? 'before:opacity-100' : 'before:opacity-0'
               }`
             : compact
-              ? 'bg-paper/92 shadow-[0_10px_30px_-18px_rgba(20,26,24,0.26)] backdrop-blur-[18px] backdrop-saturate-150 before:opacity-0 after:opacity-100'
+              ? 'bg-paper/92 shadow-[0_10px_30px_-18px_rgba(8,38,42,0.26)] backdrop-blur-[18px] backdrop-saturate-150 before:opacity-0 after:opacity-100'
               : 'bg-paper/85 shadow-none backdrop-blur-[18px] backdrop-saturate-150 before:opacity-0 after:opacity-100'
         }`}
       >
@@ -459,25 +460,20 @@ export default function Header() {
             aria-label="Al-Anwaar home"
             className="group relative flex shrink-0 items-center transition-transform duration-300 ease-brand hover:-translate-y-px"
           >
-            {/* Both marks are in the DOM and cross-fade with the bar's ground,
-                so the swap is not a blink of a mark that has not loaded yet.
-                The white one is decorative — the dark one carries the name. */}
-            <img
-              src="/assets/images/Al-Anwaar-Logo-600x136.png"
-              alt="Al-Anwaar Charity"
-              width={600}
-              height={136}
-              className={`h-8 w-auto transition-opacity duration-300 ease-brand lg:h-10 ${
+            {/* Both lock-ups are in the DOM and cross-fade with the bar's ground,
+                so the swap is not a blink of a logo that has not loaded yet: the
+                styleguide's light-wallpaper version on the solid bar, its
+                dark-wallpaper version over the hero. The second is decorative —
+                the first carries the name. */}
+            <Logo
+              className={`h-9 w-auto transition-opacity duration-300 ease-brand lg:h-12 ${
                 solid ? 'opacity-100' : 'opacity-0'
               }`}
             />
-            <img
-              src="/assets/images/Al-Anwaar-Logo-White.png"
+            <Logo
+              onDark
               alt=""
-              aria-hidden="true"
-              width={950}
-              height={216}
-              className={`absolute left-0 h-8 w-auto transition-opacity duration-300 ease-brand lg:h-10 ${
+              className={`absolute left-0 h-9 w-auto transition-opacity duration-300 ease-brand lg:h-12 ${
                 solid ? 'opacity-0' : 'opacity-100'
               }`}
             />
@@ -557,7 +553,7 @@ export default function Header() {
                 this is the button the whole header exists to serve. */}
             <Link
               to="/give"
-              className="group relative flex min-h-[46px] items-center gap-2 overflow-hidden rounded-[10px] bg-gold px-4 font-semibold tracking-[-0.006em] text-ink shadow-gold transition-[transform,box-shadow,background-color,color] duration-200 ease-brand hover:-translate-y-[1.5px] hover:bg-gold-dark hover:text-paper hover:shadow-gold-lg active:translate-y-0 sm:px-5 xl:px-6"
+              className="group relative flex min-h-[46px] items-center gap-2 overflow-hidden rounded-[10px] bg-gold px-4 font-semibold tracking-[-0.006em] text-ink shadow-gold transition-[transform,box-shadow,background-color,color] duration-200 ease-brand hover:-translate-y-[1.5px] hover:bg-gold-dark hover:text-ink hover:shadow-gold-lg active:translate-y-0 sm:px-5 xl:px-6"
             >
               <span
                 aria-hidden="true"
@@ -881,7 +877,7 @@ function NavItem({
               />
               <span
                 aria-hidden="true"
-                className="absolute inset-0 bg-[linear-gradient(180deg,transparent_45%,rgba(20,26,24,0.28))] opacity-0 transition-opacity duration-500 ease-brand group-hover:opacity-100"
+                className="absolute inset-0 bg-[linear-gradient(180deg,transparent_45%,rgba(8,38,42,0.28))] opacity-0 transition-opacity duration-500 ease-brand group-hover:opacity-100"
               />
             </div>
             <p className="mt-3 mb-3 font-display text-[18px] leading-[1.22] tracking-[-0.016em] xl:text-[19px]">
@@ -892,7 +888,7 @@ function NavItem({
               {feature.donate && (
                 <Link
                   to={feature.donate.to}
-                  className="inline-flex min-h-[40px] items-center gap-2 rounded-[10px] bg-gold px-4 text-[14.5px] font-semibold text-ink shadow-gold transition-[transform,background-color,color] duration-200 ease-brand hover:-translate-y-px hover:bg-gold-dark hover:text-paper"
+                  className="inline-flex min-h-[40px] items-center gap-2 rounded-[10px] bg-gold px-4 text-[14.5px] font-semibold text-ink shadow-gold transition-[transform,background-color,color] duration-200 ease-brand hover:-translate-y-px hover:bg-gold-dark hover:text-ink"
                 >
                   <HandHeart className="h-4 w-4 shrink-0" />
                   {feature.donate.label}

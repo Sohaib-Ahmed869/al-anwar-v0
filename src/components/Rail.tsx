@@ -296,7 +296,7 @@ export default function Rail<T>({
 
      A mask cannot darken anything. All it can do is take the card away and
      leave whatever is behind it, and what is behind it is `--color-ground` at
-     #F5F5F2 — so over the dark end of a photograph the ramp reads as a white
+     #FFF5E4 — so over the dark end of a photograph the ramp reads as a white
      glow, and there is no version of a mask that reads as a shadow instead.
      Painting a dark gradient over the ends would give a shadow, and would be
      wrong for a different reason: two grey smudges at the ends of a rail on an

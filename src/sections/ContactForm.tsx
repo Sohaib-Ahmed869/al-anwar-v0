@@ -2,7 +2,6 @@ import { useId, useRef, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 
 import { ArrowRight, Check, Copy, Mail, MapPin, Phone, Send } from '../components/icons'
-import { MasjidMark } from '../components/Ornament'
 import Reveal from '../components/Reveal'
 import SectionHead, { BREAKOUT, SECTION_Y } from '../components/SectionHead'
 import {
@@ -734,21 +733,20 @@ function Tally({ done }: { done: number }) {
    button lighting up.
 
    On ink the accent is green-pale rather than green: the brand green is a dark
-   colour, and at 4.5:1 against #151a18 it is not one anybody could read a link
+   colour, and at 4.5:1 against #08262a it is not one anybody could read a link
    in. Gold is not an option — it belongs to the give action and the focus ring,
    and to nothing else on this site.
 --------------------------------------------------------------------------- */
 function Panel() {
   return (
-    <div className="relative isolate overflow-hidden rounded-2xl bg-teal text-paper shadow-card">
+    <div className="relative isolate overflow-hidden rounded-2xl bg-grad-lagoon-x text-paper shadow-card">
       {/* The logo's masjid, large and faint, standing in the corner. */}
-      <MasjidMark className="pointer-events-none absolute -right-[6%] -bottom-[8%] -z-10 size-[clamp(200px,22vw,320px)] text-paper/[0.07]" />
 
       <div className="p-s3 sm:p-s4 lg:p-[clamp(32px,3vw,44px)]">
         <p className="font-script text-[clamp(26px,2.4vw,34px)] leading-none text-gold-pale">
           {CONTACT.reach.eyebrow}
         </p>
-        <h2 className="mt-2 font-display text-[clamp(24px,2.4vw,32px)] leading-[1.12] font-semibold tracking-[-0.02em] text-balance">
+        <h2 className="mt-2 font-display text-[clamp(24px,2.4vw,32px)] leading-[1.12] tracking-[-0.02em] text-balance">
           {CONTACT.reach.title}
         </h2>
 

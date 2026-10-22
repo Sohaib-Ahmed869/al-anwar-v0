@@ -1,3 +1,4 @@
+import { HeroBrand } from '../components/Brand'
 import { Link } from 'react-router-dom'
 
 import type { GiveAmount } from '../components/GiveModule'
@@ -59,8 +60,9 @@ export default function AppealBand({ appeal, ladder }: { appeal: Appeal; ladder:
           className="absolute inset-0 h-full w-full object-cover"
           style={{ objectPosition: a.position }}
         />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(21,26,24,0.74)_0%,rgba(21,26,24,0.34)_26%,rgba(21,26,24,0.46)_60%,rgba(21,26,24,0.9)_100%)]" />
-        <div className="absolute inset-0 hidden bg-[linear-gradient(95deg,rgba(21,26,24,0.84)_0%,rgba(21,26,24,0.42)_44%,transparent_72%)] md:block" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,38,42,0.74)_0%,rgba(8,38,42,0.34)_26%,rgba(8,38,42,0.46)_60%,rgba(8,38,42,0.9)_100%)]" />
+        <div className="absolute inset-0 hidden bg-[linear-gradient(95deg,rgba(8,38,42,0.84)_0%,rgba(8,38,42,0.42)_44%,transparent_72%)] md:block" />
+        <HeroBrand />
       </div>
 
       <div className="relative flex min-h-[calc(80svh-var(--strip-h))] flex-col pt-[var(--header-h)]">
@@ -84,7 +86,7 @@ export default function AppealBand({ appeal, ladder }: { appeal: Appeal; ladder:
             </p>
             <h1
               id="appeal-title"
-              className="mt-s2 font-display text-[clamp(34px,4.6vw,60px)] leading-[1.04] font-semibold tracking-[-0.022em] text-paper [text-wrap:balance] [text-shadow:0_2px_30px_rgba(0,0,0,0.5)]"
+              className="mt-s2 font-display text-[clamp(34px,4.6vw,60px)] leading-[1.04] tracking-[-0.022em] text-paper [text-wrap:balance] [text-shadow:0_2px_30px_rgba(0,0,0,0.5)]"
             >
               <Words text={appeal.title} play="load" delay={160} step={70} />
             </h1>

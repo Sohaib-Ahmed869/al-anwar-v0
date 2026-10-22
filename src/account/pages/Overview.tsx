@@ -108,14 +108,11 @@ function Hero({ d }: { d: OverviewData }) {
   const change = d.totals.lastFy > 0 ? d.totals.thisFy / d.totals.lastFy : null
 
   return (
-    <Card className="relative overflow-hidden bg-[#1d4a3e] text-white ring-0 shadow-card">
-      <div aria-hidden className="pointer-events-none absolute -top-24 -right-24 size-72 rounded-full bg-[radial-gradient(circle,rgba(255,255,255,.10),transparent_65%)]" />
-      <div aria-hidden className="pointer-events-none absolute right-6 bottom-5 hidden text-white/[.06] sm:block">
-        <HandHeart className="size-40" strokeWidth={1} />
-      </div>
+    <Card className="relative isolate overflow-hidden bg-grad-deep-x text-white ring-0 shadow-card">
+      {/* the donor's year, on the brand's deep gradient (styleguide p. 15) */}
       <div className="relative px-5 py-6 sm:px-8 sm:py-8">
-        <p className="text-[13px] font-medium text-white/70">This financial year · {fyLabel(d.fy)}</p>
-        <p className="nums mt-2 text-[40px] leading-none font-semibold tracking-[-0.03em] sm:text-[52px]">{formatMoney(d.totals.thisFy)}</p>
+        <p className="text-[12px] font-medium tracking-[0.2em] text-gold uppercase">This financial year · {fyLabel(d.fy)}</p>
+        <p className="nums mt-2 font-display text-[40px] leading-none sm:text-[56px]">{formatMoney(d.totals.thisFy)}</p>
         <p className="mt-3 text-[14px] text-white/80">
           {thisYear ? `${plural(thisYear.count, 'donation')} since 1 July ${d.fy - 1}` : `Nothing yet since 1 July ${d.fy - 1}`}
           {d.totals.lastFy > 0 && (
@@ -138,14 +135,14 @@ function Hero({ d }: { d: OverviewData }) {
                   : 'Donations made by 30 June count towards this year’s tax return. Your statement so far is ready to check.'}
               </p>
             </div>
-            <Link to={`/account/statement/${statementFy}`} className={buttonClass('secondary', 'md', 'shrink-0 bg-white text-[#1d4a3e] ring-0 hover:bg-white/90')}>
+            <Link to={`/account/statement/${statementFy}`} className={buttonClass('secondary', 'md', 'shrink-0 bg-white text-[#00454b] ring-0 hover:bg-white/90')}>
               Open my statement
             </Link>
           </div>
         ) : (
           <div className="mt-6 flex flex-wrap gap-2">
             {statementYear && (
-              <Link to={`/account/statement/${statementFy}`} className={buttonClass('secondary', 'md', 'bg-white text-[#1d4a3e] ring-0 hover:bg-white/90')}>
+              <Link to={`/account/statement/${statementFy}`} className={buttonClass('secondary', 'md', 'bg-white text-[#00454b] ring-0 hover:bg-white/90')}>
                 <FileText /> {fyLabel(statementFy)} tax statement
               </Link>
             )}

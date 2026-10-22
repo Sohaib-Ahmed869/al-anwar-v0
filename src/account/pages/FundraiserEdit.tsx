@@ -208,7 +208,7 @@ export default function FundraiserEdit() {
                             onClick={() => set({ appeal: a.id })}
                             className={cn(
                               'flex items-center gap-3 rounded-xl p-2.5 text-left ring-1 ring-inset transition-all',
-                              on ? 'bg-green-50 ring-2 ring-green' : 'bg-paper ring-line hover:ring-[#c9c9c2]',
+                              on ? 'bg-green-50 ring-2 ring-green' : 'bg-paper ring-line hover:ring-[#dccdb2]',
                             )}
                           >
                             {a.image ? (
@@ -393,7 +393,7 @@ function Preview({ form, appeal, cents, raised, ownerName }: { form: Form; appea
           <span className="nums text-[12.5px] text-text-3">of {formatMoney(cents)}</span>
         </div>
         <Progress value={raised} max={cents || 1} className="mt-2" size="sm" />
-        <div className="mt-4 h-10 rounded-[10px] bg-gold/90 text-center text-[14px] leading-10 font-medium text-white" aria-hidden>
+        <div className="mt-4 h-10 rounded-[10px] bg-gold/90 text-center text-[14px] leading-10 font-medium text-ink" aria-hidden>
           Give
         </div>
       </div>

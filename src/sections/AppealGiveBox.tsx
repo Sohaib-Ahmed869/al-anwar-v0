@@ -106,7 +106,7 @@ export default function AppealGiveBox({
                   on ? 'bg-paper text-ink' : 'bg-paper/10 text-paper hover:bg-paper/20'
                 }`}
               >
-                <span className="nums font-display text-[22px] leading-none font-semibold">
+                <span className="nums font-display text-[22px] leading-none">
                   {money(a.value)}
                 </span>
                 {a.label && (
@@ -154,7 +154,7 @@ export default function AppealGiveBox({
 
         <Link
           to={to}
-          className="group mt-s3 flex min-h-[54px] w-full items-center justify-center gap-2 rounded-[12px] bg-gold px-6 text-[16px] font-semibold text-ink transition-colors duration-200 ease-brand hover:bg-gold-dark hover:text-paper"
+          className="group mt-s3 flex min-h-[54px] w-full items-center justify-center gap-2 rounded-[12px] bg-gold px-6 text-[16px] font-semibold text-ink transition-colors duration-200 ease-brand hover:bg-gold-dark hover:text-ink"
         >
           Give <span className="nums">{money(amount)}</span>
           <ArrowRight className="h-4 w-4 transition-transform duration-200 ease-brand group-hover:translate-x-0.5" />
@@ -186,7 +186,7 @@ export default function AppealGiveBox({
             <Link
               to={to}
               tabIndex={bar ? undefined : -1}
-              className="group inline-flex min-h-[48px] shrink-0 items-center gap-2 rounded-[12px] bg-gold px-5 text-[15px] font-semibold text-ink transition-colors duration-200 ease-brand hover:bg-gold-dark hover:text-paper"
+              className="group inline-flex min-h-[48px] shrink-0 items-center gap-2 rounded-[12px] bg-gold px-5 text-[15px] font-semibold text-ink transition-colors duration-200 ease-brand hover:bg-gold-dark hover:text-ink"
             >
               Give <span className="nums">{money(amount)}</span>
               <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 ease-brand group-hover:translate-x-0.5" />

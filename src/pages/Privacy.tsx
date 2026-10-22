@@ -27,8 +27,8 @@ import { ORG, LEGAL_UPDATED } from '../components/org-data'
      the letter    Letter.tsx in the footer: an email address only.
      browser       one localStorage item, the emergency banner dismissal, kept
                    seven days (Header.tsx). No cookies, no analytics.
-     third parties Google Fonts from index.html on every page; the OpenStreetMap
-                   preview in the footer, mounted on hover only; Facebook and
+     third parties the OpenStreetMap preview in the footer, mounted on hover
+                   only; Facebook and
                    Instagram embeds on Get involved, mounted on a button press
                    only (social-data.ts).
 
@@ -201,9 +201,6 @@ const SECTIONS: LegalSection[] = [
           company sees your IP address, like any site you visit. Here is every one:
         </p>
         <ul>
-          <li>
-            <strong>Google Fonts.</strong> The typefaces on every page are loaded from Google.
-          </li>
           <li>
             <strong>OpenStreetMap.</strong> The small map in the footer loads only when you point at
             our address, not before.

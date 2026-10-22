@@ -19,10 +19,10 @@ import { Spinner } from './Spinner'
 
 const VARIANTS = {
   primary:
-    'bg-green text-white shadow-[inset_0_1px_0_rgba(255,255,255,.12),0_1px_2px_rgba(20,26,24,.18)] hover:bg-green-600 active:bg-green-600',
-  give: 'bg-gold text-white shadow-gold hover:bg-gold-dark hover:shadow-gold-lg active:bg-gold-dark',
+    'bg-green text-white shadow-[inset_0_1px_0_rgba(255,255,255,.12),0_1px_2px_rgba(8,38,42,.18)] hover:bg-green-600 active:bg-green-600',
+  give: 'bg-gold text-ink shadow-gold hover:bg-gold-dark hover:shadow-gold-lg active:bg-gold-dark',
   secondary:
-    'bg-paper text-text ring-1 ring-inset ring-line shadow-[0_1px_2px_rgba(20,26,24,.05)] hover:bg-paper-2 hover:ring-[#cfcfc8] active:bg-sand',
+    'bg-paper text-text ring-1 ring-inset ring-line shadow-[0_1px_2px_rgba(8,38,42,.05)] hover:bg-paper-2 hover:ring-[#dccdb2] active:bg-sand',
   ghost: 'text-text-2 hover:bg-ink/[.05] hover:text-text active:bg-ink/[.08]',
   danger: 'bg-red text-white hover:bg-[#8e3017] active:bg-[#8e3017]',
   subtle: 'bg-green-50 text-green hover:bg-green-pale active:bg-green-pale',

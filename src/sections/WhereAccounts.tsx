@@ -57,7 +57,7 @@ export default function WhereAccounts() {
                     className="grid gap-x-s3 gap-y-2 border-t border-line py-s3 sm:grid-cols-[minmax(0,2fr)_minmax(0,7fr)_minmax(0,3fr)] sm:items-center"
                   >
                     <div>
-                      <p className="nums font-display text-[clamp(24px,2.2vw,30px)] leading-none font-semibold tracking-[-0.02em]">
+                      <p className="nums font-display text-[clamp(24px,2.2vw,30px)] leading-none tracking-[-0.02em]">
                         {y.fy}
                       </p>
                       <p className="nums mt-1 text-[13px] text-text-3">Income {money(y.income)}</p>
@@ -91,7 +91,7 @@ export default function WhereAccounts() {
                     </div>
 
                     <div className="sm:text-right">
-                      <p className="nums font-display text-[clamp(22px,2vw,28px)] leading-none font-bold tracking-[-0.02em] text-teal">
+                      <p className="nums font-display text-[clamp(22px,2vw,28px)] leading-none tracking-[-0.02em] text-teal">
                         {sent ? `${share(y)}%` : 'n/a'}
                       </p>
                       <p className="mt-1 text-[12.5px] text-text-3">

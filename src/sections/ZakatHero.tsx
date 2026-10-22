@@ -1,3 +1,4 @@
+import { HeroBrand } from '../components/Brand'
 import { Link } from 'react-router-dom'
 
 import { Words, useHeroDepth } from '../components/Reveal'
@@ -86,12 +87,13 @@ export default function ZakatHero() {
           hands, so the whole frame is dimmed instead. */}
       <div
         aria-hidden="true"
-        className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(21,26,24,0.55)_0%,transparent_24%,transparent_62%,rgba(21,26,24,0.85)_100%)]"
+        className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(8,38,42,0.55)_0%,transparent_24%,transparent_62%,rgba(8,38,42,0.85)_100%)]"
       />
       <div
         aria-hidden="true"
-        className="absolute inset-0 -z-10 bg-ink/45 md:bg-[linear-gradient(90deg,rgba(21,26,24,0.72)_0%,rgba(21,26,24,0.25)_38%,transparent_50%,rgba(21,26,24,0.45)_62%,rgba(21,26,24,0.85)_100%)]"
+        className="absolute inset-0 -z-10 bg-ink/45 md:bg-[linear-gradient(90deg,rgba(8,38,42,0.72)_0%,rgba(8,38,42,0.25)_38%,transparent_50%,rgba(8,38,42,0.45)_62%,rgba(8,38,42,0.85)_100%)]"
       />
+      <HeroBrand z="-z-10" />
 
       <div className="relative flex min-h-[calc(100svh-var(--strip-h))] items-center pt-[var(--header-h)] pb-[clamp(56px,9vh,96px)]">
         <div className="gutter mx-auto w-full max-w-page">
@@ -108,7 +110,7 @@ export default function ZakatHero() {
               </p>
               <h1
                 id="zakat-title"
-                className="mt-s2 font-display text-[clamp(31px,4.2vw,54px)] leading-[1.05] font-semibold tracking-[-0.022em] text-paper [text-wrap:balance] [text-shadow:0_2px_30px_rgba(0,0,0,0.5)]"
+                className="mt-s2 font-display text-[clamp(31px,4.2vw,54px)] leading-[1.05] tracking-[-0.022em] text-paper [text-wrap:balance] [text-shadow:0_2px_30px_rgba(0,0,0,0.5)]"
               >
                 <Words text="Your zakat, delivered in full." play="load" delay={140} step={70} />
               </h1>
@@ -127,7 +129,7 @@ export default function ZakatHero() {
                 {/* Gold, because this one takes money. */}
                 <Link
                   to="/give?designation=zakat"
-                  className="group relative inline-flex min-h-[54px] items-center justify-center gap-2.5 overflow-hidden rounded-[13px] bg-gold px-7 text-[16px] font-semibold tracking-[-0.008em] text-ink shadow-gold transition-[transform,box-shadow,background-color,color] duration-200 ease-brand hover:-translate-y-[1.5px] hover:bg-gold-dark hover:text-paper hover:shadow-gold-lg active:translate-y-0"
+                  className="group relative inline-flex min-h-[54px] items-center justify-center gap-2.5 overflow-hidden rounded-[13px] bg-gold px-7 text-[16px] font-semibold tracking-[-0.008em] text-ink shadow-gold transition-[transform,box-shadow,background-color,color] duration-200 ease-brand hover:-translate-y-[1.5px] hover:bg-gold-dark hover:text-ink hover:shadow-gold-lg active:translate-y-0"
                 >
                   <HandHeart className="h-[18px] w-[18px] shrink-0 transition-transform duration-300 ease-brand group-hover:scale-[1.12]" />
                   Pay your zakat
@@ -176,7 +178,7 @@ export default function ZakatHero() {
       {/* the gold-to-green hairline every hero on this site closes on */}
       <div
         aria-hidden="true"
-        className="absolute inset-x-0 bottom-0 h-px bg-[linear-gradient(90deg,transparent,rgba(200,155,44,.5),rgba(47,107,90,.5),transparent)]"
+        className="absolute inset-x-0 bottom-0 h-px bg-[linear-gradient(90deg,transparent,rgba(242,193,74,.5),rgba(0,103,112,.5),transparent)]"
       />
     </section>
   )

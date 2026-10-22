@@ -154,7 +154,7 @@ export function BankLineEditor({
                         onClick={() => setDonor({ id: c.donor, firstName: c.donorName, lastName: '', email: '', number: c.number })}
                         className={cn(
                           'rounded-xl px-2.5 py-1.5 text-left ring-1 ring-inset transition-colors',
-                          on ? 'bg-green-50 ring-2 ring-green' : 'bg-paper ring-line hover:ring-[#c9c9c2]',
+                          on ? 'bg-green-50 ring-2 ring-green' : 'bg-paper ring-line hover:ring-[#dccdb2]',
                         )}
                       >
                         <BankDonorChip name={c.donorName} number={c.number} size="xs" link={false} />

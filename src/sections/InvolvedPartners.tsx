@@ -2,7 +2,6 @@ import { Link } from 'react-router-dom'
 
 import Reveal from '../components/Reveal'
 import SectionHead, { BREAKOUT, SECTION_Y } from '../components/SectionHead'
-import { MasjidMark } from '../components/Ornament'
 import { ArrowRight, Check } from '../components/icons'
 import { PARTNERS } from '../components/involved-data'
 
@@ -39,7 +38,7 @@ export default function InvolvedPartners() {
               <p className="font-script text-[clamp(26px,2.4vw,36px)] leading-none text-green">
                 {PARTNERS.give.kind}
               </p>
-              <h3 className="mt-2 font-display text-[clamp(24px,2.3vw,32px)] leading-[1.1] font-semibold tracking-[-0.02em] text-balance">
+              <h3 className="mt-2 font-display text-[clamp(24px,2.3vw,32px)] leading-[1.1] tracking-[-0.02em] text-balance">
                 {PARTNERS.give.title}
               </h3>
               <ul className="mt-s4 grid gap-s2">
@@ -47,7 +46,7 @@ export default function InvolvedPartners() {
                   <li key={item} className="flex gap-s2 border-t border-line pt-s2">
                     <span
                       aria-hidden="true"
-                      className="nums mt-px w-6 shrink-0 font-display text-[15px] font-semibold text-teal"
+                      className="nums mt-px w-6 shrink-0 font-display text-[15px] text-teal"
                     >
                       0{i + 1}
                     </span>
@@ -59,12 +58,11 @@ export default function InvolvedPartners() {
           </Reveal>
 
           <Reveal variant="clip" delay={90} className="h-full">
-            <div className="relative isolate flex h-full flex-col overflow-hidden rounded-2xl bg-teal p-s3 text-paper sm:p-s4 lg:p-[clamp(32px,3.2vw,52px)]">
-              <MasjidMark className="pointer-events-none absolute -right-[6%] -bottom-[10%] -z-10 size-[clamp(200px,22vw,320px)] text-paper/[0.07]" />
+            <div className="relative isolate flex h-full flex-col overflow-hidden rounded-2xl bg-grad-lagoon-x p-s3 text-paper sm:p-s4 lg:p-[clamp(32px,3.2vw,52px)]">
               <p className="font-script text-[clamp(26px,2.4vw,36px)] leading-none text-gold-pale">
                 {PARTNERS.get.kind}
               </p>
-              <h3 className="mt-2 font-display text-[clamp(24px,2.3vw,32px)] leading-[1.1] font-semibold tracking-[-0.02em] text-balance">
+              <h3 className="mt-2 font-display text-[clamp(24px,2.3vw,32px)] leading-[1.1] tracking-[-0.02em] text-balance">
                 {PARTNERS.get.title}
               </h3>
               <ul className="mt-s4 grid gap-s2">

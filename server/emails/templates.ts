@@ -199,7 +199,7 @@ export function otpEmail(code: string): Email {
       heading: 'Your sign-in code',
       body: [
         p('Enter this code to open your account. It works for the next 10 minutes.'),
-        `<div style="margin:6px 0 22px;font:600 34px/1 'SFMono-Regular',Menlo,Consolas,monospace;letter-spacing:.3em;color:#191C1B;">${esc(c)}</div>`,
+        `<div style="margin:6px 0 22px;font:600 34px/1 'SFMono-Regular',Menlo,Consolas,monospace;letter-spacing:.3em;color:#08262A;">${esc(c)}</div>`,
         muted('If you did not ask for this, you can ignore it — nobody can get in without the code.'),
       ].join(''),
     })

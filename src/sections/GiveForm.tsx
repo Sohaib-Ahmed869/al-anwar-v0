@@ -900,7 +900,7 @@ function GiveFormReady({ fundraiser }: { fundraiser: Fundraiser | undefined }) {
                       type="button"
                       onClick={pay}
                       disabled={status.kind === 'busy'}
-                      className="group relative mt-s2 flex min-h-[60px] w-full items-center justify-center gap-2.5 overflow-hidden rounded-[14px] bg-gold px-6 text-[16.5px] font-semibold tracking-[-0.006em] text-ink shadow-gold transition-[transform,box-shadow,background-color,color,opacity] duration-200 ease-brand hover:-translate-y-[1.5px] hover:bg-gold-dark hover:text-paper hover:shadow-gold-lg active:translate-y-0 disabled:pointer-events-none disabled:opacity-70"
+                      className="group relative mt-s2 flex min-h-[60px] w-full items-center justify-center gap-2.5 overflow-hidden rounded-[14px] bg-gold px-6 text-[16.5px] font-semibold tracking-[-0.006em] text-ink shadow-gold transition-[transform,box-shadow,background-color,color,opacity] duration-200 ease-brand hover:-translate-y-[1.5px] hover:bg-gold-dark hover:text-ink hover:shadow-gold-lg active:translate-y-0 disabled:pointer-events-none disabled:opacity-70"
                     >
                       <span
                         aria-hidden="true"

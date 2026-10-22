@@ -14,7 +14,7 @@ import { cn } from './cn'
 const chipClass = (active: boolean) =>
   cn(
     'inline-flex h-9 items-center gap-1.5 rounded-[10px] px-3 text-[13px] font-medium whitespace-nowrap transition-colors pointer-coarse:h-10',
-    active ? 'bg-green-50 text-green ring-1 ring-green/25 ring-inset' : 'bg-paper text-text-2 ring-1 ring-line ring-inset hover:text-text hover:ring-[#cdcdc6]',
+    active ? 'bg-green-50 text-green ring-1 ring-green/25 ring-inset' : 'bg-paper text-text-2 ring-1 ring-line ring-inset hover:text-text hover:ring-[#dccdb2]',
   )
 
 export function FilterChip<T extends string>({
@@ -70,7 +70,7 @@ export function FilterChip<T extends string>({
               }}
               className="flex h-9 w-full items-center gap-2.5 rounded-lg px-2.5 text-left text-[13.5px] hover:bg-ink/[.05]"
             >
-              <span className={cn('grid size-4 place-items-center rounded-[4px] ring-1 ring-inset', on ? 'bg-green ring-green text-white' : 'ring-[#c9c9c2]')}>
+              <span className={cn('grid size-4 place-items-center rounded-[4px] ring-1 ring-inset', on ? 'bg-green ring-green text-white' : 'ring-[#dccdb2]')}>
                 {on && <Check className="size-3" strokeWidth={3} />}
               </span>
               <span className="flex-1 truncate">{o.label}</span>
