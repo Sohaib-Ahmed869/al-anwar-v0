@@ -4,6 +4,7 @@ import Header from './Header'
 import Footer from './Footer'
 import ScrollBar from './ScrollBar'
 import HelpChat from './HelpChat'
+import BackToTop from './BackToTop'
 import RecentGifts from './RecentGifts'
 
 /* KEEP_SCROLL and the scroll-to-top on navigation moved to ScrollManager.tsx,
@@ -52,6 +53,7 @@ export default function Layout() {
           Layout, so neither appears there */}
       <RecentGifts />
       <HelpChat />
+      <BackToTop />
     </div>
   )
 }

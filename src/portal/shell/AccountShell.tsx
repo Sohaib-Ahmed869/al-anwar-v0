@@ -1,4 +1,5 @@
 import { Logo } from '../../components/Brand'
+import BackToTop from '../../components/BackToTop'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
 import { HandHeart, Home, LogOut, Megaphone, Receipt, Repeat, UserRound, ExternalLink } from 'lucide-react'
@@ -104,6 +105,7 @@ export function AccountShell() {
           <Outlet />
         </div>
       </main>
+      <BackToTop place="portal" />
 
       <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-paper/95 backdrop-blur-md pb-safe lg:hidden" aria-label="Your account">
         <ul className="mx-auto flex max-w-md">

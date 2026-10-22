@@ -1,4 +1,5 @@
 import { useEffect, useState, type ComponentType, type ReactNode } from 'react'
+import BackToTop from '../../components/BackToTop'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Drawer } from 'vaul'
@@ -331,6 +332,7 @@ export function StaffShell({ portal, groups, badgesQuery, actions = [], searchPa
           </div>
         </div>
       </main>
+      <BackToTop place="portal" />
 
       {/* ---------- phone bottom bar ---------- */}
       <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-paper/95 backdrop-blur-md pb-safe lg:hidden" aria-label="Quick navigation">
