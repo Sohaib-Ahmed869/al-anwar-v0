@@ -9,7 +9,7 @@
   "rewrites": [
     {
       "source": "/api/:path*", 
-      "destination": "https://al-anwaar.onrender.com/api/:path*"
+      "destination": "https://api.alanwar.charities.ltd/api/:path*"
     },
     {
       "source": "/((?!api/).*)",

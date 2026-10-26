@@ -48,7 +48,7 @@ slash (`admin/donors`), because Git Bash rewrites `/admin` into a Windows path.
 To verify a change: `npm run typecheck`, `npm test`, then `node scripts/sweep.mjs`
 while `npm run dev` is running (it should report "74/74 clean"). API tests use
 `tests/helpers/server.ts` (`startApi()`, signed-in `Client`s). Tests run with the
-process in UTC, as on Render, so date code that leans on the machine's zone fails there.
+process in UTC, as in the production container, so date code that leans on the machine's zone fails there.
 Set `STRICT_LIMITS=1` in a test that checks rate limits (otherwise they are 20× looser
 outside production).
 
@@ -175,7 +175,7 @@ and email checks. Simulated gifts are then marked and never get a real receipt, 
 with no SMTP an email is recorded as failed rather than "sent".
 
 Other variables:
-- `ORIGIN_SECRET`: when set (on Render and Vercel both), `/api` answers only requests
+- `ORIGIN_SECRET`: when set (on the server and Vercel both), `/api` answers only requests
   carrying it in `X-Origin-Auth`, which `middleware.ts` (Vercel Routing Middleware)
   adds. The health checks and the Stripe webhook are exempt. `API_ORIGIN` on Vercel
   gives the middleware the API's address.
@@ -191,34 +191,37 @@ Other variables:
 - `RUN_JOBS=0`: no background jobs in this process.
 - `S3_BUCKET`: without it, uploads go to `.data/uploads`, which is not durable on most
   hosts. Google and Facebook donor sign-in are optional.
-- `TZ` is pinned to Australia/Sydney by the server itself; `render.yaml` sets it too.
+- `TZ` is pinned to Australia/Sydney by the server itself (the container's clock is UTC).
 
-Health: `/api/health` returns 503 when MongoDB doesn't answer a ping (and Render
-restarts the instance), and reports each job's last success. `/api/live` only says the
+Health: `/api/health` returns 503 when MongoDB doesn't answer a ping, and reports each job's last success. `/api/live` only says the
 process is up. Retention (`server/jobs/retention.ts`, daily) strips email bodies after
 90 days and deletes enquiries closed more than two years ago. The privacy page promises
 exactly that, so change them together.
 
-**Hosting (25 September 2026):**
-- **API on Render**, set up in `render.yaml` as the service `al-anwaar-api` on the
-  Starter plan, with a 1 GB disk at `/var/data` set as `DATA_DIR`. The build runs
-  `npm run typecheck`, so a type error stops the deploy.
+**Hosting (26 October 2026, staging):**
+- **API on AWS EC2** in Sydney: one `t4g.medium` (Arm) running Ubuntu 26.04, behind the
+  Elastic IP `3.106.148.40` at `https://api.alanwar.charities.ltd` (a test domain, to be
+  replaced). `compose.yaml` runs the API (`Dockerfile`) and MongoDB as containers; Nginx
+  and Certbot on the host terminate HTTPS and forward to `127.0.0.1:4600`. The server's
+  `.env` sits next to `compose.yaml` in `~/al-anwaar`. Redeploy: `git pull`, then
+  `docker compose up -d --build`. Backups are daily EBS snapshots (volumes tagged
+  `Backup=daily`). The step-by-step guide is the "Al-Anwaar Backend on EC2" doc.
+- **MongoDB is 7.0, not 8.x:** 8.x refuses to start on kernels 6.19 to 7.0.13
+  (SERVER-121912), which Ubuntu 26.04 ships. Move to 8.x once `uname -r` on the server
+  reports 7.0.14 or later.
 - **Site on Vercel**, set up in `vercel.json` (security headers, SPA fallback) and
   `middleware.ts` (forwards `/api/*` with the origin secret). Both forward to
-  `https://al-anwaar.onrender.com`; `vercel.json`'s rewrite is the fallback.
-- **UNCONFIRMED (finding H7):** `render.yaml` names the service `al-anwaar-api`, but
-  the forwarding goes to `al-anwaar.onrender.com`. Someone with the Render dashboard
-  must confirm which is live and make `render.yaml`, `vercel.json` and `middleware.ts`
-  agree (a unit test checks the last two). Syncing the Blueprint under the wrong name
-  creates a second service.
-- `npm start` runs the server through `tsx`, which is a dev dependency, so the
-  production install has to keep dev dependencies (`npm ci --include=dev`).
+  `https://api.alanwar.charities.ltd`, and a unit test keeps the two in step;
+  `vercel.json`'s rewrite is the fallback. Change both when the API's domain changes.
+- `render.yaml` is from the earlier Render deploy and is no longer used.
+- The server runs through `tsx`, which is a dev dependency, so the image installs dev
+  dependencies (`npm ci --include=dev` in the `Dockerfile`).
 - Security headers (CSP, frame denial, HSTS) are in `vercel.json` and
   `server/security-headers.ts`, and a test keeps them identical. A new third party (a
   script, a font, an embed) has to be added to both, and to the privacy page.
 
 Because of the rewrite, the browser sees a single origin, so the `lax` session cookies
-work without CORS. `TRUST_PROXY=2` accounts for both proxies, and recorded IPs use
+work without CORS. `TRUST_PROXY=2` accounts for both proxies (Vercel, then Nginx), and recorded IPs use
 `req.ip`. `.vercelignore` keeps
 `server/` out of the Vercel upload. Don't add a top-level `api/` folder: Vercel would
 turn it into serverless functions that take over the `/api` paths from the rewrite. `SEED_DEMO=1` seeds the demo data into
@@ -228,5 +231,6 @@ uses the demo password (`demoLoginsLeft()` in `server/seed/seed.ts`), so going l
 fresh database. New staff passwords are checked against Have I Been Pwned in production
 (`server/lib/breached.ts`, `PWNED_CHECK`); a failed lookup accepts the password.
 
-The production shape is **one Node process** that serves `/api` and the built `dist/`.
-It needs a persistent process because of the timers, and a real MongoDB (Atlas).
+The production shape is **one Node process** serving `/api` (it can also serve the built
+`dist/`, but Vercel does that here). It needs a persistent process because of the timers,
+and a real MongoDB (here a container beside it).
