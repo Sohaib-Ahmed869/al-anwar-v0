@@ -1,0 +1,47 @@
+# ---------------------------------------------------------------------------
+# Production on one EC2 server: MongoDB and the API, with Nginx and Certbot on
+# the host in front (they terminate HTTPS and forward to 127.0.0.1:4600).
+#
+# MongoDB has no `ports:` on purpose. The API reaches it by name (mongo:27017)
+# on Compose's own network, and a port Docker publishes would skip the host's
+# firewall. The API's port is bound to 127.0.0.1 for the same reason: only
+# Nginx on this machine can reach it.
+#
+# Secrets come from .env next to this file (never committed). It also supplies
+# MONGO_ROOT_PASSWORD, which MongoDB reads only when its volume is first
+# created, so set it before the first `docker compose up`.
+#
+# The 30-second stop grace covers the API's own shutdown (8 s to finish
+# requests, 15 s for the job in hand), so a redeploy never cuts a charge short.
+# ---------------------------------------------------------------------------
+services:
+  mongo:
+    image: mongo:8.0
+    restart: unless-stopped
+    command: ["--wiredTigerCacheSizeGB", "1"]
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:?set MONGO_ROOT_PASSWORD in .env}
+    volumes:
+      - mongo-data:/data/db
+    logging:
+      options: { max-size: "10m", max-file: "3" }
+
+  api:
+    build: .
+    restart: unless-stopped
+    depends_on: [mongo]
+    env_file: .env
+    environment:
+      DATA_DIR: /data
+    ports:
+      - "127.0.0.1:4600:4600"
+    volumes:
+      - uploads:/data
+    stop_grace_period: 30s
+    logging:
+      options: { max-size: "10m", max-file: "3" }
+
+volumes:
+  mongo-data:
+  uploads:

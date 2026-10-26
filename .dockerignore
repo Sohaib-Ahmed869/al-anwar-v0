@@ -1,0 +1,16 @@
+# Kept out of the API image. .env above all: the server's secrets reach the
+# container through compose.yaml's env_file, never baked into an image layer.
+.env
+.env.*
+!.env.example
+.git
+node_modules
+.data
+dist
+docs
+test-results
+playwright-report
+blob-report
+coverage
+.playwright-mcp
+*.pdf
