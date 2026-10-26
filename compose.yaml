@@ -13,10 +13,14 @@
 #
 # The 30-second stop grace covers the API's own shutdown (8 s to finish
 # requests, 15 s for the job in hand), so a redeploy never cuts a charge short.
+#
+# MongoDB is 7.0, not 8.x: 8.x refuses to start on Linux kernels 6.19 to
+# 7.0.13 (SERVER-121912, a TCMalloc/rseq crash), which is what Ubuntu 26.04
+# ships. Move to 8.x once `uname -r` on the server reports 7.0.14 or later.
 # ---------------------------------------------------------------------------
 services:
   mongo:
-    image: mongo:8.0
+    image: mongo:7.0
     restart: unless-stopped
     command: ["--wiredTigerCacheSizeGB", "1"]
     environment:
